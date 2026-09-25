@@ -9,6 +9,9 @@ plutil -lint "$plist" >/dev/null
 [[ "$(/usr/libexec/PlistBuddy -c 'Print :Label' "$plist")" == 'org.netunstick.NetUnstick.helper' ]]
 [[ "$(/usr/libexec/PlistBuddy -c 'Print :MachServices:org.netunstick.NetUnstick.helper' "$plist")" == 'true' ]]
 file "$helper" | grep -q 'Mach-O 64-bit executable arm64'
+# The app and daemon must not depend on package frameworks outside the bundle.
+! otool -L "$bundle/Contents/MacOS/NetUnstick" | grep -q 'PackageProduct.framework'
+! otool -L "$helper" | grep -q 'PackageProduct.framework'
 # Source contract ties the listener to a Team ID and a fixed app identifier.
 grep -q 'setCodeSigningRequirement(requirement)' NetUnstickHelper/main.swift
 grep -q 'anchor apple generic' Packages/NetUnstickKit/Sources/NetUnstickRepair/Privileged/ClientIdentityPolicy.swift

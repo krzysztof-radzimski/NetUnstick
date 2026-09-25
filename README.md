@@ -13,6 +13,7 @@ Wymagane są Xcode i narzędzia wiersza poleceń Apple. Z katalogu repozytorium:
 ```sh
 xcodebuild -project NetUnstick.xcodeproj -scheme NetUnstick -configuration Debug -destination 'platform=macOS' -derivedDataPath DerivedData CODE_SIGNING_ALLOWED=NO build
 xcodebuild -project NetUnstick.xcodeproj -scheme NetUnstick -configuration Debug -destination 'platform=macOS,arch=arm64' -derivedDataPath DerivedData -only-testing:NetUnstickPresentationTests CODE_SIGNING_ALLOWED=NO test
+xcodebuild -project NetUnstick.xcodeproj -scheme NetUnstick -configuration Debug -destination 'platform=macOS,arch=arm64' -derivedDataPath /tmp/NetUnstick-UITests-DerivedData -parallel-testing-enabled NO -only-testing:NetUnstickUITests CODE_SIGNING_ALLOWED=YES test
 NetUnstick/TestSupport/check-helper-bundle.sh DerivedData/Build/Products/Debug/NetUnstick.app
 xcodebuild -project NetUnstick.xcodeproj -scheme NetUnstick -configuration Debug -showBuildSettings | rg MACOSX_DEPLOYMENT_TARGET
 cd Packages/NetUnstickKit && swift test
@@ -21,7 +22,7 @@ NETUNSTICK_READ_ONLY_SMOKE=1 swift test --filter HostDiagnosisSmokeTests
 NETUNSTICK_BONJOUR_LIVE=1 swift test --filter BonjourDiscoveryTests/testLocalAdvertiserHarness
 ```
 
-Schemat `NetUnstick` jest współdzielony. Smoke test uruchamia się osobno na macOS; obserwuje host bez zmian i zapisuje wyłącznie zredagowany JSON do `.build/netunstick-smoke-redacted.json` w katalogu pakietu. Brak VPN jest prawidłowym wynikiem. Testy `NetUnstickCore` sprawdzają kontrakty, redakcję, limity i błędy magazynu. Testy `NetUnstickNetwork` obejmują parsery, decyzję VPN, procesy, prywatność oraz tablice decyzji diagnostycznych. Smoke test diagnozy uruchamia aktualny kolektor i checki na hoście; aktywny VPN lub brak internetu dają wynik inconclusive/skipped. `NetUnstickRepair` testuje odmowy i mapowanie odpowiedzi helpera. Build `CODE_SIGNING_ALLOWED=NO` weryfikuje kompilację i pakowanie, ale nie pozwala zarejestrować daemona. Rzeczywiste użycie wymaga podpisania aplikacji i helpera jednym Apple Team ID oraz zatwierdzenia daemona przez administratora w Elementach logowania.
+Schemat `NetUnstick` jest współdzielony. Smoke test uruchamia się osobno na macOS; obserwuje host bez zmian i zapisuje wyłącznie zredagowany JSON do `.build/netunstick-smoke-redacted.json` w katalogu pakietu. Brak VPN jest prawidłowym wynikiem. Testy `NetUnstickCore` sprawdzają kontrakty, redakcję, limity i błędy magazynu. Testy `NetUnstickNetwork` obejmują parsery, decyzję VPN, procesy, prywatność oraz tablice decyzji diagnostycznych. Smoke test diagnozy uruchamia aktualny kolektor i checki na hoście; aktywny VPN lub brak internetu dają wynik inconclusive/skipped. `NetUnstickRepair` testuje odmowy i mapowanie odpowiedzi helpera. Produkty lokalnego pakietu Swift są linkowane statycznie, a skrypt pakowania sprawdza brak zależności od frameworków pakietu poza bundlem. Testy UI wymagają aktywnej sesji graficznej i zgody systemu na automatyzację; runner jest podpisywany lokalnie ad hoc. Build `CODE_SIGNING_ALLOWED=NO` weryfikuje kompilację i pakowanie, ale nie pozwala zarejestrować daemona. Rzeczywiste użycie wymaga podpisania aplikacji i helpera jednym Apple Team ID oraz zatwierdzenia daemona przez administratora w Elementach logowania.
 
 ## Odczyt sieci i ograniczenia
 
