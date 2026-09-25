@@ -1,7 +1,7 @@
 import Foundation
 
 public enum EvidenceKey: String, Codable, Sendable, CaseIterable {
-    case networkStatus, vpnStatus, checkStatus, interfaceType, count, errorCode
+    case networkStatus, vpnStatus, checkStatus, interfaceType, count, airplayCount, raopCount, errorCode
 }
 
 public enum PublicStatus: String, Codable, Sendable {
@@ -35,7 +35,7 @@ public struct SafeEvidence: Codable, Sendable, Equatable {
                 throw DecodingError.dataCorruptedError(in: c, debugDescription: "Unknown evidence key")
             }
             switch key {
-            case .count:
+            case .count, .airplayCount, .raopCount:
                 guard let number = Int(value), number >= 0 else { throw DecodingError.dataCorruptedError(in: c, debugDescription: "Invalid count") }
                 checked[key] = String(number)
             case .interfaceType:
@@ -66,6 +66,10 @@ public enum EvidenceSanitizer {
             case (.networkStatus, .status(let status)), (.vpnStatus, .status(let status)), (.checkStatus, .status(let status)):
                 safe[key] = status.rawValue
             case (.count, .count(let count)) where count >= 0:
+                safe[key] = String(count)
+            case (.airplayCount, .count(let count)) where count >= 0:
+                safe[key] = String(count)
+            case (.raopCount, .count(let count)) where count >= 0:
                 safe[key] = String(count)
             case (.interfaceType, .interfaceType(let type)):
                 safe[key] = type.rawValue

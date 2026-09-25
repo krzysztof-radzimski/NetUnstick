@@ -6,6 +6,9 @@ private struct DiagnosisFixtureCollector: NetworkStateCollecting {
     let snapshot: RawNetworkSnapshot
     func collect() async -> RawNetworkSnapshot { snapshot }
 }
+private struct DiagnosisFixedBonjourBrowser: BonjourBrowsing {
+    func browse(_ service: BonjourService, timeout: Duration) async -> BonjourObservation { .init(count: 0, reason: .noServices) }
+}
 private struct DiagnosisFixedProbe: NetworkConnectivityProbing {
     func resolveFixedName() async -> ProbeOutcome { .reachable }
     func probeInternet() async -> ProbeOutcome { .reachable }
@@ -20,7 +23,7 @@ final class DiagnosisEngineTests: XCTestCase {
             resolvers: baseline.resolvers + [RawResolver(domain: "secret.corp", searchDomains: ["secret.corp"], nameservers: ["10.1.2.3"], interfaceName: "utun9")],
             proxy: RawProxy(settings: ["HTTPEnable": "1", "HTTPProxy": "secret.corp"]),
             dynamicStoreVPNKeys: [], errors: [])
-        let report = await DiagnosisEngine(collector: DiagnosisFixtureCollector(snapshot: raw), probe: DiagnosisFixedProbe()).diagnose()
+        let report = await DiagnosisEngine(collector: DiagnosisFixtureCollector(snapshot: raw), probe: DiagnosisFixedProbe(), bonjourBrowser: DiagnosisFixedBonjourBrowser()).diagnose()
         let codes = Set(report.candidates.map(\.reasonCode))
         XCTAssertTrue(codes.contains(NetworkCheckReason.residualDefaultRoute.rawValue))
         XCTAssertTrue(codes.contains(NetworkCheckReason.residualScopedDNS.rawValue))
@@ -33,7 +36,7 @@ final class DiagnosisEngineTests: XCTestCase {
         let now = Date()
         let raw = RawNetworkSnapshot(startedAt: now, endedAt: now, path: nil, interfaces: [], routes: [],
                                      resolvers: [], proxy: nil, dynamicStoreVPNKeys: [], errors: [])
-        let report = await DiagnosisEngine(collector: DiagnosisFixtureCollector(snapshot: raw), probe: DiagnosisFixedProbe()).diagnose()
+        let report = await DiagnosisEngine(collector: DiagnosisFixtureCollector(snapshot: raw), probe: DiagnosisFixedProbe(), bonjourBrowser: DiagnosisFixedBonjourBrowser()).diagnose()
         XCTAssertEqual(report.state, .insufficientData)
     }
     func testNormalOfflineIsEnvironmentLimited() async {
@@ -43,7 +46,7 @@ final class DiagnosisEngineTests: XCTestCase {
                                supportsDNS: false, supportsIPv4: false, supportsIPv6: false, gateways: []),
             interfaces: [RawInterface(name: "en0", type: "wifi", isUp: false, addresses: [])],
             routes: [], resolvers: [], proxy: RawProxy(settings: [:]), dynamicStoreVPNKeys: [], errors: [])
-        let report = await DiagnosisEngine(collector: DiagnosisFixtureCollector(snapshot: offline), probe: DiagnosisFixedProbe()).diagnose()
+        let report = await DiagnosisEngine(collector: DiagnosisFixtureCollector(snapshot: offline), probe: DiagnosisFixedProbe(), bonjourBrowser: DiagnosisFixedBonjourBrowser()).diagnose()
         XCTAssertEqual(report.state, .environmentLimited)
         XCTAssertTrue(report.candidates.isEmpty)
     }
@@ -56,7 +59,7 @@ final class DiagnosisEngineTests: XCTestCase {
             }
         }
         let report = await DiagnosisEngine(collector: SlowCollector(), probe: DiagnosisFixedProbe(),
-                                           collectionTimeout: .milliseconds(10)).diagnose()
+                                           collectionTimeout: .milliseconds(10), bonjourBrowser: DiagnosisFixedBonjourBrowser()).diagnose()
         XCTAssertEqual(report.state, .insufficientData)
         XCTAssertEqual(report.vpn.state, .unknown)
         XCTAssertTrue(report.results.contains(where: { $0.outcome == .timedOut }))
@@ -68,10 +71,10 @@ final class DiagnosisEngineTests: XCTestCase {
         let raw = RawNetworkSnapshot(startedAt: base.startedAt, endedAt: base.endedAt,
             path: base.path, interfaces: base.interfaces, routes: base.routes + [local],
             resolvers: base.resolvers, proxy: RawProxy(settings: [:]), dynamicStoreVPNKeys: [], errors: [])
-        let report = await DiagnosisEngine(collector: DiagnosisFixtureCollector(snapshot: raw), probe: DiagnosisFixedProbe()).diagnose()
+        let report = await DiagnosisEngine(collector: DiagnosisFixtureCollector(snapshot: raw), probe: DiagnosisFixedProbe(), bonjourBrowser: DiagnosisFixedBonjourBrowser()).diagnose()
         XCTAssertEqual(report.state, .healthy)
         XCTAssertTrue(report.candidates.isEmpty)
-        XCTAssertEqual(report.results.count, 8)
+        XCTAssertEqual(report.results.count, 11)
     }
 
 }

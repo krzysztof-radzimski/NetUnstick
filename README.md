@@ -1,6 +1,6 @@
 # NetUnstick
 
-NetUnstick jest natywną aplikacją macOS w Swift i SwiftUI. Jej planowany cel to diagnozowanie problemów z dostępem do urządzeń lokalnych po rozłączeniu VPN, w pierwszej kolejności FortiClient/FortiGate. Obecna wersja otwiera standardowe okno. Biblioteka `NetUnstickNetwork` udostępnia odczyt stanu sieci, ostrożną ocenę VPN oraz osiem niezależnych diagnostyk DNS, tras, interfejsów, proxy i łączności. `DiagnosisEngine` zwraca kandydackie przyczyny i oznacza rekomendacje jako niebezpieczne przy aktywnym lub nieznanym stanie VPN. Diagnostyka nie jest jeszcze podłączona do interfejsu. Nie zmienia ustawień i nie wymaga podwyższonych uprawnień.
+NetUnstick jest natywną aplikacją macOS w Swift i SwiftUI. Jej planowany cel to diagnozowanie problemów z dostępem do urządzeń lokalnych po rozłączeniu VPN, w pierwszej kolejności FortiClient/FortiGate. Obecna wersja otwiera standardowe okno. Biblioteka `NetUnstickNetwork` udostępnia odczyt stanu sieci, ostrożną ocenę VPN oraz osiem diagnostyk DNS, tras, interfejsów, proxy i łączności oraz trzy operacje lokalnego odkrywania. `DiagnosisEngine` zwraca kandydackie przyczyny i hipotezy scenariuszy Fortinet. Diagnostyka nie jest jeszcze podłączona do interfejsu. Nie zmienia ustawień i nie wymaga podwyższonych uprawnień.
 
 Minimalna wersja systemu to **macOS 14.0** (`MACOSX_DEPLOYMENT_TARGET = 14.0`). Projekt używa lokalnego pakietu `Packages/NetUnstickKit` z modułami `NetUnstickCore`, `NetUnstickNetwork` i `NetUnstickRepair`. `NetUnstickCore` zawiera kontrakty wyników i operacji, typowaną redakcję evidence, rejestr sesji oraz renderer raportu. Moduł napraw pozostaje pustym punktem rozszerzenia. Nie ma zależności zewnętrznych.
 
@@ -14,6 +14,7 @@ xcodebuild -project NetUnstick.xcodeproj -scheme NetUnstick -configuration Debug
 cd Packages/NetUnstickKit && swift test
 NETUNSTICK_READ_ONLY_SMOKE=1 swift test --filter ReadOnlySmokeTests
 NETUNSTICK_READ_ONLY_SMOKE=1 swift test --filter HostDiagnosisSmokeTests
+NETUNSTICK_BONJOUR_LIVE=1 swift test --filter BonjourDiscoveryTests/testLocalAdvertiserHarness
 ```
 
 Schemat `NetUnstick` jest współdzielony. Smoke test uruchamia się osobno na macOS; obserwuje host bez zmian i zapisuje wyłącznie zredagowany JSON do `.build/netunstick-smoke-redacted.json` w katalogu pakietu. Brak VPN jest prawidłowym wynikiem. Testy `NetUnstickCore` sprawdzają kontrakty, redakcję, limity i błędy magazynu. Testy `NetUnstickNetwork` obejmują parsery, decyzję VPN, procesy, prywatność oraz tablice decyzji diagnostycznych. Smoke test diagnozy uruchamia aktualny kolektor i checki na hoście; aktywny VPN lub brak internetu dają wynik inconclusive/skipped. `NetUnstickRepair` potwierdza obecnie tylko dostępność modułu.
@@ -35,3 +36,9 @@ Osiem checków implementuje `DiagnosticCheck` i zwraca `OperationResult` z kodem
 ## Dalsze wymagania
 
 Samowystarczalna specyfikacja, scenariusze, kryteria odbioru i macierz pochodzenia wymagań są w [docs/product-requirements.md](docs/product-requirements.md). Granice modułów, prywatności, uprawnień i zasada weryfikacji naprawy są w [docs/architecture.md](docs/architecture.md). Żadna naprawa nie jest uznana za skuteczną bez odtworzonej awarii i poprawy sprawdzenia przed/po.
+
+## Bonjour i scenariusze Fortinet
+
+`BonjourDiscoveryChecking` przegląda wyłącznie `_airplay._tcp` i `_raop._tcp` przez `NWBrowser`, z limitem czasu i anulowaniem. Nie łączy się z odbiornikami. Wynik podaje osobno liczbę usług obu typów, typ interfejsu i stabilny kod przyczyny. Nie utrwala nazwy urządzenia, endpointu, rekordu TXT, adresu ani portu. Brak usług jest wynikiem niejednoznacznym, nie usterką; sama obecność usługi nie dowodzi działania przesyłania. `LocalMulticastPathCheck` sprawdza obecność fizycznego interfejsu i lokalnej trasy; nawet poprawna trasa nie dowodzi transportu mDNS. `BonjourPermissionCheck` odróżnia systemową odmowę dostępu od błędu browsera; macOS może nie ujawnić zgody osobnym API. Aplikacja deklaruje tylko używane typy Bonjour i lokalizowany cel dostępu do sieci lokalnej. Test live reklamuje fikcyjną usługę; bez zgody lub widoczności mDNS kończy się jako skipped.
+
+`FortinetScenarioClassifier` używa wyłącznie publicznego snapshotu i wyników checków. Rozpoznaje kandydackie: trasę podsieci przez tunel, pozostały resolver/search domain lub proxy, osierocony tunel, blokadę lokalnej sieci przy aktywnym VPN oraz możliwy problem klienta albo infrastruktury wielosegmentowej. Każdy wynik jest hipotezą z listą dowodów potrzebnych do potwierdzenia i bezpiecznym krokiem kontaktu z administratorem. Metadane wersji FortiClient są opcjonalne i ograniczone do numeru wersji z publicznego bundla aplikacji. Brak wersji nie jest błędem; nie odczytujemy ustawień zarządzanych, poświadczeń ani plików prywatnych. Wskazówka nie stwierdza przyczyny konkretnej awarii, a naprawa polityki FortiGate/EMS nie jest dostępna w aplikacji.

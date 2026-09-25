@@ -22,6 +22,7 @@ public struct DiagnosisReport: Sendable {
     public let snapshot: SanitizedNetworkSnapshot
     public let results: [OperationResult]
     public let candidates: [CandidateCause]
+    public let fortinetFindings: [FortinetFinding]
 }
 
 public struct DiagnosisEngine: Sendable {
@@ -29,11 +30,14 @@ public struct DiagnosisEngine: Sendable {
     private let probe: any NetworkConnectivityProbing
     private let detector: VPNStateDetector
     private let collectionTimeout: Duration
+    private let bonjourBrowser: any BonjourBrowsing
     public init(collector: any NetworkStateCollecting = SystemNetworkStateCollector(),
                 probe: any NetworkConnectivityProbing = SystemNetworkConnectivityProbe(),
-                detector: VPNStateDetector = VPNStateDetector(), collectionTimeout: Duration = .seconds(8)) {
+                detector: VPNStateDetector = VPNStateDetector(), collectionTimeout: Duration = .seconds(8),
+                bonjourBrowser: any BonjourBrowsing = SystemBonjourBrowser()) {
         self.collector = collector; self.probe = probe; self.detector = detector
         self.collectionTimeout = collectionTimeout
+        self.bonjourBrowser = bonjourBrowser
     }
 
     public func diagnose(context: OperationContext = OperationContext()) async -> DiagnosisReport {
@@ -52,6 +56,11 @@ public struct DiagnosisEngine: Sendable {
             InterfaceConsistencyCheck(snapshot: raw, probe: probe)
         ]
         for check in checks { results.append(await check.run(context: context)) }
+        results.append(await LocalMulticastPathCheck(snapshot: raw).run(context: context))
+        let discovery = await BonjourDiscoveryChecking(snapshot: raw, browser: bonjourBrowser).run(context: context)
+        results.append(discovery)
+        let discoveryReason = BonjourReason(rawValue: discovery.after.values[.errorCode] ?? "") ?? .inconclusive
+        results.append(await BonjourPermissionCheck(observation: .init(count: 0, reason: discoveryReason)).run(context: context))
         let reasons = results.compactMap { $0.after.values[.errorCode].flatMap(NetworkCheckReason.init(rawValue:)) }
         let candidateReasons = reasons.filter { reason in
             switch reason {
@@ -69,8 +78,10 @@ public struct DiagnosisEngine: Sendable {
         else if reasons.contains(.dataIncomplete) || reasons.contains(.cancelled) || reasons.contains(.timedOut) || reasons.contains(.localRouteMissing) { state = .insufficientData }
         else if reasons.contains(.environmentLimited) || reasons.contains(.internetUnavailable) || reasons.contains(.dnsNXDomain) || reasons.contains(.dnsTimeout) || reasons.contains(.dnsNoPath) { state = .environmentLimited }
         else { state = .healthy }
+        let findings = FortinetScenarioClassifier().classify(snapshot: raw, vpn: vpn, checks: results,
+                                      productVersion: FortiClientMetadataReader().redactedVersion())
         return DiagnosisReport(state: state, vpn: vpn, snapshot: SanitizedNetworkSnapshot(raw: raw),
-                               results: results, candidates: candidates)
+                               results: results, candidates: candidates, fortinetFindings: findings)
     }
 
     private func boundedCollection() async -> RawNetworkSnapshot {
