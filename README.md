@@ -4,6 +4,8 @@ NetUnstick jest natywną aplikacją macOS w Swift i SwiftUI. Jej planowany cel t
 
 Minimalna wersja systemu to **macOS 14.0** (`MACOSX_DEPLOYMENT_TARGET = 14.0`). Projekt używa lokalnego pakietu `Packages/NetUnstickKit` z modułami `NetUnstickCore`, `NetUnstickNetwork` i `NetUnstickRepair`. `NetUnstickCore` zawiera kontrakty wyników i operacji, typowaną redakcję evidence, rejestr sesji oraz renderer raportu. Moduł napraw pozostaje pustym punktem rozszerzenia. Nie ma zależności zewnętrznych.
 
+Ikona Dock to własny znak trzech węzłów i przywróconej ścieżki. Projekt używa kompletnego `AppIcon.appiconset` zgodnego z macOS 14.0; warianty źródłowe Default, Dark, Mono/Tinted i Clear oraz instrukcja odtwarzania są w [Design/AppIcon/README.md](Design/AppIcon/README.md). Automatyczne przełączanie tych wariantów przez system wymaga zweryfikowanego zasobu `.icon` i obecnie nie jest deklarowane.
+
 ## Budowanie i testowanie
 
 Wymagane są Xcode i narzędzia wiersza poleceń Apple. Z katalogu repozytorium:
