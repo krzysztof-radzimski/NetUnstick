@@ -14,7 +14,11 @@ let package = Package(
         .target(name: "NetUnstickNetwork", dependencies: ["NetUnstickCore"]),
         .target(name: "NetUnstickRepair", dependencies: ["NetUnstickCore", "NetUnstickNetwork"]),
         .testTarget(name: "NetUnstickCoreTests", dependencies: ["NetUnstickCore"]),
-        .testTarget(name: "NetUnstickNetworkTests", dependencies: ["NetUnstickNetwork"]),
+        .testTarget(name: "NetUnstickNetworkTests", dependencies: ["NetUnstickNetwork"], resources: [
+            .copy("Fixtures/netstat-ipv4.txt"),
+            .copy("Fixtures/netstat-ipv6.txt"),
+            .copy("Fixtures/scutil-dns.txt"),
+        ]),
         .testTarget(name: "NetUnstickRepairTests", dependencies: ["NetUnstickRepair"]),
     ]
 )

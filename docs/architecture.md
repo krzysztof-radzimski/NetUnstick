@@ -2,11 +2,11 @@
 
 ## Stan i kierunek
 
-Obecny kod ma okno SwiftUI i trzy rozdzielone moduły. `NetUnstickCore` implementuje wspólne kontrakty wyników, redakcję, historię i renderer raportu; nie ma jeszcze kolektorów, konkretnych diagnoz ani napraw. Poniższe kontrakty wyznaczają granice dla kolejnych prac.
+Obecny kod ma okno SwiftUI i trzy rozdzielone moduły. `NetUnstickCore` implementuje wspólne kontrakty wyników, redakcję, historię i renderer raportu. `NetUnstickNetwork` implementuje odczyt stanu i konserwatywną ocenę VPN; sprawdzenie nie jest jeszcze podłączone do UI. Nie ma jeszcze diagnoz urządzeń ani napraw. Poniższe kontrakty wyznaczają granice dla kolejnych prac.
 
 | Odpowiedzialność | Miejsce | Kontrakt |
 | --- | --- | --- |
-| Zbieranie stanu | `NetUnstickNetwork` | Tylko odczyt przez wspierane API macOS; obserwacje Wi-Fi, VPN, interfejsów, tras, DNS oraz testy połączenia/Bonjour jako oddzielne operacje. Bez zmian konfiguracji. |
+| Zbieranie stanu | `NetUnstickNetwork` | Odczyt `NWPath`, `getifaddrs`, SystemConfiguration i tras z ograniczonego procesu. Testy połączenia/Bonjour pozostają przyszłymi oddzielnymi operacjami. Bez zmian konfiguracji. |
 | Diagnoza | `NetUnstickCore` | Czyste decyzje na oczyszczonych obserwacjach; wynik „nieustalone”, gdy danych brakuje. Stabilne kody i strukturalne wyniki. |
 | Pojedyncze naprawy | `NetUnstickRepair` | Oddzielna jawna akcja, ograniczony zakres i czas, kontrola stanu VPN, ponowny test. Kandydat pozostaje niezweryfikowany do realnego incydentu. |
 | Rejestr sesji i eksport | `NetUnstickCore` | `Logger` do diagnostyki; ograniczona historia aplikacji i oczyszczony raport UTF-8. Podłączenie podglądu i dialogu zapisu do UI jest kolejnym krokiem. |
