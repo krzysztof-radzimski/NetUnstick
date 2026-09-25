@@ -36,12 +36,14 @@ final class RepairPolicyTests: XCTestCase {
         XCTAssertThrowsError(try RepairPolicy.authorize(request, snapshot: snapshot(routes: [route], errors: [.init(code: "read_failed")]), dhcpInterfaces: []))
     }
     func testForeignClientRequirement() {
-        let requirement = ClientIdentityPolicy.requirement(forTeam: "ABCD123456")!
+        let fingerprint = "0123456789abcdef0123456789abcdef01234567"
+        let requirement = ClientIdentityPolicy.requirement(forLeafCertificateSHA1: fingerprint)!
         XCTAssertTrue(requirement.contains("org.netunstick.NetUnstick"))
-        XCTAssertTrue(requirement.contains("anchor apple generic"))
-        XCTAssertTrue(requirement.contains("ABCD123456"))
+        XCTAssertTrue(requirement.contains("certificate leaf = H\"\(fingerprint)\""))
         XCTAssertFalse(requirement.contains("org.foreign.App"))
-        XCTAssertNil(ClientIdentityPolicy.requirement(forTeam: "*"))
+        XCTAssertNil(ClientIdentityPolicy.requirement(forLeafCertificateSHA1: "*"))
+        XCTAssertNil(ClientIdentityPolicy.requirement(forLeafCertificateSHA1: "ABCD123456"))
+        XCTAssertNotEqual(requirement, ClientIdentityPolicy.requirement(forLeafCertificateSHA1: String(repeating: "a", count: 40)))
         var compiled: SecRequirement?
         XCTAssertEqual(SecRequirementCreateWithString(requirement as CFString, [], &compiled), errSecSuccess)
         XCTAssertNotNil(compiled)

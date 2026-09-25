@@ -35,12 +35,14 @@ final class PresentationUITests: XCTestCase {
 
     func testCancelAndKeyboardShortcut() {
         let app = launch("operation-progress")
-        XCTAssertTrue(app.buttons["diagnosis.cancel"].waitForExistence(timeout: 5))
-        app.typeKey(.escape, modifierFlags: [])
+        let cancel = app.buttons["diagnosis.cancel"]
+        XCTAssertTrue(cancel.waitForExistence(timeout: 5))
+        cancel.click()
         XCTAssertFalse(app.buttons["diagnosis.cancel"].exists)
         app.typeKey("d", modifierFlags: .command)
         XCTAssertTrue(app.buttons["diagnosis.cancel"].waitForExistence(timeout: 5))
-        app.buttons["diagnosis.cancel"].click()
+        app.typeKey(.escape, modifierFlags: [])
+        XCTAssertFalse(app.buttons["diagnosis.cancel"].exists)
     }
 
     func testKeyboardNavigationAndIdentifiers() {
