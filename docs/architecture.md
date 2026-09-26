@@ -2,7 +2,7 @@
 
 ## Stan i kierunek
 
-Obecny kod ma okno SwiftUI i trzy rozdzielone moduły. `NetUnstickCore` implementuje wspólne kontrakty wyników, redakcję, historię i renderer raportu. `NetUnstickNetwork` implementuje odczyt stanu, konserwatywną ocenę VPN oraz diagnostykę sieci i Bonjour. Helper udostępnia wąskie operacje dla przyszłych napraw; skuteczna naprawa nie została jeszcze potwierdzona na rzeczywistym incydencie. Poniższe kontrakty wyznaczają granice dla kolejnych prac.
+Obecny kod ma okno SwiftUI i trzy rozdzielone moduły. `NetUnstickCore` implementuje wspólne kontrakty wyników, redakcję, historię i renderer raportu. `NetUnstickNetwork` implementuje odczyt stanu, konserwatywną ocenę VPN i kontrole sieci; nie są jeszcze podłączone do UI. `NetUnstickRepair` zawiera opcjonalny helper dla przyszłych jawnych napraw. Interfejs jest demonstracyjny i oparty na mockach. Poniższe kontrakty wyznaczają granice dla kolejnych prac.
 
 | Odpowiedzialność | Miejsce | Kontrakt |
 | --- | --- | --- |
@@ -20,7 +20,7 @@ Warunek bezpieczeństwa jest sprawdzany tuż przed każdą akcją zmieniającą 
 
 ## Granica zaufania i uprawnienia
 
-Proces aplikacji jest nieuprzywilejowany. Opcjonalny helper jest osobną granicą zaufania: wąskie API o zamkniętej liście operacji, walidacja argumentów i uprawnionego klienta, ponowny odczyt stanu VPN przed zmianą oraz strukturalna odpowiedź. Aplikacja nie przekazuje helperowi arbitralnych poleceń ani tekstu shell. Stała ścieżka programu i tablica argumentów, limit czasu, kod wyjścia oraz sanitacja wyniku są obowiązkowe. Dokładny zakres uprawnień opisuje sekcja poniżej.
+Proces aplikacji jest nieuprzywilejowany. Opcjonalny helper jest osobną granicą zaufania: wąskie API o zamkniętej liście operacji, walidacja argumentów i uprawnionego klienta, ponowny odczyt stanu VPN przed zmianą oraz strukturalna odpowiedź. Aplikacja nie przekazuje helperowi arbitralnych poleceń ani tekstu shell. Szczegółowy zakres i wymagania podpisu opisano poniżej.
 
 ## Dane i testy
 
@@ -28,35 +28,10 @@ Granica prywatności przebiega przed Logger, historią i eksportem. Domyślnie u
 
 ## Uprzywilejowany helper (macOS 14+)
 
-`NetUnstickHelper` jest osobnym LaunchDaemon uruchamianym jako root dopiero po jawnym
-`SMAppService.daemon(...).register()` i zatwierdzeniu przez administratora w Elementach
-logowania. Plist jest osadzony w `Contents/Library/LaunchDaemons`, a wykonywalny
-helper w `Contents/MacOS`. Diagnozy są od niego niezależne. Aplikacja nie wywołuje
-rejestracji automatycznie; pokazuje status `notRegistered`, `enabled`,
-`requiresApproval`, `notFound` i przycisk otwierający właściwy panel systemowy.
+`NetUnstickHelper` jest osobnym LaunchDaemon uruchamianym jako root dopiero po jawnej rejestracji przez `SMAppService.daemon(...).register()` i zatwierdzeniu przez administratora w Elementach logowania. Plist jest osadzony w `Contents/Library/LaunchDaemons`, a wykonywalny helper w `Contents/MacOS`. Diagnozy są od niego niezależne. Interfejs demonstracyjny nie rejestruje ani nie używa helpera; przyszła integracja musi wywoływać rejestrację tylko po jawnym wyborze naprawy przez użytkownika.
 
-XPC przyjmuje tylko wersję 1 oraz trzy przypadki zamkniętego enumu: odświeżenie
-cache resolvera i mDNS, żądanie ponownej konfiguracji DHCP fizycznego interfejsu
-`enN`, usunięcie jednej osieroconej trasy IPv4 do prywatnego lub link-local
-prefiksu przez brakujący interfejs `enN`. Żądanie nie ma ścieżki programu,
-shell stringu ani listy argumentów. Helper ponownie czyta stan i odmawia przy
-VPN active/unknown, częściowym odczycie, wielu pasujących trasach, trasie
-domyślnej, publicznej sieci, tunelu lub braku potwierdzenia DHCP. Usunięcie trasy
-wykorzystuje dokładny prefiks, bramę i zakres interfejsu. Dwa odczyty przed
-usunięciem ograniczają wyścig, ale nie gwarantują atomowości; nieudane polecenie
-jest zgłaszane jako błąd, a sukces polecenia wymaga późniejszego ponownego checku.
+XPC przyjmuje tylko wersję 1 oraz trzy przypadki zamkniętego enumu: odświeżenie cache resolvera i mDNS, żądanie ponownej konfiguracji DHCP fizycznego interfejsu `enN`, usunięcie jednej osieroconej trasy IPv4 do prywatnego lub link-local prefiksu przez brakujący interfejs `enN`. Żądanie nie ma ścieżki programu, shell stringu ani listy argumentów. Helper ponownie czyta stan i odmawia przy VPN active/unknown, częściowym odczycie, wielu pasujących trasach, trasie domyślnej, publicznej sieci, tunelu lub braku potwierdzenia DHCP. Usunięcie trasy wykorzystuje dokładny prefiks, bramę i zakres interfejsu. Dwa odczyty przed usunięciem ograniczają wyścig, ale nie gwarantują atomowości. Po każdej akcji wymagany jest ponowny check w warstwie napraw; wynik helpera potwierdza wykonanie akcji, nie rozwiązanie problemu.
 
-DHCP korzysta z `SCNetworkInterfaceForceConfigurationRefresh`; wymaga root.
-Cache używa wyłącznie `/usr/bin/dscacheutil -flushcache` i
-`/usr/bin/killall -HUP mDNSResponder`, a trasa `/sbin/route` ze stałą składnią.
-Proces nie używa powłoki, ma ograniczone środowisko, limit pięciu sekund i 4 KiB
-łącznego wyjścia; surowe bajty nie trafiają do odpowiedzi ani logu. Kod 0
-potwierdza wykonanie akcji, nie rozwiązanie problemu. Wynik ma kod, czas,
-result i zwykły następny krok. Nie ma ingerencji w FortiClient/FortiGate.
+DHCP korzysta z `SCNetworkInterfaceForceConfigurationRefresh`; wymaga root. Cache używa wyłącznie `/usr/bin/dscacheutil -flushcache` i `/usr/bin/killall -HUP mDNSResponder`, z ponowną oceną VPN przed drugą komendą. Trasa używa `/sbin/route` ze stałą składnią. Proces nie używa powłoki, ma ograniczone środowisko, limit pięciu sekund na polecenie i 4 KiB łącznego wyjścia; klient XPC czeka najwyżej 30 sekund na odpowiedź. Surowe bajty nie trafiają do odpowiedzi ani logu. Nie ma ingerencji w FortiClient/FortiGate.
 
-Listener wymaga klienta o identyfikatorze `org.netunstick.NetUnstick`, kotwicy
-Apple generic i identycznym Team ID jak podpis helpera. Helper bez Team ID nie
-uruchamia usługi. Dystrybucja wymaga podpisania aplikacji i osadzonego helpera
-tym samym zespołem Developer ID lub Apple Development. Build bez podpisu służy
-wyłącznie testom kompilacji i pakowania; nie można nim zarejestrować działającego
-daemona. Sama rejestracja wymaga zgody systemowej i nie jest częścią testów CI.
+Listener wymaga klienta o identyfikatorze `org.netunstick.NetUnstick` i dokładnie tym samym certyfikacie podpisu co helper. Helper odczytuje odcisk SHA-1 certyfikatu z własnego, poprawnego podpisu i tworzy wymaganie `certificate leaf = H"…"`; bez certyfikatu lub przy błędnym podpisie nie uruchamia usługi. SHA-1 jest tutaj identyfikatorem certyfikatu używanym przez składnię wymagań macOS, nie skrótem danych diagnostycznych. Lokalny certyfikat self-signed `NetUnstick Local Code Signing` jest przechowywany w pęku kluczy użytkownika i ponownie używany przy każdej przebudowie. Build bez podpisu służy tylko testom kompilacji i pakowania. Rzeczywista rejestracja przez `SMAppService` pozostaje niezweryfikowana dla lokalnego certyfikatu i nadal wymaga zgody systemowej administratora; podpis self-signed nie daje notaryzacji ani nie zastępuje tej zgody.

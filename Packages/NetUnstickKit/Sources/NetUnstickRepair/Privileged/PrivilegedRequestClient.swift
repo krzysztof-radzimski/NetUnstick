@@ -8,7 +8,7 @@ public protocol PrivilegedRequestTransport {
 /// Transport-independent response handling used by the app's XPC adapter.
 public enum PrivilegedRequestClient {
     public static func perform(_ action: PrivilegedAction, transport: PrivilegedRequestTransport,
-                               timeout: TimeInterval = 8, completion: @escaping (PrivilegedReply) -> Void) {
+                               timeout: TimeInterval = 30, completion: @escaping (PrivilegedReply) -> Void) {
         guard let request = try? JSONEncoder().encode(PrivilegedRequest(action: action)) else {
             completion(failure(.invalidRequest)); return
         }

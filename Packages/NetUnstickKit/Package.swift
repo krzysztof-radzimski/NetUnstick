@@ -5,9 +5,9 @@ let package = Package(
     name: "NetUnstickKit",
     platforms: [.macOS(.v14)],
     products: [
-        .library(name: "NetUnstickCore", targets: ["NetUnstickCore"]),
-        .library(name: "NetUnstickNetwork", targets: ["NetUnstickNetwork"]),
-        .library(name: "NetUnstickRepair", targets: ["NetUnstickRepair"]),
+        .library(name: "NetUnstickCore", type: .static, targets: ["NetUnstickCore"]),
+        .library(name: "NetUnstickNetwork", type: .static, targets: ["NetUnstickNetwork"]),
+        .library(name: "NetUnstickRepair", type: .static, targets: ["NetUnstickRepair"]),
     ],
     targets: [
         .target(name: "NetUnstickCore"),

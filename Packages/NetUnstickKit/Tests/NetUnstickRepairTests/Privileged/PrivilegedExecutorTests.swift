@@ -39,13 +39,13 @@ final class PrivilegedExecutorTests: XCTestCase {
     }
 }
 
-private final class RouteSequenceCollector: NetworkStateCollecting, @unchecked Sendable {
-    private let lock = NSLock()
+private actor RouteSequenceCollector: NetworkStateCollecting {
     private var reads = 0
     let removed: Bool
     init(removed: Bool) { self.removed = removed }
     func collect() async -> RawNetworkSnapshot {
-        lock.lock(); reads += 1; let ordinal = reads; lock.unlock()
+        reads += 1
+        let ordinal = reads
         let route = RawRoute(destination: "192.168.40.0/24", gateway: "192.168.1.1", interfaceName: "en8", isDefault: false)
         return RawNetworkSnapshot(startedAt: Date(), endedAt: Date(),
             path: .init(status: "satisfied", availableInterfaces: ["en0"], selectedInterfaces: ["en0"],
@@ -55,7 +55,31 @@ private final class RouteSequenceCollector: NetworkStateCollecting, @unchecked S
             dynamicStoreVPNKeys: [], errors: [])
     }
 }
+
+private actor RefreshSequenceCollector: NetworkStateCollecting {
+    private var reads = 0
+    func collect() async -> RawNetworkSnapshot {
+        reads += 1
+        return await FixtureCollector(vpn: reads >= 2).collect()
+    }
+}
+
+private actor RecordingRunner: PrivilegedCommandRunning {
+    private var commands = 0
+    func run(executable: String, arguments: [String]) async throws { commands += 1 }
+    func count() -> Int { commands }
+}
+
 extension PrivilegedExecutorTests {
+    func testRefreshStopsBeforeSecondCommandWhenVPNBecomesActive() async {
+        let runner = RecordingRunner()
+        let reply = await PrivilegedRepairExecutor(collector: RefreshSequenceCollector(),
+            dhcp: FixtureDHCP(), runner: runner).perform(.init(action: .refreshResolverCache))
+        let count = await runner.count()
+        XCTAssertEqual(reply.code, .vpnActive)
+        XCTAssertEqual(count, 1)
+    }
+
     func testRouteRequiresObservedRemovalAfterSuccessfulCommand() async {
         let action = PrivilegedRequest(action: .removeOrphanedRoute(destination: "192.168.40.0", prefix: 24, interface: "en8"))
         let success = await PrivilegedRepairExecutor(collector: RouteSequenceCollector(removed: true),

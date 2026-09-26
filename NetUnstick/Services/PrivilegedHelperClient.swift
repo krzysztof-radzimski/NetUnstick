@@ -49,7 +49,7 @@ public final class PrivilegedHelperClient {
         do { try service.register() } catch {
             let ns = error as NSError
             if ns.domain == "SMAppServiceErrorDomain" && ns.code == Int(kSMErrorInvalidSignature) {
-                lastRegistrationError = "Pakiet musi być podpisany tym samym zespołem co helper."
+                lastRegistrationError = "Aplikacja i helper muszą mieć ten sam ważny certyfikat podpisu."
             } else if ns.domain == "SMAppServiceErrorDomain" && ns.code == Int(kSMErrorAuthorizationFailure) {
                 lastRegistrationError = "System odmówił uprawnienia. Sprawdź zgodę administratora."
             } else if ns.domain == "SMAppServiceErrorDomain" && ns.code == Int(kSMErrorLaunchDeniedByUser) {

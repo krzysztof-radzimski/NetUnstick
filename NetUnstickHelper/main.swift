@@ -1,18 +1,22 @@
 import Foundation
 import Security
+import CryptoKit
 import NetUnstickRepair
 
 private func clientRequirement() -> String? {
     var selfCode: SecCode?
     guard SecCodeCopySelf([], &selfCode) == errSecSuccess, let selfCode else { return nil }
+    guard SecCodeCheckValidity(selfCode, [], nil) == errSecSuccess else { return nil }
     var staticCode: SecStaticCode?
     guard SecCodeCopyStaticCode(selfCode, [], &staticCode) == errSecSuccess, let staticCode else { return nil }
     var information: CFDictionary?
     guard SecCodeCopySigningInformation(staticCode, SecCSFlags(rawValue: kSecCSSigningInformation), &information) == errSecSuccess,
           let info = information as? [String: Any],
-          let team = info[kSecCodeInfoTeamIdentifier as String] as? String,
-          team.range(of: #"^[A-Z0-9]{10}$"#, options: .regularExpression) != nil else { return nil }
-    return ClientIdentityPolicy.requirement(forTeam: team)
+          let certificates = info[kSecCodeInfoCertificates as String] as? [SecCertificate],
+          let leaf = certificates.first else { return nil }
+    let digest = Insecure.SHA1.hash(data: SecCertificateCopyData(leaf) as Data)
+    let fingerprint = digest.map { String(format: "%02x", $0) }.joined()
+    return ClientIdentityPolicy.requirement(forLeafCertificateSHA1: fingerprint)
 }
 
 private final class HelperService: NSObject, NetUnstickHelperXPC {

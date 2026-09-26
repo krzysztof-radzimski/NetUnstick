@@ -130,6 +130,10 @@ public struct PrivilegedRepairExecutor: Sendable {
             switch action {
             case .refreshResolverCache:
                 try await runner.run(executable: "/usr/bin/dscacheutil", arguments: ["-flushcache"])
+                let current = await collector.collect()
+                guard try RepairPolicy.authorize(request, snapshot: current,
+                                                 dhcpInterfaces: dhcp.configuredInterfaces()) == action
+                else { throw RepairPolicyError.ambiguousResource }
                 try await runner.run(executable: "/usr/bin/killall", arguments: ["-HUP", "mDNSResponder"])
             case .renewDHCP(let name):
                 guard dhcp.refresh(name) else { throw PrivilegedExecutionError.nonZeroExit }
