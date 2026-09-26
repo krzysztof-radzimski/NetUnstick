@@ -790,13 +790,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Simulated repair success; no real repair was performed."
+            "value": "Candidate only: the simulated check passed. No repair was performed. Run diagnosis again after a real repair is integrated."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Symulowany sukces naprawy; nie wykonano prawdziwej naprawy."
+            "value": "Tylko kandydat: symulowana kontrola przeszła. Nie wykonano naprawy. Po podłączeniu naprawy ponów diagnostykę."
           }
         }
       }

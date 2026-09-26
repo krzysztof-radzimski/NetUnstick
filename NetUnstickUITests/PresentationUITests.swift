@@ -31,6 +31,11 @@ final class PresentationUITests: XCTestCase {
         app.buttons["report.preview.open"].click()
         XCTAssertTrue(app.buttons["report.save"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.descendants(matching: .any)["report.preview.text"].exists)
+        app.buttons["report.save"].click()
+        let fileName = app.textFields.matching(NSPredicate(format: "value BEGINSWITH %@", "NetUnstick-report")).firstMatch
+        XCTAssertTrue(fileName.waitForExistence(timeout: 5), "The standard save dialog must open after the preview")
+        app.typeKey(.escape, modifierFlags: [])
+        XCTAssertTrue(fileName.waitForNonExistence(timeout: 5), "Cancelling the save dialog must close it without saving")
     }
 
     func testCancelAndKeyboardShortcut() {
