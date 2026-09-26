@@ -790,13 +790,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Candidate only: the simulated check passed. No repair was performed. Run diagnosis again after a real repair is integrated."
+            "value": "Simulated repair success; no real repair was performed."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tylko kandydat: symulowana kontrola przeszła. Nie wykonano naprawy. Po podłączeniu naprawy ponów diagnostykę."
+            "value": "Symulowany sukces naprawy; nie wykonano prawdziwej naprawy."
           }
         }
       }
@@ -1193,10 +1193,10 @@
             "value": "Not conclusive"
           }
         },
-        "p": {
+        "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "l"
+            "value": "Wynik niejednoznaczny"
           }
         }
       }
@@ -1209,10 +1209,10 @@
             "value": "Cancelled"
           }
         },
-        "p": {
+        "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "l"
+            "value": "Anulowano"
           }
         }
       }
@@ -1225,10 +1225,10 @@
             "value": "Permission denied"
           }
         },
-        "p": {
+        "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "l"
+            "value": "Odmowa dostępu"
           }
         }
       }
@@ -1241,10 +1241,10 @@
             "value": "Timed out"
           }
         },
-        "p": {
+        "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "l"
+            "value": "Przekroczono czas"
           }
         }
       }
@@ -1257,10 +1257,10 @@
             "value": "Local discovery could not run because access was denied."
           }
         },
-        "p": {
+        "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "l"
+            "value": "Odkrywanie lokalne nie mogło się uruchomić, ponieważ system odmówił dostępu."
           }
         }
       }
@@ -1273,10 +1273,10 @@
             "value": "Check local network permission in System Settings, then run diagnostics again."
           }
         },
-        "p": {
+        "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "l"
+            "value": "Sprawdź uprawnienie do sieci lokalnej w Ustawieniach systemowych, a potem ponów diagnostykę."
           }
         }
       }
@@ -1289,10 +1289,10 @@
             "value": "The network check did not finish in time."
           }
         },
-        "p": {
+        "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "l"
+            "value": "Sprawdzenie sieci nie zakończyło się w wyznaczonym czasie."
           }
         }
       }
@@ -1305,10 +1305,10 @@
             "value": "Check the connection and try the diagnosis again."
           }
         },
-        "p": {
+        "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "l"
+            "value": "Sprawdź połączenie i ponów diagnostykę."
           }
         }
       }
@@ -1321,10 +1321,10 @@
             "value": "No local receiver was found; this does not prove a network fault."
           }
         },
-        "p": {
+        "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "l"
+            "value": "Nie znaleziono lokalnego odbiornika; samo to nie dowodzi awarii sieci."
           }
         }
       }
@@ -1337,10 +1337,10 @@
             "value": "Make sure the receiver is on and on the same local network, then try again."
           }
         },
-        "p": {
+        "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "l"
+            "value": "Upewnij się, że odbiornik jest włączony i korzysta z tej samej sieci lokalnej, a potem spróbuj ponownie."
           }
         }
       }
@@ -1353,10 +1353,10 @@
             "value": "The report could not be saved"
           }
         },
-        "p": {
+        "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "l"
+            "value": "Nie udało się zapisać raportu"
           }
         }
       }
@@ -1369,10 +1369,10 @@
             "value": "Choose a writable location and try again from the preview."
           }
         },
-        "p": {
+        "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "l"
+            "value": "Wybierz miejsce, w którym możesz zapisać plik, i spróbuj ponownie z podglądu."
           }
         }
       }
@@ -1385,10 +1385,10 @@
             "value": "OK"
           }
         },
-        "p": {
+        "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "l"
+            "value": "OK"
           }
         }
       }

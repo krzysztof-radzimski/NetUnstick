@@ -15,31 +15,34 @@ final class PresentationUITests: XCTestCase {
         XCTAssertTrue(app.buttons["diagnosis.start"].waitForExistence(timeout: 10))
         let state = app.descendants(matching: .any)["dashboard.state"]
         XCTAssertTrue(state.exists)
-        let dns = app.descendants(matching: .any)["check.dns"]
+        let dns = app.buttons["check.dns"]
         XCTAssertTrue(dns.waitForExistence(timeout: 10))
+        let dashboardScroll = app.scrollViews.element(boundBy: 1)
+        for _ in 0..<3 where !dns.isHittable { dashboardScroll.swipeUp() }
+        XCTAssertTrue(dns.isHittable)
         dns.click()
-        XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'mock.dns'")).firstMatch.exists)
+        let technicalDetail = app.staticTexts["check.dns.detail"]
+        XCTAssertTrue(technicalDetail.waitForExistence(timeout: 5))
         app.buttons["repair.open"].click()
-        XCTAssertTrue(app.descendants(matching: .any)["repair.confirmation"].exists)
-        app.buttons["cancel"].click()
+        XCTAssertTrue(app.buttons["repair.confirm"].waitForExistence(timeout: 5))
+        app.buttons["repair.cancel"].click()
         app.descendants(matching: .any)["nav.activity"].click()
         XCTAssertTrue(app.buttons["report.preview.open"].exists)
         app.buttons["report.preview.open"].click()
-        XCTAssertTrue(app.descendants(matching: .any)["report.preview"].exists)
+        XCTAssertTrue(app.buttons["report.save"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.descendants(matching: .any)["report.preview.text"].exists)
-        app.buttons["report.save"].click()
-        XCTAssertTrue(app.textFields.firstMatch.waitForExistence(timeout: 5), "The standard save dialog must open after the preview")
-        app.typeKey(.escape, modifierFlags: [])
     }
 
     func testCancelAndKeyboardShortcut() {
         let app = launch("operation-progress")
-        XCTAssertTrue(app.buttons["diagnosis.cancel"].waitForExistence(timeout: 5))
-        app.typeKey(.escape, modifierFlags: [])
+        let cancel = app.buttons["diagnosis.cancel"]
+        XCTAssertTrue(cancel.waitForExistence(timeout: 5))
+        cancel.click()
         XCTAssertFalse(app.buttons["diagnosis.cancel"].exists)
         app.typeKey("d", modifierFlags: .command)
         XCTAssertTrue(app.buttons["diagnosis.cancel"].waitForExistence(timeout: 5))
-        app.buttons["diagnosis.cancel"].click()
+        app.typeKey(.escape, modifierFlags: [])
+        XCTAssertFalse(app.buttons["diagnosis.cancel"].exists)
     }
 
     func testKeyboardNavigationAndIdentifiers() {

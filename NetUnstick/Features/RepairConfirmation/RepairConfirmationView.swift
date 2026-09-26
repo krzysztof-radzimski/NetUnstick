@@ -6,7 +6,7 @@ struct RepairConfirmationView: View {
     let dismiss: () -> Void
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
-            Text("repair_candidate").font(.title.bold())
+            Text("repair_candidate").font(.title.bold()).accessibilityIdentifier("repair.confirmation")
             if let item = store.candidate {
                 LabeledContent("change", value: item.change)
                 LabeledContent("why", value: item.reason)
@@ -16,8 +16,8 @@ struct RepairConfirmationView: View {
                 LabeledContent("verification", value: item.verification)
             }
             Text("mock_repair_notice").foregroundStyle(.secondary)
-            HStack { Spacer(); Button("cancel") { dismiss() }; Button("simulate_repair") { store.simulateRepair(); dismiss() }.buttonStyle(.borderedProminent).accessibilityIdentifier("repair.confirm") }
-        }.padding(28).frame(width: 560).accessibilityIdentifier("repair.confirmation")
+            HStack { Spacer(); Button("cancel") { dismiss() }.accessibilityIdentifier("repair.cancel"); Button("simulate_repair") { store.simulateRepair(); dismiss() }.buttonStyle(.borderedProminent).accessibilityIdentifier("repair.confirm") }
+        }.padding(28).frame(width: 560)
     }
 
 }

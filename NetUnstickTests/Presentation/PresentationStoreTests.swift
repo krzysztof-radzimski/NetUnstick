@@ -1,5 +1,4 @@
 import XCTest
-import NetUnstickCore
 @testable import NetUnstick
 
 @MainActor final class PresentationStoreTests: XCTestCase {

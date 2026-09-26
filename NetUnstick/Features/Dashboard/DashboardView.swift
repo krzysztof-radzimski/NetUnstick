@@ -3,6 +3,7 @@ import NetUnstickCore
 
 struct DashboardView: View {
     @ObservedObject var store: PresentationStore
+    @State private var expandedCheckIDs: Set<String> = []
     let highContrast: Bool
     let showRepair: () -> Void
     var body: some View {
@@ -51,11 +52,27 @@ struct DashboardView: View {
                 Text("checks").font(.headline)
                 if store.checks.isEmpty { ContentUnavailableView("no_checks", systemImage: "list.bullet.clipboard") }
                 ForEach(store.checks) { check in
-                    DisclosureGroup {
-                        Text(check.technicalDetail).font(.caption.monospaced()).textSelection(.enabled)
-                    } label: {
-                        HStack { Image(systemName: check.symbol); Text(check.title); Spacer(); Text(check.outcome).foregroundStyle(.secondary) }
-                    }.accessibilityIdentifier("check.\(check.id)")
+                    VStack(alignment: .leading, spacing: 8) {
+                        Button {
+                            expandedCheckIDs = expandedCheckIDs.symmetricDifference([check.id])
+                        } label: {
+                            HStack {
+                                Image(systemName: expandedCheckIDs.contains(check.id) ? "chevron.down" : "chevron.right")
+                                    .accessibilityHidden(true)
+                                Image(systemName: check.symbol).accessibilityHidden(true)
+                                Text(check.title)
+                                Spacer()
+                                Text(check.outcome).foregroundStyle(.secondary)
+                            }.contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("check.\(check.id)")
+                        if expandedCheckIDs.contains(check.id) {
+                            Text(check.technicalDetail).font(.caption.monospaced()).textSelection(.enabled)
+                                .padding(.leading, 24)
+                                .accessibilityIdentifier("check.\(check.id).detail")
+                        }
+                    }
                 }
             }.padding(28).frame(maxWidth: 800, alignment: .leading)
         }.navigationTitle("status")
