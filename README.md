@@ -2,7 +2,7 @@
 
 NetUnstick jest natywną aplikacją macOS w Swift i SwiftUI. Jej planowany cel to diagnozowanie problemów z dostępem do urządzeń lokalnych po rozłączeniu VPN, w pierwszej kolejności FortiClient/FortiGate. Obecna wersja otwiera standardowe okno. Biblioteka `NetUnstickNetwork` udostępnia odczyt stanu sieci, ostrożną ocenę VPN oraz osiem diagnostyk DNS, tras, interfejsów, proxy i łączności oraz trzy operacje lokalnego odkrywania. `DiagnosisEngine` zwraca kandydackie przyczyny i hipotezy scenariuszy Fortinet. Diagnostyka nie jest jeszcze podłączona do interfejsu. Nie zmienia ustawień i nie wymaga podwyższonych uprawnień.
 
-Minimalna wersja systemu to **macOS 14.0** (`MACOSX_DEPLOYMENT_TARGET = 14.0`). Projekt używa lokalnego pakietu `Packages/NetUnstickKit` z modułami `NetUnstickCore`, `NetUnstickNetwork` i `NetUnstickRepair`. `NetUnstickCore` zawiera kontrakty wyników i operacji, typowaną redakcję evidence, rejestr sesji oraz renderer raportu. Moduł napraw pozostaje pustym punktem rozszerzenia. Nie ma zależności zewnętrznych.
+Minimalna wersja systemu to **macOS 14.0** (`MACOSX_DEPLOYMENT_TARGET = 14.0`). Projekt używa lokalnego pakietu `Packages/NetUnstickKit` z modułami `NetUnstickCore`, `NetUnstickNetwork` i `NetUnstickRepair`. `NetUnstickCore` zawiera kontrakty wyników i operacji, typowaną redakcję evidence, rejestr sesji oraz renderer raportu. Moduł napraw zawiera opcjonalny, wąski helper XPC dla przyszłych jawnych napraw; żadna naprawa nie jest jeszcze podłączona do UI ani uznana za zweryfikowaną. Nie ma zależności zewnętrznych.
 
 ## Budowanie i testowanie
 
@@ -11,13 +11,14 @@ Wymagane są Xcode i narzędzia wiersza poleceń Apple. Z katalogu repozytorium:
 ```sh
 xcodebuild -project NetUnstick.xcodeproj -scheme NetUnstick -configuration Debug -destination 'platform=macOS' -derivedDataPath DerivedData CODE_SIGNING_ALLOWED=NO build
 xcodebuild -project NetUnstick.xcodeproj -scheme NetUnstick -configuration Debug -showBuildSettings | rg MACOSX_DEPLOYMENT_TARGET
+NetUnstick/TestSupport/check-helper-bundle.sh DerivedData/Build/Products/Debug/NetUnstick.app
 cd Packages/NetUnstickKit && swift test
 NETUNSTICK_READ_ONLY_SMOKE=1 swift test --filter ReadOnlySmokeTests
 NETUNSTICK_READ_ONLY_SMOKE=1 swift test --filter HostDiagnosisSmokeTests
 NETUNSTICK_BONJOUR_LIVE=1 swift test --filter BonjourDiscoveryTests/testLocalAdvertiserHarness
 ```
 
-Schemat `NetUnstick` jest współdzielony. Smoke test uruchamia się osobno na macOS; obserwuje host bez zmian i zapisuje wyłącznie zredagowany JSON do `.build/netunstick-smoke-redacted.json` w katalogu pakietu. Brak VPN jest prawidłowym wynikiem. Testy `NetUnstickCore` sprawdzają kontrakty, redakcję, limity i błędy magazynu. Testy `NetUnstickNetwork` obejmują parsery, decyzję VPN, procesy, prywatność oraz tablice decyzji diagnostycznych. Smoke test diagnozy uruchamia aktualny kolektor i checki na hoście; aktywny VPN lub brak internetu dają wynik inconclusive/skipped. `NetUnstickRepair` potwierdza obecnie tylko dostępność modułu.
+Schemat `NetUnstick` jest współdzielony. Smoke test uruchamia się osobno na macOS; obserwuje host bez zmian i zapisuje wyłącznie zredagowany JSON do `.build/netunstick-smoke-redacted.json` w katalogu pakietu. Brak VPN jest prawidłowym wynikiem. Testy `NetUnstickCore` sprawdzają kontrakty, redakcję, limity i błędy magazynu. Testy `NetUnstickNetwork` obejmują parsery, decyzję VPN, procesy, prywatność oraz tablice decyzji diagnostycznych. Smoke test diagnozy uruchamia aktualny kolektor i checki na hoście; aktywny VPN lub brak internetu dają wynik inconclusive/skipped. `NetUnstickRepair` testuje politykę odmów i mapowanie wyników helpera. Aplikacja pokazuje status rejestracji helpera i umożliwia jego jawną rejestrację; użycie wymaga podpisanego buildu z jednym Team ID oraz zatwierdzenia LaunchDaemon w Elementach logowania. Build `CODE_SIGNING_ALLOWED=NO` nie pozwala uruchomić helpera.
 
 ## Odczyt sieci i ograniczenia
 
