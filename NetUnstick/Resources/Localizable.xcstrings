@@ -1,0 +1,1414 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "status": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stan"
+          }
+        }
+      }
+    },
+    "activity": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activity"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktywność"
+          }
+        }
+      }
+    },
+    "settings": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ustawienia"
+          }
+        }
+      }
+    },
+    "demo_notice": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview mode · simulated results. No network changes are made."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tryb demonstracyjny · wyniki symulowane. Sieć nie jest zmieniana."
+          }
+        }
+      }
+    },
+    "run_diagnosis": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run diagnostics"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uruchom diagnostykę"
+          }
+        }
+      }
+    },
+    "diagnosis_hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starts read-only simulated checks."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uruchamia symulowane kontrole tylko do odczytu."
+          }
+        }
+      }
+    },
+    "cancel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anuluj"
+          }
+        }
+      }
+    },
+    "diagnosis_running": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diagnostics in progress…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trwa diagnostyka…"
+          }
+        }
+      }
+    },
+    "last_result": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Latest result"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ostatni wynik"
+          }
+        }
+      }
+    },
+    "no_result": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No diagnosis yet."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brak wyników diagnostyki."
+          }
+        }
+      }
+    },
+    "start_next": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run diagnostics to see suggested next steps."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uruchom diagnostykę, aby zobaczyć następny krok."
+          }
+        }
+      }
+    },
+    "checks": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Independent checks"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niezależne kontrole"
+          }
+        }
+      }
+    },
+    "no_checks": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No checks yet"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie ma jeszcze kontroli"
+          }
+        }
+      }
+    },
+    "state_healthy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network appears healthy"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sieć wygląda na sprawną"
+          }
+        }
+      }
+    },
+    "state_healthy_detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The simulated checks found no issue."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Symulowane kontrole nie wykazały problemu."
+          }
+        }
+      }
+    },
+    "state_problem": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A network issue may be present"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Możliwy problem z siecią"
+          }
+        }
+      }
+    },
+    "state_problem_detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review the checks and the suggested next step."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sprawdź kontrole i sugerowany następny krok."
+          }
+        }
+      }
+    },
+    "state_investigating": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking the network"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Badanie sieci"
+          }
+        }
+      }
+    },
+    "state_investigating_detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The simulated checks are running."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trwają symulowane kontrole."
+          }
+        }
+      }
+    },
+    "state_unknown": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network state unknown"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stan sieci nieznany"
+          }
+        }
+      }
+    },
+    "state_unknown_detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run diagnostics to learn more. VPN status is not confirmed."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uruchom diagnostykę. Stan VPN nie jest potwierdzony."
+          }
+        }
+      }
+    },
+    "result_problem": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A check found a possible problem."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kontrola wykryła możliwy problem."
+          }
+        }
+      }
+    },
+    "result_healthy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No problem found by simulated checks."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Symulowane kontrole nie wykryły problemu."
+          }
+        }
+      }
+    },
+    "next_problem": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review technical details, then contact your administrator if the issue persists."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Przejrzyj szczegóły i skontaktuj się z administratorem, jeśli problem trwa."
+          }
+        }
+      }
+    },
+    "next_healthy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If the issue persists, run diagnostics again after disconnecting VPN."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jeśli problem trwa, uruchom diagnostykę po rozłączeniu VPN."
+          }
+        }
+      }
+    },
+    "cancelled_result": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The operation was cancelled."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Operacja została anulowana."
+          }
+        }
+      }
+    },
+    "unknown_error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The check could not finish."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie udało się zakończyć kontroli."
+          }
+        }
+      }
+    },
+    "check_network": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network path"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ścieżka sieci"
+          }
+        }
+      }
+    },
+    "check_dns": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DNS settings"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ustawienia DNS"
+          }
+        }
+      }
+    },
+    "check_route": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local route"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trasa lokalna"
+          }
+        }
+      }
+    },
+    "check_bonjour": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local discovery"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wykrywanie lokalne"
+          }
+        }
+      }
+    },
+    "check_ok": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No issue found"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bez problemu"
+          }
+        }
+      }
+    },
+    "check_problem": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Needs attention"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wymaga uwagi"
+          }
+        }
+      }
+    },
+    "repair_candidate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repair candidate · simulation"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kandydat do naprawy · symulacja"
+          }
+        }
+      }
+    },
+    "review_candidate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review candidate"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sprawdź kandydata"
+          }
+        }
+      }
+    },
+    "change": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zmiana"
+          }
+        }
+      }
+    },
+    "why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Why"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dlaczego"
+          }
+        }
+      }
+    },
+    "resource": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resource"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zasób"
+          }
+        }
+      }
+    },
+    "impact": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impact"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wpływ"
+          }
+        }
+      }
+    },
+    "permission": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permission"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uprawnienie"
+          }
+        }
+      }
+    },
+    "verification": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verification"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weryfikacja"
+          }
+        }
+      }
+    },
+    "candidate_change": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh a local network resource (simulation only)."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odśwież zasób sieci lokalnej (tylko symulacja)."
+          }
+        }
+      }
+    },
+    "candidate_reason": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A check suggests a stale local setting."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kontrola sugeruje pozostałe ustawienie lokalne."
+          }
+        }
+      }
+    },
+    "candidate_resource": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local network only"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tylko sieć lokalna"
+          }
+        }
+      }
+    },
+    "candidate_impact": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A brief local interruption may occur in a real repair."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prawdziwa naprawa mogłaby krótko przerwać połączenie lokalne."
+          }
+        }
+      }
+    },
+    "candidate_permission": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System approval would be required for a real repair."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prawdziwa naprawa wymagałaby zgody systemowej."
+          }
+        }
+      }
+    },
+    "candidate_verification": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repeat the affected check before and after."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Powtórz kontrolę przed zmianą i po niej."
+          }
+        }
+      }
+    },
+    "mock_repair_notice": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This button only simulates a result. No settings are changed."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ten przycisk tylko symuluje wynik. Ustawienia nie są zmieniane."
+          }
+        }
+      }
+    },
+    "simulate_repair": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Simulate result"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Symuluj wynik"
+          }
+        }
+      }
+    },
+    "repair_verified_mock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Candidate only: the simulated check passed. No repair was performed. Run diagnosis again after a real repair is integrated."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tylko kandydat: symulowana kontrola przeszła. Nie wykonano naprawy. Po podłączeniu naprawy ponów diagnostykę."
+          }
+        }
+      }
+    },
+    "repair_failed_mock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Simulated repair failed. No settings were changed."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Symulowana naprawa nie powiodła się. Ustawienia pozostały bez zmian."
+          }
+        }
+      }
+    },
+    "filter": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filter"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filtr"
+          }
+        }
+      }
+    },
+    "all": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wszystkie"
+          }
+        }
+      }
+    },
+    "success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Successful"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Udane"
+          }
+        }
+      }
+    },
+    "problems": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Problems"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Problemy"
+          }
+        }
+      }
+    },
+    "no_activity": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No activity yet"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brak aktywności"
+          }
+        }
+      }
+    },
+    "no_activity_detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run diagnostics to create a session."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uruchom diagnostykę, aby utworzyć sesję."
+          }
+        }
+      }
+    },
+    "preview_report": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview report…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podgląd raportu…"
+          }
+        }
+      }
+    },
+    "report_preview": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Report preview"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podgląd raportu"
+          }
+        }
+      }
+    },
+    "report_redacted": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only sanitized session data is included. Review it before saving."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raport zawiera tylko oczyszczone dane sesji. Sprawdź go przed zapisaniem."
+          }
+        }
+      }
+    },
+    "save_report": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save report…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zapisz raport…"
+          }
+        }
+      }
+    },
+    "helper": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Helper"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pomocnik"
+          }
+        }
+      }
+    },
+    "helper_available": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Available"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dostępny"
+          }
+        }
+      }
+    },
+    "helper_approvalRequired": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System approval required"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wymaga zatwierdzenia systemowego"
+          }
+        }
+      }
+    },
+    "helper_denied": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approval denied"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odmowa zgody"
+          }
+        }
+      }
+    },
+    "helper_unavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unavailable"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niedostępny"
+          }
+        }
+      }
+    },
+    "helper_note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diagnostics work without the helper. System approval cannot be bypassed."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diagnostyka działa bez pomocnika. Nie można ominąć zgody systemowej."
+          }
+        }
+      }
+    },
+    "privacy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prywatność"
+          }
+        }
+      }
+    },
+    "privacy_detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reports are saved only after preview and your explicit request. No upload or telemetry."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raporty są zapisywane po podglądzie i na Twoje żądanie. Bez wysyłania i telemetrii."
+          }
+        }
+      }
+    },
+    "vpn_active": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VPN active · changes are unavailable"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VPN aktywny · zmiany są niedostępne"
+          }
+        }
+      }
+    },
+    "vpn_unknown": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VPN state unknown · changes are unavailable"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stan VPN nieznany · zmiany są niedostępne"
+          }
+        }
+      }
+    },
+    "vpn_inactive_mock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VPN appears inactive in this simulation"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VPN wygląda na nieaktywny w tej symulacji"
+          }
+        }
+      }
+    },
+    "result_vpn_unknown": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VPN status prevents a clear result."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stan VPN nie pozwala na jednoznaczny wynik."
+          }
+        }
+      }
+    },
+    "next_vpn_unknown": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnect VPN or confirm its status, then run diagnostics again."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rozłącz VPN lub potwierdź jego stan, a potem ponów diagnostykę."
+          }
+        }
+      }
+    },
+    "check_skipped": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not conclusive"
+          }
+        },
+        "p": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "l"
+          }
+        }
+      }
+    },
+    "check_cancelled": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelled"
+          }
+        },
+        "p": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "l"
+          }
+        }
+      }
+    },
+    "check_permission": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permission denied"
+          }
+        },
+        "p": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "l"
+          }
+        }
+      }
+    },
+    "check_timeout": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Timed out"
+          }
+        },
+        "p": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "l"
+          }
+        }
+      }
+    },
+    "result_permission": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local discovery could not run because access was denied."
+          }
+        },
+        "p": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "l"
+          }
+        }
+      }
+    },
+    "next_permission": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check local network permission in System Settings, then run diagnostics again."
+          }
+        },
+        "p": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "l"
+          }
+        }
+      }
+    },
+    "result_timeout": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The network check did not finish in time."
+          }
+        },
+        "p": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "l"
+          }
+        }
+      }
+    },
+    "next_timeout": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check the connection and try the diagnosis again."
+          }
+        },
+        "p": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "l"
+          }
+        }
+      }
+    },
+    "result_no_receiver": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No local receiver was found; this does not prove a network fault."
+          }
+        },
+        "p": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "l"
+          }
+        }
+      }
+    },
+    "next_no_receiver": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make sure the receiver is on and on the same local network, then try again."
+          }
+        },
+        "p": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "l"
+          }
+        }
+      }
+    },
+    "export_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The report could not be saved"
+          }
+        },
+        "p": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "l"
+          }
+        }
+      }
+    },
+    "export_failed_detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a writable location and try again from the preview."
+          }
+        },
+        "p": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "l"
+          }
+        }
+      }
+    },
+    "ok": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "p": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "l"
+          }
+        }
+      }
+    },
+    "wait_or_cancel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wait for the result or cancel the operation."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poczekaj na wynik albo anuluj operację."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}
