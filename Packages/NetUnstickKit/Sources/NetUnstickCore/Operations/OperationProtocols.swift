@@ -41,7 +41,7 @@ public enum RepairPrivilege: String, Codable, Sendable {
 }
 
 public enum RepairResourceScope: String, Codable, Sendable {
-    case wifiInterface, dnsResolver, localDiscovery
+    case wifiInterface, physicalInterface, dnsResolver, localDiscovery, localRoute, diagnosticCheck
 }
 
 /// A repair implementation must check VPN state immediately before changing its declared resource.

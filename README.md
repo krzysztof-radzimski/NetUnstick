@@ -6,6 +6,12 @@ Minimalna wersja systemu to **macOS 14.0** (`MACOSX_DEPLOYMENT_TARGET = 14.0`). 
 
 Ikona Dock to własny znak trzech węzłów i przywróconej ścieżki. Projekt używa kompletnego `AppIcon.appiconset` zgodnego z macOS 14.0; warianty źródłowe Default, Dark, Mono/Tinted i Clear oraz instrukcja odtwarzania są w [Design/AppIcon/README.md](Design/AppIcon/README.md). Automatyczne przełączanie tych wariantów przez system wymaga zweryfikowanego zasobu `.icon` i obecnie nie jest deklarowane.
 
+## Kandydackie naprawy
+
+`RepairPlanBuilder` mapuje wybrane kody diagnostyczne na ponowienie checku, odświeżenie cache resolvera/mDNS i odnowienie DHCP dla jednego potwierdzonego interfejsu. Plan jest propozycją, nie automatyczną akcją ani obietnicą naprawy. Interfejs nadal używa mocków i nie wywołuje rzeczywistych napraw. Usunięcie trasy po nieistniejącym tunelu nie jest oferowane: aktualny detektor ocenia taki stan jako VPN `unknown`, a helper dopuszcza tylko nieobecny interfejs fizyczny `en*`. Wymaga to osobnego, spójnego kontraktu obserwacji i uprawnień przed włączeniem akcji.
+
+`RepairExecutor` wymaga jawnego wywołania po potwierdzeniu przez użytkownika oraz zapisu do `BoundedSessionStore` przed zmianą. Błąd zapisu zatrzymuje akcję. Przed zmianą ponownie sprawdza diagnozę, VPN i zasób; helper powtarza walidację. Po akcji zbiera stan i uruchamia powiązany check. Sukces oznacza dopiero poprawny recheck. Pogorszenie ścieżki, utrata fizycznego interfejsu, resolverów lub trasy domyślnej daje osobny błąd `state_worsened`. Aktywny lub nieznany VPN blokuje zmianę; wyniki `vpn_active` i `vpn_unknown` zawierają odrębne wskazówki. Proxy/PAC i podejrzenia ustawień Fortinet wymagają kontaktu z administratorem. Działania cache i DHCP mogą wymagać zatwierdzenia uprzywilejowanego helpera; brak rejestracji lub odmowa jest raportowana. Protokół helpera nie oferuje bezpiecznej operacji odwrotnej, więc automatyczny rollback nie jest wykonywany.
+
 ## Budowanie i testowanie
 
 Wymagane są Xcode i narzędzia wiersza poleceń Apple. Z katalogu repozytorium:

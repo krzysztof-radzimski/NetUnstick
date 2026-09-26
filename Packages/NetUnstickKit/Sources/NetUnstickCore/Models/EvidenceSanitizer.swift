@@ -100,6 +100,7 @@ public enum NextStep: String, Codable, Sendable {
     case retryCheck = "Run the check again."
     case checkPermissions = "Check app permissions and retry."
     case waitForVPN = "Disconnect VPN and retry."
+    case verifyVPN = "Verify that VPN is disconnected, then run the check again."
     case contactSupport = "Contact your network administrator."
 }
 
