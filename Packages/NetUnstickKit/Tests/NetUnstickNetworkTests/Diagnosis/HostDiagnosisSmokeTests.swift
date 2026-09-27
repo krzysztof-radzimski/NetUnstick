@@ -8,7 +8,8 @@ final class HostDiagnosisSmokeTests: XCTestCase {
             throw XCTSkip("Opt-in read-only host smoke test")
         }
         let report = await DiagnosisEngine().diagnose()
-        XCTAssertEqual(report.results.count, NetworkCheckKind.allCases.count)
+        // Eight network checks plus local multicast, Bonjour discovery and permission.
+        XCTAssertEqual(report.results.count, NetworkCheckKind.allCases.count + 3)
         XCTAssertTrue(report.results.allSatisfy { $0.kind == .diagnostic && $0.endedAt >= $0.startedAt })
         if report.vpn.state != .inactive {
             XCTAssertTrue(report.candidates.allSatisfy(\.unsafeWhileVPNPresent))

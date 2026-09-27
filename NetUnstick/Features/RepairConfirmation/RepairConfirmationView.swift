@@ -15,8 +15,8 @@ struct RepairConfirmationView: View {
                 LabeledContent("permission", value: item.permission)
                 LabeledContent("verification", value: item.verification)
             }
-            Text("mock_repair_notice").foregroundStyle(.secondary)
-            HStack { Spacer(); Button("cancel") { dismiss() }.accessibilityIdentifier("repair.cancel"); Button("simulate_repair") { store.simulateRepair(); dismiss() }.buttonStyle(.borderedProminent).accessibilityIdentifier("repair.confirm") }
+            Text("Po potwierdzeniu aplikacja ponownie sprawdzi VPN i warunki, następnie wykona akcję i powtórzy check.").foregroundStyle(.secondary)
+            HStack { Spacer(); Button("cancel") { dismiss() }.accessibilityIdentifier("repair.cancel"); Button("Potwierdź i wykonaj") { store.confirmRepair(); dismiss() }.buttonStyle(.borderedProminent).accessibilityIdentifier("repair.confirm") }
         }.padding(28).frame(width: 560)
     }
 

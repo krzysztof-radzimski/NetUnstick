@@ -2,14 +2,14 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ContentView: View {
-    @StateObject private var store = PresentationStore(service: MockPresentationService.fromLaunchArguments())
+    @StateObject private var store = CompositionRoot.makeStore()
     @State private var section = "status"
     @State private var repairSheet = false
     @State private var previewSheet = false
     @State private var exporter = false
     @State private var exportError = false
     @State private var report = TextReport(text: "")
-    @State private var highContrast = ProcessInfo.processInfo.arguments.contains("--ui-contrast") || NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast
+    @State private var highContrast = CompositionRoot.testOption("--ui-contrast") || NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast
 
     var body: some View {
         NavigationSplitView {
@@ -23,7 +23,7 @@ struct ContentView: View {
                 switch section {
                 case "activity": ActivityView(store: store) { previewSheet = true }
                 case "settings": SettingsView(store: store)
-                default: DashboardView(store: store, highContrast: highContrast) { repairSheet = true }
+                default: DashboardView(store: store, highContrast: highContrast, showRepair: { repairSheet = true }, showReport: { previewSheet = true })
                 }
             }.frame(minWidth: 560, minHeight: 500)
         }
@@ -48,7 +48,7 @@ struct ContentView: View {
             Button("") { if !store.sessions.isEmpty { previewSheet = true } }.keyboardShortcut("e", modifiers: [.command, .shift]).hidden()
         }
         .onReceive(NotificationCenter.default.publisher(for: NSWorkspace.accessibilityDisplayOptionsDidChangeNotification)) { _ in
-            highContrast = ProcessInfo.processInfo.arguments.contains("--ui-contrast") || NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast
+            highContrast = CompositionRoot.testOption("--ui-contrast") || NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast
         }
     }
 

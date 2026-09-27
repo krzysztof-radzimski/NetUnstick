@@ -18,14 +18,28 @@ public enum HelperRegistrationStatus: String {
 private final class XPCTransport: PrivilegedRequestTransport {
     func perform(_ request: Data, completion: @escaping (Data?, Error?) -> Void) {
         let connection = NSXPCConnection(machServiceName: PrivilegedProtocol.machService, options: .privileged)
+        let gate = XPCCompletionGate(completion)
         connection.remoteObjectInterface = NSXPCInterface(with: NetUnstickHelperXPC.self)
-        connection.interruptionHandler = { completion(nil, NSError(domain: "helper", code: 1)); connection.invalidate() }
-        connection.invalidationHandler = { completion(nil, NSError(domain: "helper", code: 2)) }
+        connection.interruptionHandler = { gate.finish(nil, NSError(domain: "helper", code: 1)); connection.invalidate() }
+        connection.invalidationHandler = { gate.finish(nil, NSError(domain: "helper", code: 2)) }
         connection.resume()
-        guard let proxy = connection.remoteObjectProxyWithErrorHandler({ completion(nil, $0); connection.invalidate() }) as? NetUnstickHelperXPC else {
-            completion(nil, NSError(domain: "helper", code: 3)); connection.invalidate(); return
+        guard let proxy = connection.remoteObjectProxyWithErrorHandler({ gate.finish(nil, $0); connection.invalidate() }) as? NetUnstickHelperXPC else {
+            gate.finish(nil, NSError(domain: "helper", code: 3)); connection.invalidate(); return
         }
-        proxy.perform(request) { data in completion(data, nil); connection.invalidate() }
+        proxy.perform(request) { data in gate.finish(data, nil); connection.invalidate() }
+    }
+}
+
+private final class XPCCompletionGate {
+    private let lock = NSLock()
+    private var completion: ((Data?, Error?) -> Void)?
+    init(_ completion: @escaping (Data?, Error?) -> Void) { self.completion = completion }
+    func finish(_ data: Data?, _ error: Error?) {
+        lock.lock()
+        let callback = completion
+        completion = nil
+        lock.unlock()
+        callback?(data, error)
     }
 }
 

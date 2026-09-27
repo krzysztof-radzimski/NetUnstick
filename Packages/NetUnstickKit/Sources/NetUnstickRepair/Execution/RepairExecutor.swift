@@ -63,7 +63,8 @@ public struct RepairExecutor: Sendable {
     }
 
     /// Invoked only after explicit UI confirmation. Never called by diagnosis.
-    public func execute(_ plan: RepairPlan, context: OperationContext = .init()) async -> OperationResult {
+    public func execute(_ plan: RepairPlan, context: OperationContext = .init(),
+                        onPhase: @Sendable (String, OperationOutcome) -> Void = { _, _ in }) async -> OperationResult {
         let start = context.clock.now()
         var journalHealthy = true
         func record(_ phase: String, _ outcome: OperationOutcome = .success,
@@ -76,6 +77,7 @@ public struct RepairExecutor: Sendable {
                 logger.error("Repair session \(session.id.uuidString, privacy: .public) write failed")
                 return false
             }
+            onPhase(phase, outcome)
             logger.info("Repair session \(session.id.uuidString, privacy: .public) phase \(phase, privacy: .public): \(outcome.rawValue, privacy: .public)")
             return true
         }
@@ -94,6 +96,7 @@ public struct RepairExecutor: Sendable {
                     error: try! OperationError(domain: "repair", code: "session_write_failed"),
                     nextStep: NextStep.reviewDetails.rawValue)
             }
+            onPhase("result", outcome)
             logger.info("Repair session \(session.id.uuidString, privacy: .public) final \(outcome.rawValue, privacy: .public), code \(code ?? "none", privacy: .public)")
             return result
         }

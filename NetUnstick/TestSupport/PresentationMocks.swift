@@ -1,3 +1,4 @@
+#if DEBUG
 import Foundation
 import SwiftUI
 import NetUnstickCore
@@ -31,5 +32,19 @@ import NetUnstickCore
             return try! OperationResult(operationID: "mock.\(name)", name: name, kind: .diagnostic, startedAt: now, endedAt: now.addingTimeInterval(0.2), outcome: outcome, error: bad ? try! OperationError(domain: "Mock", code: scenario.replacingOccurrences(of: "-", with: "_")) : nil, nextStep: bad ? "Run a new diagnosis or contact your administrator." : nil)
         }
     }
+    func executeRepair(onPhase: @escaping @Sendable (String, OperationOutcome) -> Void) async -> OperationResult? {
+        guard repairCandidate() != nil else { return nil }
+        for phase in ["before_snapshot", "read_only_retry", "after_snapshot", "recheck"] {
+            onPhase(phase, .success)
+            try? await Task.sleep(for: .milliseconds(70))
+        }
+        let now = Date(timeIntervalSince1970: 1_700_000_001)
+        let outcome: OperationOutcome = scenario == "repair-success" ? .success : .failure
+        return try? OperationResult(operationID: "fake.repair", name: "retryCheck", kind: .repair,
+            startedAt: now, endedAt: now.addingTimeInterval(0.3), outcome: outcome,
+            error: outcome == .failure ? OperationError(domain: "repair", code: "recheck_failed") : nil,
+            nextStep: outcome == .success ? NextStep.reviewDetails.rawValue : NextStep.contactSupport.rawValue)
+    }
 }
 
+#endif

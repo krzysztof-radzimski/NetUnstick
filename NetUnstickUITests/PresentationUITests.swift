@@ -10,18 +10,64 @@ final class PresentationUITests: XCTestCase {
         return app
     }
 
+    private func launchIntegration(_ scenario: String) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = ["--integration-scenario=\(scenario)"]
+        app.launch()
+        return app
+    }
+
+    func testRealCompositionWithFakeSystemBoundary() {
+        let healthy = launchIntegration("healthy")
+        healthy.buttons["diagnosis.start"].click()
+        XCTAssertTrue(healthy.buttons["check.unicast_dns_resolution"].waitForExistence(timeout: 10))
+        XCTAssertFalse(healthy.buttons["repair.open"].exists)
+        healthy.terminate()
+
+        for (scenario, verified) in [("verified", true), ("unresolved", false)] {
+            let app = launchIntegration(scenario)
+            app.buttons["diagnosis.start"].click()
+            let privileged = app.buttons["repair.open.1"]
+            XCTAssertTrue(privileged.waitForExistence(timeout: 10))
+            privileged.click()
+            XCTAssertTrue(app.buttons["repair.confirm"].waitForExistence(timeout: 5))
+            app.buttons["repair.confirm"].click()
+            let result = app.staticTexts["dashboard.result"]
+            let fragment = verified ? "Naprawiono" : "recheck_failed"
+            let predicate = NSPredicate(format: "value CONTAINS %@", fragment)
+            XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: predicate, object: result)], timeout: 10), .completed)
+            app.buttons["report.preview.open"].click()
+            let preview = app.descendants(matching: .any)["report.preview.text"]
+            XCTAssertTrue(preview.waitForExistence(timeout: 5))
+            let report = preview.staticTexts.firstMatch.value as? String ?? ""
+            XCTAssertTrue(report.contains("NetUnstick session report"))
+            XCTAssertFalse(report.contains("secret.corp"))
+            XCTAssertFalse(report.contains("192.0.2.53"))
+            app.buttons["report.cancel"].click()
+            app.terminate()
+        }
+
+        for scenario in ["vpn-active", "vpn-unknown"] {
+            let app = launchIntegration(scenario)
+            app.buttons["diagnosis.start"].click()
+            XCTAssertTrue(app.buttons["check.unicast_dns_resolution"].waitForExistence(timeout: 10))
+            XCTAssertFalse(app.buttons["repair.open"].exists)
+            app.terminate()
+        }
+    }
+
     func testNavigationDetailsRepairAndReport() {
         let app = launch("dns-residue")
         XCTAssertTrue(app.buttons["diagnosis.start"].waitForExistence(timeout: 10))
         let state = app.descendants(matching: .any)["dashboard.state"]
         XCTAssertTrue(state.exists)
-        let dns = app.buttons["check.dns"]
+        let dns = app.buttons["check.mock.dns"]
         XCTAssertTrue(dns.waitForExistence(timeout: 10))
         let dashboardScroll = app.scrollViews.element(boundBy: 1)
         for _ in 0..<3 where !dns.isHittable { dashboardScroll.swipeUp() }
         XCTAssertTrue(dns.isHittable)
         dns.click()
-        let technicalDetail = app.staticTexts["check.dns.detail"]
+        let technicalDetail = app.staticTexts["check.mock.dns.detail"]
         XCTAssertTrue(technicalDetail.waitForExistence(timeout: 5))
         app.buttons["repair.open"].click()
         XCTAssertTrue(app.buttons["repair.confirm"].waitForExistence(timeout: 5))
@@ -48,6 +94,63 @@ final class PresentationUITests: XCTestCase {
         XCTAssertTrue(app.buttons["diagnosis.cancel"].waitForExistence(timeout: 5))
         app.typeKey(.escape, modifierFlags: [])
         XCTAssertFalse(app.buttons["diagnosis.cancel"].exists)
+    }
+
+    func testConfirmedRepairRequiresSuccessfulRecheck() {
+        let success = launch("repair-success")
+        XCTAssertTrue(success.buttons["repair.open"].waitForExistence(timeout: 10))
+        success.buttons["repair.open"].click()
+        XCTAssertTrue(success.buttons["repair.confirm"].waitForExistence(timeout: 5))
+        success.buttons["repair.confirm"].click()
+        let verified = success.staticTexts.matching(NSPredicate(format: "value CONTAINS %@", "Naprawiono")).firstMatch
+        XCTAssertTrue(verified.waitForExistence(timeout: 5))
+        XCTAssertTrue((success.staticTexts["dashboard.result"].value as? String)?.contains("Naprawiono") == true)
+        success.terminate()
+
+        let failed = launch("repair-failure")
+        XCTAssertTrue(failed.buttons["repair.open"].waitForExistence(timeout: 10))
+        failed.buttons["repair.open"].click()
+        failed.buttons["repair.confirm"].click()
+        let failure = failed.staticTexts.matching(NSPredicate(format: "value == %@", "failure")).firstMatch
+        XCTAssertTrue(failure.waitForExistence(timeout: 5))
+        XCTAssertFalse((failed.staticTexts["dashboard.result"].value as? String)?.contains("Naprawiono") == true)
+    }
+
+    func testActiveAndUnknownVPNExplainBlockedChange() {
+        for scenario in ["vpn-active", "vpn-unknown"] {
+            let app = launch(scenario)
+            XCTAssertTrue(app.staticTexts["dashboard.vpn"].waitForExistence(timeout: 10))
+            XCTAssertFalse(app.buttons["repair.open"].exists)
+            app.terminate()
+        }
+    }
+
+    func testHelperApprovalAndLimitedEnvironmentRemainUsable() {
+        let app = launch("helper-approval")
+        app.descendants(matching: .any)["nav.settings"].click()
+        XCTAssertTrue(app.buttons["helper.register"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["helper.settings"].exists)
+        app.descendants(matching: .any)["nav.status"].click()
+        XCTAssertTrue(app.buttons["diagnosis.start"].exists)
+        app.terminate()
+
+        let timedOut = launch("timeout")
+        let timeoutResult = timedOut.staticTexts.matching(NSPredicate(format: "value CONTAINS %@ OR value CONTAINS %@", "czasie", "time")).firstMatch
+        XCTAssertTrue(timeoutResult.waitForExistence(timeout: 10))
+    }
+
+    func testDeniedBonjourAndMissingReceiverAreEnvironmentOutcomes() {
+        let denied = launch("bonjour-denied")
+        let permission = denied.staticTexts.matching(NSPredicate(format: "value CONTAINS %@ OR value CONTAINS %@", "odmówił", "denied")).firstMatch
+        XCTAssertTrue(permission.waitForExistence(timeout: 10))
+        XCTAssertFalse(denied.buttons["repair.open"].exists)
+        denied.terminate()
+
+        let absent = launch("no-receiver")
+        let bonjour = absent.buttons["check.mock.bonjour"]
+        XCTAssertTrue(bonjour.waitForExistence(timeout: 10))
+        XCTAssertTrue(bonjour.label.contains("niejednoznaczny") || bonjour.label.contains("Not conclusive"))
+        XCTAssertFalse(absent.buttons["repair.open"].exists)
     }
 
     func testKeyboardNavigationAndIdentifiers() {

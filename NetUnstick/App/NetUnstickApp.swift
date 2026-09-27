@@ -8,7 +8,7 @@ struct NetUnstickApp: App {
     var body: some Scene {
         WindowGroup("NetUnstick") {
             ContentView()
-                .preferredColorScheme(ProcessInfo.processInfo.arguments.contains("--ui-light") ? .light : ProcessInfo.processInfo.arguments.contains("--ui-dark") ? .dark : nil)
+                .preferredColorScheme(CompositionRoot.testOption("--ui-light") ? .light : CompositionRoot.testOption("--ui-dark") ? .dark : nil)
         }
     }
 }

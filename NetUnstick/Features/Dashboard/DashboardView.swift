@@ -6,11 +6,15 @@ struct DashboardView: View {
     @State private var expandedCheckIDs: Set<String> = []
     let highContrast: Bool
     let showRepair: () -> Void
+    let showReport: () -> Void
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 Text("status").font(.largeTitle.bold())
-                Text("demo_notice").foregroundStyle(.secondary)
+                if store.disconnectBanner {
+                    Label("VPN został rozłączony. Uruchom diagnostykę, aby sprawdzić sieć.", systemImage: "info.circle")
+                        .accessibilityIdentifier("dashboard.disconnect")
+                }
                 Label(store.vpnStatus, systemImage: "network.badge.shield.half.filled")
                     .accessibilityIdentifier("dashboard.vpn")
                 HStack(alignment: .top, spacing: 16) {
@@ -33,6 +37,7 @@ struct DashboardView: View {
                     }
                 }
                 if store.isRunning { Text("diagnosis_running").accessibilityIdentifier("operation.active") }
+                if !store.repairPhase.isEmpty { Text(store.repairPhase).accessibilityIdentifier("repair.phase") }
                 VStack(alignment: .leading, spacing: 8) {
                     Text("last_result").font(.headline)
                     Text(store.lastResultText).accessibilityIdentifier("dashboard.result")
@@ -40,15 +45,20 @@ struct DashboardView: View {
                 }.padding(20).frame(maxWidth: .infinity, alignment: .leading)
                     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
                     .overlay(RoundedRectangle(cornerRadius: 16).stroke(highContrast ? Color.primary : Color.clear, lineWidth: 2))
-                if let candidate = store.candidate {
+                ForEach(Array(store.candidates.enumerated()), id: \.offset) { index, candidate in
+                    if store.vpn.state == .inactive {
                     VStack(alignment: .leading, spacing: 8) {
                         Label("repair_candidate", systemImage: "wrench.adjustable").font(.headline)
-                        Text(candidate.reason)
-                        Button("review_candidate") { showRepair() }.accessibilityIdentifier("repair.open")
+                        Text("\(candidate.change): \(candidate.reason)")
+                        Button("review_candidate") { store.selectCandidate(index); showRepair() }
+                            .accessibilityIdentifier(index == 0 ? "repair.open" : "repair.open.\(index)")
                     }.padding(20).frame(maxWidth: .infinity, alignment: .leading)
                         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
                         .overlay(RoundedRectangle(cornerRadius: 16).stroke(highContrast ? Color.primary : Color.clear, lineWidth: 2))
+                    }
                 }
+                Button("preview_report") { showReport() }
+                    .disabled(store.sessions.isEmpty).accessibilityIdentifier("report.preview.open")
                 Text("checks").font(.headline)
                 if store.checks.isEmpty { ContentUnavailableView("no_checks", systemImage: "list.bullet.clipboard") }
                 ForEach(store.checks) { check in
@@ -67,6 +77,9 @@ struct DashboardView: View {
                         }
                         .buttonStyle(.plain)
                         .accessibilityIdentifier("check.\(check.id)")
+                        if let reason = check.reason {
+                            Text(reason).foregroundStyle(.secondary).accessibilityIdentifier("check.\(check.id).reason")
+                        }
                         if expandedCheckIDs.contains(check.id) {
                             Text(check.technicalDetail).font(.caption.monospaced()).textSelection(.enabled)
                                 .padding(.leading, 24)

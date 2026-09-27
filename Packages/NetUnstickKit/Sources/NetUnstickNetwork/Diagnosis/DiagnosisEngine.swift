@@ -20,6 +20,8 @@ public struct DiagnosisReport: Sendable {
     public let state: DiagnosisState
     public let vpn: VPNAssessment
     public let snapshot: SanitizedNetworkSnapshot
+    /// Ephemeral input for repair planning. Never persist or expose in presentation.
+    public let rawSnapshot: RawNetworkSnapshot
     public let results: [OperationResult]
     public let candidates: [CandidateCause]
     public let fortinetFindings: [FortinetFinding]
@@ -40,7 +42,8 @@ public struct DiagnosisEngine: Sendable {
         self.bonjourBrowser = bonjourBrowser
     }
 
-    public func diagnose(context: OperationContext = OperationContext()) async -> DiagnosisReport {
+    public func diagnose(context: OperationContext = OperationContext(),
+                         onCheck: @Sendable (OperationResult, Int, Int) -> Void = { _, _, _ in }) async -> DiagnosisReport {
         let raw = await boundedCollection()
         let vpn = detector.assess(raw)
         var results: [OperationResult] = []
@@ -55,12 +58,23 @@ public struct DiagnosisEngine: Sendable {
             ProxyConfigurationCheck(snapshot: raw, probe: probe),
             InterfaceConsistencyCheck(snapshot: raw, probe: probe)
         ]
-        for check in checks { results.append(await check.run(context: context)) }
-        results.append(await LocalMulticastPathCheck(snapshot: raw).run(context: context))
-        let discovery = await BonjourDiscoveryChecking(snapshot: raw, browser: bonjourBrowser).run(context: context)
-        results.append(discovery)
-        let discoveryReason = BonjourReason(rawValue: discovery.after.values[.errorCode] ?? "") ?? .inconclusive
-        results.append(await BonjourPermissionCheck(observation: .init(count: 0, reason: discoveryReason)).run(context: context))
+        func add(_ result: OperationResult) {
+            results.append(result)
+            onCheck(result, results.count, 11)
+        }
+        for check in checks {
+            if Task.isCancelled { break }
+            add(await check.run(context: context))
+        }
+        if !Task.isCancelled { add(await LocalMulticastPathCheck(snapshot: raw).run(context: context)) }
+        if !Task.isCancelled {
+            let discovery = await BonjourDiscoveryChecking(snapshot: raw, browser: bonjourBrowser).run(context: context)
+            add(discovery)
+            let discoveryReason = BonjourReason(rawValue: discovery.after.values[.errorCode] ?? "") ?? .inconclusive
+            if !Task.isCancelled {
+                add(await BonjourPermissionCheck(observation: .init(count: 0, reason: discoveryReason)).run(context: context))
+            }
+        }
         let reasons = results.compactMap { $0.after.values[.errorCode].flatMap(NetworkCheckReason.init(rawValue:)) }
         let candidateReasons = reasons.filter { reason in
             switch reason {
@@ -80,7 +94,7 @@ public struct DiagnosisEngine: Sendable {
         else { state = .healthy }
         let findings = FortinetScenarioClassifier().classify(snapshot: raw, vpn: vpn, checks: results,
                                       productVersion: FortiClientMetadataReader().redactedVersion())
-        return DiagnosisReport(state: state, vpn: vpn, snapshot: SanitizedNetworkSnapshot(raw: raw),
+        return DiagnosisReport(state: state, vpn: vpn, snapshot: SanitizedNetworkSnapshot(raw: raw), rawSnapshot: raw,
                                results: results, candidates: candidates, fortinetFindings: findings)
     }
 

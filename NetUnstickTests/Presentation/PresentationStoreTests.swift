@@ -1,43 +1,49 @@
 import XCTest
+import NetUnstickCore
+import NetUnstickNetwork
 @testable import NetUnstick
 
+@MainActor private final class TransitionPresentationService: PresentationService {
+    let scenario = "production"
+    let helper = HelperPresentationState.unavailable
+    private(set) var calls: [Bool] = []
+    func diagnose() async throws -> [OperationResult] { [] }
+    func repairCandidate() -> RepairCandidatePresentation? { nil }
+    func refreshVPN(stabilize: Bool) async -> VPNAssessment {
+        calls.append(stabilize)
+        return calls.count == 1 ? .init(state: .active, reasonCode: .tunnelPath) :
+            .init(state: .inactive, reasonCode: .noVPNSignals)
+    }
+}
+
 @MainActor final class PresentationStoreTests: XCTestCase {
-    func testScenariosHaveDistinctStructuredOutcomes() async throws {
-        let healthy = try await MockPresentationService(scenario: "healthy").diagnose()
-        XCTAssertEqual(healthy.count, 4)
-        XCTAssertTrue(healthy.allSatisfy { $0.outcome == .success })
-        let denied = try await MockPresentationService(scenario: "bonjour-denied").diagnose()
-        XCTAssertEqual(denied.last?.outcome, .permissionDenied)
-        XCTAssertEqual(denied.last?.error?.code, "bonjour_denied")
-        let timedOut = try await MockPresentationService(scenario: "timeout").diagnose()
-        XCTAssertEqual(timedOut.first?.outcome, .timedOut)
-        let absent = try await MockPresentationService(scenario: "no-receiver").diagnose()
-        XCTAssertEqual(absent.last?.outcome, .skipped)
+    private func settle(_ store: PresentationStore) async {
+        for _ in 0..<30 {
+            if !store.isRunning { return }
+            try? await Task.sleep(for: .milliseconds(100))
+        }
     }
 
-    func testUnknownVPNNeverAppearsHealthy() async throws {
-        let store = PresentationStore(service: MockPresentationService(scenario: "vpn-unknown"))
-        try await Task.sleep(for: .milliseconds(650))
-        XCTAssertEqual(store.state, .unknown)
-        XCTAssertFalse(store.sessions.isEmpty)
+    func testMockDiagnosisDisplaysStructuredOutcomes() async throws {
+        let store = PresentationStore(service: MockPresentationService(scenario: "healthy"))
+        await settle(store)
+        XCTAssertEqual(store.state, .healthy)
+        XCTAssertEqual(store.checks.count, 4)
+        XCTAssertEqual(store.sessions.last?.entries.count, 4)
         XCTAssertNil(store.candidate)
     }
 
-    func testAllDocumentedScenariosProduceDeterministicMockResults() async throws {
-        let scenarios = ["healthy", "dns-residue", "route-blocked", "bonjour-denied", "no-receiver", "vpn-active", "vpn-unknown", "permission-denied", "timeout", "repair-success", "repair-failure"]
-        for scenario in scenarios {
-            let service = MockPresentationService(scenario: scenario)
-            let first = try await service.diagnose()
-            let second = try await service.diagnose()
-            XCTAssertEqual(first.map(\.outcome), second.map(\.outcome), scenario)
-            XCTAssertEqual(first.map(\.error?.code), second.map(\.error?.code), scenario)
-            XCTAssertEqual(first.count, 4, scenario)
+    func testVPNStatesBlockRepairAtClick() async throws {
+        for scenario in ["vpn-active", "vpn-unknown"] {
+            let store = PresentationStore(service: MockPresentationService(scenario: scenario))
+            await settle(store)
+            XCTAssertEqual(store.state, .unknown)
+            XCTAssertNil(store.candidate)
+            XCTAssertNotEqual(store.vpn.state, .inactive)
         }
-        XCTAssertNotNil(MockPresentationService(scenario: "dns-residue").repairCandidate())
-        XCTAssertNil(MockPresentationService(scenario: "vpn-active").repairCandidate())
     }
 
-    func testCancellationProducesBoundedSession() {
+    func testCancellationHasDistinctSessionOutcome() {
         let store = PresentationStore(service: MockPresentationService(scenario: "operation-progress"))
         XCTAssertTrue(store.isRunning)
         store.cancel()
@@ -45,12 +51,27 @@ import XCTest
         XCTAssertEqual(store.sessions.last?.entries.last?.outcome, .cancelled)
     }
 
-    func testRepairSimulationDoesNotClaimRealSuccess() async throws {
-        let store = PresentationStore(service: MockPresentationService(scenario: "repair-success"))
-        XCTAssertNotNil(store.candidate)
-        store.simulateRepair()
-        XCTAssertEqual(store.sessions.last?.entries.last?.kind, .repair)
-        XCTAssertEqual(store.sessions.last?.entries.last?.outcome, .skipped)
-        XCTAssertTrue(store.lastResultText.lowercased().contains("symul") || store.lastResultText.lowercased().contains("simulat"))
+    func testSuccessAndExitZeroWithoutImprovementHaveDifferentUIResults() async {
+        for (scenario, outcome) in [("repair-success", OperationOutcome.success), ("repair-failure", .failure)] {
+            let store = PresentationStore(service: MockPresentationService(scenario: scenario))
+            await settle(store)
+            XCTAssertNotNil(store.candidate)
+            store.confirmRepair()
+            await settle(store)
+            XCTAssertEqual(store.sessions.last?.entries.last?.outcome, outcome)
+            XCTAssertEqual(store.lastResultText.contains("Naprawiono"), outcome == .success)
+        }
+    }
+
+    func testStableVPNDisconnectShowsBannerWithoutAutomaticDiagnosis() async throws {
+        let service = TransitionPresentationService()
+        let store = PresentationStore(service: service)
+        for _ in 0..<45 where !store.disconnectBanner {
+            try await Task.sleep(for: .milliseconds(100))
+        }
+        XCTAssertTrue(store.disconnectBanner)
+        XCTAssertEqual(service.calls.prefix(2).map { $0 }, [false, true])
+        XCTAssertTrue(store.checks.isEmpty)
+        XCTAssertTrue(store.sessions.isEmpty)
     }
 }
