@@ -10,6 +10,8 @@ The sign is a three-node local network with a continuous restored route. There i
 
 These are **design sources**, not system-selected variants in the current app. `Generated/ContactSheet.png` shows, from top to bottom, the variants above; each row has 16, 32, 64, 128, and 512 px on light (left) and dark (right) backgrounds. ClearLight and ClearDark are intended for their matching surface.
 
+`NetUnstick.svg` is a standalone vector copy of the shipped Default icon for use outside the asset catalog. It combines the three source layers, explicitly disables path fill, and rounds its stroke caps. Its color values match the generated Default PNG pixels; CoreGraphics exports the layer source colors to slightly different pixel values. If the Default layers change, regenerate the PNG and update this copy as well; the macOS asset catalog is still generated from the separate layers.
+
 ## Regenerate and check
 
 Run from the repository root:

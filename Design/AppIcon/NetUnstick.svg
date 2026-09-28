@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>NetUnstick app icon</title>
+  <rect x="0" y="0" width="1024" height="1024" fill="#014756"/>
+  <path d="M 230 330 C 330 330 280 690 454 690 C 636 690 580 330 790 330"
+        fill="none" stroke="#37D9D1" stroke-width="94" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="230" cy="330" r="92" fill="#F8FFFD"/>
+  <circle cx="454" cy="690" r="92" fill="#F8FFFD"/>
+  <circle cx="790" cy="330" r="92" fill="#F8FFFD"/>
+</svg>
