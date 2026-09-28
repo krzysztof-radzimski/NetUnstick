@@ -1,12 +1,20 @@
 import XCTest
 
 final class PresentationUITests: XCTestCase {
+    private func ensureWindow(_ app: XCUIApplication) {
+        if !app.windows.firstMatch.waitForExistence(timeout: 2) {
+            app.typeKey("n", modifierFlags: .command)
+            XCTAssertTrue(app.windows.firstMatch.waitForExistence(timeout: 5), "A standard window must open")
+        }
+    }
+
     private func launch(_ scenario: String, appearance: String? = nil, contrast: Bool = false) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["--scenario=\(scenario)"]
         if let appearance { app.launchArguments += [appearance == "Dark" ? "--ui-dark" : "--ui-light"] }
         if contrast { app.launchArguments += ["--ui-light", "--ui-contrast"] }
         app.launch()
+        ensureWindow(app)
         return app
     }
 
@@ -14,6 +22,7 @@ final class PresentationUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["--integration-scenario=\(scenario)"]
         app.launch()
+        ensureWindow(app)
         return app
     }
 
@@ -27,7 +36,7 @@ final class PresentationUITests: XCTestCase {
         for (scenario, verified) in [("verified", true), ("unresolved", false)] {
             let app = launchIntegration(scenario)
             app.buttons["diagnosis.start"].click()
-            let privileged = app.buttons["repair.open.1"]
+            let privileged = app.buttons["repair.open"]
             XCTAssertTrue(privileged.waitForExistence(timeout: 10))
             privileged.click()
             XCTAssertTrue(app.buttons["repair.confirm"].waitForExistence(timeout: 5))
@@ -69,6 +78,9 @@ final class PresentationUITests: XCTestCase {
         dns.click()
         let technicalDetail = app.staticTexts["check.mock.dns.detail"]
         XCTAssertTrue(technicalDetail.waitForExistence(timeout: 5))
+        let detailText = technicalDetail.value as? String ?? technicalDetail.label
+        XCTAssertFalse(detailText.contains("secret.corp"))
+        XCTAssertFalse(detailText.contains("192.0.2.53"))
         app.buttons["repair.open"].click()
         XCTAssertTrue(app.buttons["repair.confirm"].waitForExistence(timeout: 5))
         app.buttons["repair.cancel"].click()
@@ -182,5 +194,28 @@ final class PresentationUITests: XCTestCase {
         attachment.name = "dns-residue-increased-contrast"
         attachment.lifetime = .keepAlways
         add(attachment)
+        app.terminate()
+
+        let variant = XCUIApplication()
+        variant.launchArguments = ["--scenario=dns-residue", "--ui-large-text"]
+        variant.launch()
+        ensureWindow(variant)
+        XCTAssertTrue(variant.descendants(matching: .any)["dashboard.state"].waitForExistence(timeout: 10))
+        let capture = XCTAttachment(screenshot: variant.screenshot())
+        capture.name = "dns-residue-large-text"
+        capture.lifetime = .keepAlways
+        add(capture)
+        variant.terminate()
+
+        let reduced = XCUIApplication()
+        reduced.launchArguments = ["--scenario=dns-residue", "--ui-reduce-motion"]
+        reduced.launch()
+        ensureWindow(reduced)
+        XCTAssertTrue(reduced.descendants(matching: .any)["dashboard.state"].waitForExistence(timeout: 10))
+        let reducedCapture = XCTAttachment(screenshot: reduced.screenshot())
+        reducedCapture.name = "dns-residue-reduce-motion"
+        reducedCapture.lifetime = .keepAlways
+        add(reducedCapture)
+        reduced.terminate()
     }
 }

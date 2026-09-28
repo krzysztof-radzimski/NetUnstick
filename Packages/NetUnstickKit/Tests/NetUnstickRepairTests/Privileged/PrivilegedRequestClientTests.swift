@@ -18,19 +18,19 @@ private struct SilentTransport: PrivilegedRequestTransport {
 final class PrivilegedRequestClientTests: XCTestCase {
     func testSuccessDisconnectPermissionAndTimeout() async throws {
         let sample = await PrivilegedRepairExecutor(collector: ClientSnapshot(), dhcp: ClientDHCP(), runner: ClientRunner())
-            .perform(.init(action: .refreshResolverCache))
+            .perform(.init(action: .renewDHCP(interface: "en0")))
         let encoded = try JSONEncoder().encode(sample)
         for (transport, expected) in [(FakeTransport(response: encoded, error: nil), PrivilegedCode.success),
                                       (FakeTransport(response: nil, error: NSError(domain: "xpc", code: 1)), .disconnected),
                                       (FakeTransport(response: nil, error: NSError(domain: NSCocoaErrorDomain, code: NSFileReadNoPermissionError)), .permissionDenied)] {
             let expectation = expectation(description: "single reply")
-            PrivilegedRequestClient.perform(.refreshResolverCache, transport: transport, timeout: 0.02) {
+            PrivilegedRequestClient.perform(.renewDHCP(interface: "en0"), transport: transport, timeout: 0.02) {
                 XCTAssertEqual($0.code, expected); expectation.fulfill()
             }
             await fulfillment(of: [expectation], timeout: 1)
         }
         let expectation = expectation(description: "timeout")
-        PrivilegedRequestClient.perform(.refreshResolverCache, transport: SilentTransport(), timeout: 0.02) {
+        PrivilegedRequestClient.perform(.renewDHCP(interface: "en0"), transport: SilentTransport(), timeout: 0.02) {
             XCTAssertEqual($0.code, .timedOut); expectation.fulfill()
         }
         await fulfillment(of: [expectation], timeout: 1)
@@ -46,8 +46,8 @@ private struct ClientSnapshot: NetUnstickNetwork.NetworkStateCollecting {
     }
 }
 private struct ClientDHCP: DHCPConfigurationChecking {
-    func configuredInterfaces() -> Set<String> { [] }
-    func refresh(_ name: String) -> Bool { false }
+    func configuredInterfaces() -> Set<String> { ["en0"] }
+    func refresh(_ name: String) -> Bool { true }
 }
 private struct ClientRunner: PrivilegedCommandRunning {
     func run(executable: String, arguments: [String]) async throws {}

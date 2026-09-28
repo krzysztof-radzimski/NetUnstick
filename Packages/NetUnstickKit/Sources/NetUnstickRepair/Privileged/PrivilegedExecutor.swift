@@ -16,9 +16,8 @@ public enum PrivilegedExecutionError: Error, Equatable {
 public struct BoundedPrivilegedCommandRunner: PrivilegedCommandRunning {
     public init() {}
     public func run(executable: String, arguments: [String]) async throws {
-        guard (executable == "/usr/bin/dscacheutil" && arguments == ["-flushcache"]) ||
-              (executable == "/usr/bin/killall" && arguments == ["-HUP", "mDNSResponder"]) ||
-              (executable == "/sbin/route" && arguments.count == 7 && arguments[0...2] == ["-n", "delete", "-net"] && arguments[3] == "-ifscope")
+        guard executable == "/sbin/route" && arguments.count == 7 &&
+              arguments[0...2] == ["-n", "delete", "-net"] && arguments[3] == "-ifscope"
         else { throw PrivilegedExecutionError.launchFailed }
         let process = Process()
         process.executableURL = URL(fileURLWithPath: executable)
@@ -128,13 +127,6 @@ public struct PrivilegedRepairExecutor: Sendable {
             before = SanitizedNetworkSnapshot(raw: snapshot).evidence
             let action = try RepairPolicy.authorize(request, snapshot: snapshot, dhcpInterfaces: dhcp.configuredInterfaces())
             switch action {
-            case .refreshResolverCache:
-                try await runner.run(executable: "/usr/bin/dscacheutil", arguments: ["-flushcache"])
-                let current = await collector.collect()
-                guard try RepairPolicy.authorize(request, snapshot: current,
-                                                 dhcpInterfaces: dhcp.configuredInterfaces()) == action
-                else { throw RepairPolicyError.ambiguousResource }
-                try await runner.run(executable: "/usr/bin/killall", arguments: ["-HUP", "mDNSResponder"])
             case .renewDHCP(let name):
                 guard dhcp.refresh(name) else { throw PrivilegedExecutionError.nonZeroExit }
             case .removeRoute(let destination, let prefix, let name, let gateway):

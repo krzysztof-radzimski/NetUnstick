@@ -2,7 +2,7 @@
 
 ## Cel i stan
 
-NetUnstick to natywne narzędzie macOS pomagające zdiagnozować brak dostępu do urządzeń w sieci lokalnej po rozłączeniu VPN i zmianie Wi-Fi, bez restartowania komputera. Pierwszy przypadek dotyczy FortiClient łączącego się z FortiGate. Sama obserwacja użytkownika nie wskazuje jednej przyczyny ani skutecznej naprawy. Obecny projekt zawiera tylko uruchamialny fundament; poniższe funkcje są wymaganiami przyszłego MVP, nie opisem działania obecnej aplikacji.
+NetUnstick to natywne narzędzie macOS pomagające zdiagnozować brak dostępu do urządzeń w sieci lokalnej po rozłączeniu VPN i zmianie Wi-Fi, bez restartowania komputera. Pierwszy przypadek dotyczy FortiClient łączącego się z FortiGate. Sama obserwacja użytkownika nie wskazuje jednej przyczyny ani skutecznej naprawy. Ten dokument zachowuje wymagania produktu; stan faktycznej implementacji i dowody odbioru opisują README oraz `docs/verification.md`. Nie wszystkie wymagania pierwotnego MVP są dostępne: UI nie przyjmuje znanego adresu urządzenia, a rzeczywista skuteczność naprawy nie została potwierdzona na odtworzonej awarii.
 
 Nazwa produktu: **NetUnstick**, krótka nazwa angielska. W rozmowie przeprowadzono jedynie wstępne wyszukanie nazwy; nie stanowi to weryfikacji znaków towarowych. Krótki opis projektu: „A native macOS utility for diagnosing and fixing local network issues after disconnecting from a VPN.”
 
@@ -42,7 +42,7 @@ Bonjour/mDNS służy do odnajdywania usług lokalnych; AirPlay może od niego za
 
 Swift i SwiftUI, bez zależności runtime spoza systemu. Interfejs ma reagować na tryb jasny/ciemny, kolor akcentu, zwiększony kontrast, skalowanie tekstu i ograniczony ruch. Natywne kontrolki, semantyczne kolory, nawigacja klawiaturą i etykiety VoiceOver. Ikona aplikacji powinna być charakterystyczna, czytelna w małym Docku i mieć warianty wyglądu wspierane przez wybrany target. Surowe logi pozostają w rozwijanych szczegółach.
 
-## Mierzalne kryteria odbioru przyszłego MVP
+## Mierzalne kryteria produktu
 
 | ID | Kryterium |
 | --- | --- |
@@ -57,7 +57,7 @@ Swift i SwiftUI, bez zależności runtime spoza systemu. Interfejs ma reagować 
 
 ## Macierz pokrycia źródłowej rozmowy
 
-Wiersze obejmują wszystkie decyzje i potrzeby produktowe z `konwersacja.md`; historia obsługi interfejsu Codex, zapisy narzędzi i wcześniejsze robocze propozycje nazw nie są wymaganiami aplikacji.
+Wiersze zachowują decyzje i potrzeby produktowe z pierwotnej rozmowy. Plik `konwersacja.md` nie jest przechowywany w repozytorium; historia obsługi interfejsu Codex, zapisy narzędzi i wcześniejsze robocze propozycje nazw nie są wymaganiami aplikacji.
 
 | Wymaganie / informacja z rozmowy | Sekcja dokumentu | Planowany komponent |
 | --- | --- | --- |

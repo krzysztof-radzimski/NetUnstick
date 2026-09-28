@@ -18,7 +18,7 @@ final class PrivacyAndStoreTests: XCTestCase {
             .appendingPathComponent("sessions.json")
     }
 
-    func testSensitiveValuesAbsentFromLoggableAndExportedText() throws {
+    func testSensitiveValuesAbsentFromLoggableAndExportedText() async throws {
         let secrets = ["Corp-WiFi-Secret", "Living Room Apple TV", "8.8.8.8", "192.168.1.25",
                        "printer.corp.internal", "/Users/alice/private", "sk_test_abc123secret",
                        "password=supersecret", "stdout: route to private host"]
@@ -35,6 +35,19 @@ final class PrivacyAndStoreTests: XCTestCase {
         let logText = ActivityLogRecord(session: session, result: session.entries[0]).text
         let allText = report + preview.body + logText
         for secret in secrets { XCTAssertFalse(allText.contains(secret), "Leaked sensitive fixture") }
+        let url = temporaryURL()
+        defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
+        let store = try BoundedSessionStore(fileURL: url)
+        try await store.startSession(session)
+        try await store.append(session.entries[0], to: session.id)
+        let persisted = String(decoding: try Data(contentsOf: url), as: UTF8.self)
+        let restored = try await store.sessions()
+        XCTAssertEqual(restored, [session])
+        for secret in secrets { XCTAssertFalse(persisted.contains(secret), "Leaked persisted fixture") }
+        let exportURL = url.deletingLastPathComponent().appendingPathComponent("export.txt")
+        try ReportRenderer().utf8Data(session: session).write(to: exportURL)
+        let exported = String(decoding: try Data(contentsOf: exportURL), as: UTF8.self)
+        for secret in secrets { XCTAssertFalse(exported.contains(secret), "Leaked exported file") }
         XCTAssertTrue(report.contains("Session ID: \(session.id.uuidString)"))
         XCTAssertTrue(report.contains("networkStatus=unavailable"))
         XCTAssertEqual(ReportRenderer().utf8Data(session: session), Data(report.utf8))

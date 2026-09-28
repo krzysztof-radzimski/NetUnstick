@@ -80,7 +80,7 @@ final class RepairHarnessTests: XCTestCase {
         return (try! BoundedSessionStore(fileURL: file),
                 ActivitySession(startedAt: Date(), appVersion: "1.0", macOSVersion: "14.0"))
     }
-    private func snapshot(_ state: String = "inactive", address: String = "192.168.1.2") -> RawNetworkSnapshot {
+    private func snapshot(_ state: String = "inactive", address: String = "169.254.1.2") -> RawNetworkSnapshot {
         let time = Date(timeIntervalSince1970: 1_000)
         let tunnel = state == "active" ? [RawInterface(name: "utun1", type: "other", isUp: true, addresses: [])] :
                      state == "unknown" ? [RawInterface(name: "utun1", type: "other", isUp: false, addresses: [])] : []
@@ -91,9 +91,9 @@ final class RepairHarnessTests: XCTestCase {
             interfaces: [RawInterface(name: "en0", type: "wifi", isUp: true, addresses: [address])] + tunnel,
             routes: routes, resolvers: [], proxy: nil, dynamicStoreVPNKeys: [], errors: [])
     }
-    private func plan(_ kind: RepairKind = .refreshResolverCache, resource: RepairResource = .resolverCache) -> RepairPlan {
-        .init(kind: kind, reasonCode: "dnsFailure", checkID: "unicast_dns_resolution", resource: resource,
-              summary: .init(change: "cache", resource: "resolver", purpose: "check", requiresAdministrator: true,
+    private func plan() -> RepairPlan {
+        .init(kind: .renewDHCP, reasonCode: "noAddressLease", checkID: "physical_link", resource: .physicalInterface("en0"),
+              summary: .init(change: "DHCP", resource: "interface", purpose: "check", requiresAdministrator: true,
                              possibleImpact: "brief", verification: "recheck"))
     }
 
@@ -105,17 +105,17 @@ final class RepairHarnessTests: XCTestCase {
         }
         let clean = snapshot(), active = snapshot("active"), unknown = snapshot("unknown")
         let cases: [Scenario] = [
-            .init(name: "resolved", snapshots: [clean], reasons: ["dnsFailure", "healthy"], helperCode: .success, waitFails: false, cancelled: false, expected: .success, error: nil, calls: 1),
-            .init(name: "exit zero recheck fails", snapshots: [clean], reasons: ["dnsFailure", "dnsFailure"], helperCode: .success, waitFails: false, cancelled: false, expected: .failure, error: "recheck_failed", calls: 1),
-            .init(name: "active vpn", snapshots: [active], reasons: ["dnsFailure"], helperCode: .success, waitFails: false, cancelled: false, expected: .skipped, error: "vpn_active", calls: 0),
-            .init(name: "unknown vpn", snapshots: [unknown], reasons: ["dnsFailure"], helperCode: .success, waitFails: false, cancelled: false, expected: .skipped, error: "vpn_unknown", calls: 0),
+            .init(name: "resolved", snapshots: [clean], reasons: ["noAddressLease", "healthy"], helperCode: .success, waitFails: false, cancelled: false, expected: .success, error: nil, calls: 1),
+            .init(name: "exit zero recheck fails", snapshots: [clean], reasons: ["noAddressLease", "noAddressLease"], helperCode: .success, waitFails: false, cancelled: false, expected: .failure, error: "recheck_failed", calls: 1),
+            .init(name: "active vpn", snapshots: [active], reasons: ["noAddressLease"], helperCode: .success, waitFails: false, cancelled: false, expected: .skipped, error: "vpn_active", calls: 0),
+            .init(name: "unknown vpn", snapshots: [unknown], reasons: ["noAddressLease"], helperCode: .success, waitFails: false, cancelled: false, expected: .skipped, error: "vpn_unknown", calls: 0),
             .init(name: "diagnosis vanished", snapshots: [clean], reasons: ["healthy"], helperCode: .success, waitFails: false, cancelled: false, expected: .skipped, error: nil, calls: 0),
-            .init(name: "helper denied", snapshots: [clean], reasons: ["dnsFailure"], helperCode: .permissionDenied, waitFails: false, cancelled: false, expected: .permissionDenied, error: "permissionDenied", calls: 1),
-            .init(name: "xpc lost", snapshots: [clean], reasons: ["dnsFailure"], helperCode: .disconnected, waitFails: false, cancelled: false, expected: .failure, error: "disconnected", calls: 1),
-            .init(name: "helper timeout", snapshots: [clean], reasons: ["dnsFailure"], helperCode: .timedOut, waitFails: false, cancelled: false, expected: .timedOut, error: "timedOut", calls: 1),
-            .init(name: "settle timeout", snapshots: [clean], reasons: ["dnsFailure"], helperCode: .success, waitFails: true, cancelled: false, expected: .timedOut, error: "settle_timeout", calls: 1),
-            .init(name: "cancelled", snapshots: [clean], reasons: ["dnsFailure"], helperCode: .success, waitFails: false, cancelled: true, expected: .cancelled, error: nil, calls: 0),
-            .init(name: "resource changed", snapshots: [clean, snapshot(address: "192.168.1.3")], reasons: ["dnsFailure"], helperCode: .success, waitFails: false, cancelled: false, expected: .skipped, error: nil, calls: 0)
+            .init(name: "helper denied", snapshots: [clean], reasons: ["noAddressLease"], helperCode: .permissionDenied, waitFails: false, cancelled: false, expected: .permissionDenied, error: "permissionDenied", calls: 1),
+            .init(name: "xpc lost", snapshots: [clean], reasons: ["noAddressLease"], helperCode: .disconnected, waitFails: false, cancelled: false, expected: .failure, error: "disconnected", calls: 1),
+            .init(name: "helper timeout", snapshots: [clean], reasons: ["noAddressLease"], helperCode: .timedOut, waitFails: false, cancelled: false, expected: .timedOut, error: "timedOut", calls: 1),
+            .init(name: "settle timeout", snapshots: [clean], reasons: ["noAddressLease"], helperCode: .success, waitFails: true, cancelled: false, expected: .timedOut, error: "settle_timeout", calls: 1),
+            .init(name: "cancelled", snapshots: [clean], reasons: ["noAddressLease"], helperCode: .success, waitFails: false, cancelled: true, expected: .cancelled, error: nil, calls: 0),
+            .init(name: "resource changed", snapshots: [clean, snapshot(address: "192.168.1.3")], reasons: ["noAddressLease"], helperCode: .success, waitFails: false, cancelled: false, expected: .skipped, error: nil, calls: 0)
         ]
         for item in cases {
             let helper = FakeHelper(item.helperCode)
@@ -136,11 +136,11 @@ final class RepairHarnessTests: XCTestCase {
         }
     }
 
-    func testEveryActionRechecksAndOnlyMutatingActionsCallHelper() async {
+    func testReadOnlyRetryAndDHCPRecheckAndHelperBoundary() async {
         let clean = snapshot()
         let cases: [(RepairPlan, [RawNetworkSnapshot], String, Int)] = [
-            (plan(.retryCheck, resource: .check("unicast_dns_resolution")), [clean], "dnsFailure", 0),
-            (plan(.refreshResolverCache), [clean], "dnsFailure", 1),
+            (.init(kind: .retryCheck, reasonCode: "dnsFailure", checkID: "unicast_dns_resolution",
+                   resource: .check("unicast_dns_resolution"), summary: plan().summary), [clean], "dnsFailure", 0),
             (.init(kind: .renewDHCP, reasonCode: "noAddressLease", checkID: "physical_link",
                    resource: .physicalInterface("en0"), summary: plan().summary), [snapshot(address: "169.254.1.2"), snapshot(address: "169.254.1.2"), snapshot(address: "169.254.1.2"), clean], "noAddressLease", 1)
         ]
@@ -179,8 +179,8 @@ final class RepairHarnessTests: XCTestCase {
     func testPhaseRecordContainsNoRawNetworkEvidence() async throws {
         let (store, session) = journal()
         let helper = FakeHelper(.success)
-        let executor = RepairExecutor(collector: FakeCollector(snapshots: [snapshot(address: "192.168.1.2")]),
-            checks: FakeChecks(reasons: ["dnsFailure", "healthy"]), helper: helper,
+        let executor = RepairExecutor(collector: FakeCollector(snapshots: [snapshot(address: "169.254.1.2")]),
+            checks: FakeChecks(reasons: ["noAddressLease", "healthy"]), helper: helper,
             wait: ImmediateWait(fails: false), dhcpInterfaces: { ["en0"] }, store: store, session: session)
         let result = await executor.execute(plan(), context: .init(clock: FakeClock()))
         XCTAssertEqual(result.outcome, .success)
@@ -191,7 +191,7 @@ final class RepairHarnessTests: XCTestCase {
         XCTAssertTrue(names.contains("recheck"))
         let bytes = try JSONEncoder().encode(sessions)
         let text = String(decoding: bytes, as: UTF8.self)
-        XCTAssertFalse(text.contains("192.168.1.2"))
+        XCTAssertFalse(text.contains("169.254.1.2"))
         XCTAssertFalse(text.contains("en0"))
     }
 
@@ -202,7 +202,7 @@ final class RepairHarnessTests: XCTestCase {
         let store = try BoundedSessionStore(fileURL: directory)
         let session = ActivitySession(startedAt: Date(), appVersion: "1.0", macOSVersion: "14.0")
         let executor = RepairExecutor(collector: FakeCollector(snapshots: [snapshot()]),
-            checks: FakeChecks(reasons: ["dnsFailure", "healthy"]), helper: helper,
+            checks: FakeChecks(reasons: ["noAddressLease", "healthy"]), helper: helper,
             wait: ImmediateWait(fails: false), dhcpInterfaces: { ["en0"] }, store: store, session: session)
         let result = await executor.execute(plan(), context: .init(clock: FakeClock()))
         XCTAssertEqual(result.outcome, .failure)
@@ -221,7 +221,7 @@ final class RepairHarnessTests: XCTestCase {
         let (store, session) = journal()
         let helper = FakeHelper(.success)
         let executor = RepairExecutor(collector: FakeCollector(snapshots: [clean, clean, clean, degraded]),
-            checks: FakeChecks(reasons: ["dnsFailure", "healthy"]), helper: helper,
+            checks: FakeChecks(reasons: ["noAddressLease", "healthy"]), helper: helper,
             wait: ImmediateWait(fails: false), dhcpInterfaces: { ["en0"] }, store: store, session: session)
         let result = await executor.execute(plan(), context: .init(clock: FakeClock()))
         XCTAssertEqual(result.outcome, .failure)
@@ -233,7 +233,7 @@ final class RepairHarnessTests: XCTestCase {
         let helper = FakeHelper(.success, resultOutcome: .failure)
         let (store, session) = journal()
         let executor = RepairExecutor(collector: FakeCollector(snapshots: [snapshot()]),
-            checks: FakeChecks(reasons: ["dnsFailure", "healthy"]), helper: helper,
+            checks: FakeChecks(reasons: ["noAddressLease", "healthy"]), helper: helper,
             wait: ImmediateWait(fails: false), dhcpInterfaces: { ["en0"] }, store: store, session: session)
         let result = await executor.execute(plan(), context: .init(clock: FakeClock()))
         XCTAssertEqual(result.outcome, .failure)

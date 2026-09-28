@@ -29,10 +29,11 @@ private actor FixtureRepairCheckRunner: RepairCheckRunning {
         calls += 1
         let fixed = calls > 1 && resolves
         let now = Date()
+        let reason = id == "physical_link" ? "noAddressLease" : "dnsFailure"
         return try? OperationResult(operationID: id, name: id, kind: .diagnostic,
             startedAt: now, endedAt: now, outcome: fixed ? .success : .failure,
-            after: EvidenceSanitizer.sanitize([.errorCode: .errorCode(fixed ? "healthy" : "dnsFailure")]),
-            error: fixed ? nil : OperationError(domain: "fixture", code: "dnsFailure"))
+            after: EvidenceSanitizer.sanitize([.errorCode: .errorCode(fixed ? "healthy" : reason)]),
+            error: fixed ? nil : OperationError(domain: "fixture", code: reason))
     }
 }
 
@@ -52,17 +53,19 @@ private struct FixtureWait: RepairWaiting {
     static func make(scenario: String) throws -> AppEnvironment {
         guard ["healthy", "fault", "verified", "unresolved", "vpn-active", "vpn-unknown"].contains(scenario)
         else { throw SessionStoreError.ioFailure }
+        let leaseFailure = scenario == "verified" || scenario == "unresolved"
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
             .deletingLastPathComponent().deletingLastPathComponent()
         let file = root.appendingPathComponent("DerivedData/UITestSessions/\(UUID().uuidString)/sessions.json")
-        return try AppEnvironment(collector: FixtureNetworkCollector(snapshot: snapshot(vpn: scenario)),
-            probe: FixtureConnectivityProbe(failsDNS: !["healthy"].contains(scenario)),
+        return try AppEnvironment(collector: FixtureNetworkCollector(snapshot: snapshot(vpn: scenario, leaseFailure: leaseFailure)),
+            probe: FixtureConnectivityProbe(failsDNS: ["fault", "vpn-active", "vpn-unknown"].contains(scenario)),
             bonjour: FixtureBonjourBrowser(), store: BoundedSessionStore(fileURL: file),
             repairChecks: FixtureRepairCheckRunner(resolves: scenario == "verified"),
-            repairHelper: FixturePrivilegedHelper(), repairWait: FixtureWait(), dhcpInterfaces: { [] })
+            repairHelper: FixturePrivilegedHelper(), repairWait: FixtureWait(),
+            dhcpInterfaces: { leaseFailure ? ["en0"] : [] })
     }
 
-    private static func snapshot(vpn: String) -> RawNetworkSnapshot {
+    private static func snapshot(vpn: String, leaseFailure: Bool) -> RawNetworkSnapshot {
         let now = Date()
         let active = vpn == "vpn-active", unknown = vpn == "vpn-unknown"
         let tunnel = active || unknown ? [RawInterface(name: "utun1", type: "other", isUp: active, addresses: [])] : []
@@ -70,7 +73,7 @@ private struct FixtureWait: RepairWaiting {
         return RawNetworkSnapshot(startedAt: now, endedAt: now,
             path: RawPathState(status: "satisfied", availableInterfaces: ["en0"], selectedInterfaces: ["en0"],
                 supportsDNS: true, supportsIPv4: true, supportsIPv6: false, gateways: ["192.0.2.1"]),
-            interfaces: [RawInterface(name: "en0", type: "wifi", isUp: true, addresses: ["192.0.2.2/24"])] + tunnel,
+            interfaces: [RawInterface(name: "en0", type: "wifi", isUp: true, addresses: [leaseFailure ? "169.254.1.2/16" : "192.0.2.2/24"])] + tunnel,
             routes: [RawRoute(destination: "0.0.0.0/0", gateway: "192.0.2.1", interfaceName: "en0", isDefault: true),
                 RawRoute(destination: "192.0.2.0/24", gateway: nil, interfaceName: "en0", isDefault: false, isLocal: true)] + route,
             resolvers: [RawResolver(domain: "secret.corp", searchDomains: ["secret.corp"],

@@ -41,7 +41,8 @@ final class RepairCatalogTests: XCTestCase {
 
     func testOnlyExactResourcesArePlanned() async {
         let dns = await plans(snapshot())
-        XCTAssertTrue(dns.plans.contains { $0.kind == .refreshResolverCache && $0.checkID == "unicast_dns_resolution" })
+        XCTAssertFalse(dns.plans.contains { $0.kind == .refreshResolverCache })
+        XCTAssertTrue(dns.plans.contains { $0.kind == .retryCheck && $0.checkID == "unicast_dns_resolution" })
         XCTAssertTrue(dns.plans.contains { $0.kind == .retryCheck && $0.checkID == "bonjour_discovery" })
         let dhcp = await plans(snapshot(address: "169.254.1.3"))
         XCTAssertTrue(dhcp.plans.contains { $0.kind == .renewDHCP && $0.checkID == "physical_link" })

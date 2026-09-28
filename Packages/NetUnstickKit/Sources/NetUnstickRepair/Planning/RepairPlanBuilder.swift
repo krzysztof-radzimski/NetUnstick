@@ -44,8 +44,6 @@ public enum RepairCatalog {
         case (.retryCheck, "unicast_dns_resolution", "dnsFailure", .check("unicast_dns_resolution")),
              (.retryCheck, "bonjour_discovery", "browserFailed", .check("bonjour_discovery")),
              (.retryCheck, "bonjour_discovery", "noServices", .check("bonjour_discovery")),
-             (.refreshResolverCache, "unicast_dns_resolution", "dnsFailure", .resolverCache),
-             (.refreshResolverCache, "bonjour_discovery", "browserFailed", .resolverCache),
              (.renewDHCP, "physical_link", "noAddressLease", .physicalInterface): return true
         default: return false
         }
@@ -93,9 +91,6 @@ public struct RepairPlanBuilder {
             case ("unicast_dns_resolution", NetworkCheckReason.dnsFailure.rawValue),
                  ("bonjour_discovery", BonjourReason.browserFailed.rawValue):
                 plans.append(make(.retryCheck, code, check, .check(check)))
-                // A failed lookup/discovery is only a symptom. Cache refresh remains a
-                // candidate and is offered only when the same failure persists on revalidation.
-                plans.append(make(.refreshResolverCache, code, check, .resolverCache))
             case ("bonjour_discovery", BonjourReason.noServices.rawValue):
                 plans.append(make(.retryCheck, code, check, .check(check)))
             case ("physical_link", NetworkCheckReason.noAddressLease.rawValue):

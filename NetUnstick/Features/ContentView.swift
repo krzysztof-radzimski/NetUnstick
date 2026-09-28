@@ -2,6 +2,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ContentView: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @StateObject private var store = CompositionRoot.makeStore()
     @State private var section = "status"
     @State private var repairSheet = false
@@ -27,6 +28,7 @@ struct ContentView: View {
                 }
             }.frame(minWidth: 560, minHeight: 500)
         }
+        .font(dynamicTypeSize.isAccessibilitySize ? .system(size: 22) : .body)
         .sheet(isPresented: $repairSheet) { RepairConfirmationView(store: store) { repairSheet = false } }
         .sheet(isPresented: $previewSheet) { ReportPreviewView(store: store, dismiss: { previewSheet = false }) {
             report = TextReport(text: store.reportText)

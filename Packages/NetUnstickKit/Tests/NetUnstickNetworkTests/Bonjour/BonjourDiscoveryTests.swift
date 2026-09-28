@@ -72,27 +72,58 @@ final class BonjourDiscoveryTests: XCTestCase {
         guard ProcessInfo.processInfo.environment["NETUNSTICK_BONJOUR_LIVE"] == "1" else {
             throw XCTSkip("Set NETUNSTICK_BONJOUR_LIVE=1 for local-network harness")
         }
+        let fixtureName = "NetUnstickFixture-\(UUID().uuidString)"
         let listener = try NWListener(using: .tcp, on: .any)
-        listener.service = NWListener.Service(name: "NetUnstickFixture", type: BonjourService.airplay.rawValue)
-        let (stream, continuation) = AsyncStream.makeStream(of: Bool.self, bufferingPolicy: .bufferingNewest(1))
+        listener.service = NWListener.Service(name: fixtureName, type: BonjourService.airplay.rawValue)
+        listener.newConnectionHandler = { connection in connection.cancel() }
+        let (stream, continuation) = AsyncStream.makeStream(of: (Bool, String?).self, bufferingPolicy: .bufferingNewest(1))
         listener.stateUpdateHandler = { state in
             switch state {
-            case .ready: continuation.yield(true)
-            case .failed: continuation.yield(false)
+            case .ready: continuation.yield((true, nil))
+            case .failed(let error): continuation.yield((false, "\(error)"))
             default: break
             }
         }
         listener.start(queue: DispatchQueue(label: "NetUnstick.Fixture"))
         defer { listener.cancel(); continuation.finish() }
-        let timer = Task { try? await Task.sleep(for: .seconds(3)); continuation.yield(false) }
-        var iterator = stream.makeAsyncIterator()
-        let ready = await iterator.next() ?? false
-        timer.cancel()
-        guard ready else { throw XCTSkip("Local advertiser unavailable on this host") }
-        let observed = await SystemBonjourBrowser().browse(.airplay, timeout: .seconds(3))
-        guard observed.reason == .servicesFound else {
-            throw XCTSkip("Local-network permission or mDNS visibility unavailable: \(observed.reason.rawValue)")
+        let timer = Task {
+            do { try await Task.sleep(for: .seconds(3)); continuation.yield((false, nil)) }
+            catch { /* The listener completed before the deadline. */ }
         }
+        var iterator = stream.makeAsyncIterator()
+        let (ready, startupError) = await iterator.next() ?? (false, nil)
+        timer.cancel()
+        if let startupError {
+            XCTFail("Local advertiser failed to start: \(startupError)")
+            return
+        }
+        guard ready else { throw XCTSkip("Local advertiser timed out on this host") }
+        let fixtureBrowser = NWBrowser(for: .bonjour(type: BonjourService.airplay.rawValue, domain: nil), using: .tcp)
+        let (foundStream, foundContinuation) = AsyncStream.makeStream(of: Bool.self, bufferingPolicy: .bufferingNewest(1))
+        fixtureBrowser.browseResultsChangedHandler = { results, _ in
+            let found = results.contains { result in
+                guard case let .service(name, _, _, _) = result.endpoint else { return false }
+                return name == fixtureName
+            }
+            if found { foundContinuation.yield(true) }
+        }
+        fixtureBrowser.stateUpdateHandler = { state in
+            if case .failed = state { foundContinuation.yield(false) }
+        }
+        fixtureBrowser.start(queue: DispatchQueue(label: "NetUnstick.FixtureBrowser"))
+        defer { fixtureBrowser.cancel(); foundContinuation.finish() }
+        let discoveryTimer = Task {
+            do { try await Task.sleep(for: .seconds(3)); foundContinuation.yield(false) }
+            catch { /* The fixture was found before the deadline. */ }
+        }
+        var foundIterator = foundStream.makeAsyncIterator()
+        let foundFixture = await foundIterator.next() ?? false
+        discoveryTimer.cancel()
+        guard foundFixture else {
+            throw XCTSkip("Local-network permission or mDNS visibility unavailable for the fixture")
+        }
+        let observed = await SystemBonjourBrowser().browse(.airplay, timeout: .seconds(3))
+        XCTAssertEqual(observed.reason, .servicesFound)
         XCTAssertGreaterThanOrEqual(observed.count, 1)
     }
 }

@@ -25,14 +25,9 @@ private struct FixtureRunner: PrivilegedCommandRunning {
 final class PrivilegedExecutorTests: XCTestCase {
     func testOutcomeMappingAndNoChangeOnVPN() async {
         let request = PrivilegedRequest(action: .refreshResolverCache)
-        for (error, expected) in [(nil, PrivilegedCode.success), (.timedOut, .timedOut),
-                                  (.nonZeroExit, .nonZeroExit), (.outputLimit, .outputLimit),
-                                  (.permissionDenied, .permissionDenied)] as [(PrivilegedExecutionError?, PrivilegedCode)] {
-            let reply = await PrivilegedRepairExecutor(collector: FixtureCollector(vpn: false),
-                dhcp: FixtureDHCP(), runner: FixtureRunner(error: error)).perform(request)
-            XCTAssertEqual(reply.code, expected)
-            XCTAssertNotNil(reply.result.nextStep)
-        }
+        let rejected = await PrivilegedRepairExecutor(collector: FixtureCollector(vpn: false),
+            dhcp: FixtureDHCP(), runner: FixtureRunner(error: nil)).perform(request)
+        XCTAssertEqual(rejected.code, .invalidRequest)
         let blocked = await PrivilegedRepairExecutor(collector: FixtureCollector(vpn: true),
             dhcp: FixtureDHCP(), runner: FixtureRunner(error: nil)).perform(request)
         XCTAssertEqual(blocked.code, .vpnActive)
@@ -71,13 +66,13 @@ private actor RecordingRunner: PrivilegedCommandRunning {
 }
 
 extension PrivilegedExecutorTests {
-    func testRefreshStopsBeforeSecondCommandWhenVPNBecomesActive() async {
+    func testRemovedGlobalRefreshNeverRunsACommand() async {
         let runner = RecordingRunner()
         let reply = await PrivilegedRepairExecutor(collector: RefreshSequenceCollector(),
             dhcp: FixtureDHCP(), runner: runner).perform(.init(action: .refreshResolverCache))
         let count = await runner.count()
-        XCTAssertEqual(reply.code, .vpnActive)
-        XCTAssertEqual(count, 1)
+        XCTAssertEqual(reply.code, .invalidRequest)
+        XCTAssertEqual(count, 0)
     }
 
     func testRouteRequiresObservedRemovalAfterSuccessfulCommand() async {
