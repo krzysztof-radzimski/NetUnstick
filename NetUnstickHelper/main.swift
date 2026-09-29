@@ -82,7 +82,7 @@ private final class ListenerDelegate: NSObject, NSXPCListenerDelegate {
 }
 
 guard geteuid() == 0, let requirement = clientRequirement() else { exit(77) }
-log.info("helper listener starting")
+log.info("helper listener starting, protocol \(PrivilegedProtocol.version, privacy: .public)")
 private let delegate = ListenerDelegate(requirement: requirement)
 let listener = NSXPCListener(machServiceName: PrivilegedProtocol.machService)
 listener.delegate = delegate

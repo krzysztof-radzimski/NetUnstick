@@ -131,3 +131,16 @@ mount=''
 
 /usr/bin/shasum -a 256 "$dmg"
 print "DMG: $dmg"
+
+# Login Items approval for the daemon is tied to the helper binary while the identity has no
+# Team ID: an update that changes the helper asks the user once more, an app-only update does not.
+helper_cdhash="$(/usr/bin/codesign -dvvv "$app/Contents/MacOS/NetUnstickHelper" 2>&1 | /usr/bin/sed -n 's/^CDHash=//p')"
+record="$out/helper-cdhash.txt"
+if [[ -f "$record" && "$(/bin/cat "$record")" != "$helper_cdhash" ]]; then
+    print "UWAGA: binarka helpera zmieniła się od poprzedniego wydania ($(/bin/cat "$record") -> $helper_cdhash); po aktualizacji macOS poprosi raz o zatwierdzenie helpera w Elementach logowania."
+elif [[ -f "$record" ]]; then
+    print "Helper bez zmian od poprzedniego wydania ($helper_cdhash); aktualizacja nie wymaga nowej zgody."
+else
+    print "Zapisano cdhash helpera ($helper_cdhash) jako punkt odniesienia dla kolejnych wydań."
+fi
+print -r -- "$helper_cdhash" > "$record"
