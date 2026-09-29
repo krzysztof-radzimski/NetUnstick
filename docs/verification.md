@@ -140,3 +140,7 @@ Dodana funkcja: karta „Test połączenia z urządzeniem” (`DeviceConnectionC
 | `PresentationUITests` | 9 testów, 0 błędów z nową kartą na ekranie Stan. |
 
 Ten sam test uruchomiony na drugim komputerze w kierunku MacBooka (nazwa Bonjour MacBooka, port 445) rozstrzygnie, czy problem leży w sieci (`timedOut`/`unreachable`), w usłudze (`refused`) czy w logowaniu (`reachable`, a Finder wymaga „Połącz jako…”).
+
+## Wynik testu urządzenia z drugiego komputera — 30 września 2026
+
+Użytkownik uruchomił na drugim komputerze Mac (build 7) test połączenia w kierunku nazwy Bonjour MacBooka na portach 548 (AFP) i 80 (HTTP): oba `refused`, interfejs Wi‑Fi, bez tunelu. Odrzucenie oznacza, że pakiety docierają do MacBooka i odpowiedzi wracają, więc ścieżka sieciowa między komputerami działa w obu kierunkach; na MacBooku nie ma usług AFP ani HTTP, co jest prawidłowe. Wynik dla portu 445 nie został przekazany; to on rozstrzyga, czy „Błąd połączenia” w Finderze dotyczy usługi SMB, czy logowania. Na MacBooku w tym czasie nadal nie było żadnego połączenia przychodzącego na port 445 z drugiego komputera. Komunikaty wyniku doprecyzowano tak, by „osiągalne” i „odrzucone” mówiły wprost, że sieć działa; zmiana czeka na kolejne wydanie (numer buildu podniesiony do 8 bez budowy obrazu, żeby nie wymuszać kolejnej zgody na helper przy samej zmianie tekstów).

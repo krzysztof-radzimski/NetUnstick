@@ -9,9 +9,9 @@ public enum DeviceConnectionReason: String, Sendable, CaseIterable {
 
     public var message: String {
         switch self {
-        case .reachable: return "Urządzenie przyjęło połączenie na tym porcie."
-        case .refused: return "Urządzenie odpowiada, ale odrzuca połączenie na tym porcie; usługa jest wyłączona albo port jest inny."
-        case .timedOut: return "Brak odpowiedzi w wyznaczonym czasie; pakiety nie docierają albo odpowiedzi wracają inną drogą."
+        case .reachable: return "Urządzenie przyjęło połączenie na tym porcie; sieć między komputerami działa, a usługa nasłuchuje."
+        case .refused: return "Sieć między komputerami działa: urządzenie odpowiada, ale odrzuca połączenie na tym porcie, bo usługa jest wyłączona albo używa innego portu."
+        case .timedOut: return "Brak odpowiedzi w wyznaczonym czasie; pakiety nie docierają albo odpowiedzi wracają inną drogą, np. przez tunel lub router bez zawracania ruchu."
         case .unreachable: return "System nie ma trasy do tego urządzenia albo urządzenie jest niedostępne."
         case .nameUnresolved: return "Nie udało się rozwiązać nazwy urządzenia."
         case .invalidInput: return "Podaj nazwę lub adres urządzenia oraz port z zakresu 1–65535."
