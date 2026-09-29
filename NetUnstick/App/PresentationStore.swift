@@ -49,6 +49,25 @@ enum HelperPresentationState: String {
     var symbol: String { switch self { case .available: "checkmark.circle"; case .approvalRequired: "hand.raised"; case .denied: "xmark.circle"; case .unavailable: "questionmark.circle" } }
 }
 
+/// Result of the read-only helper handshake shown in Settings.
+enum HelperHandshakePresentation: Equatable {
+    case notRun, responding(version: Int), failed(code: String)
+    var text: String {
+        switch self {
+        case .notRun: "Helper nie był jeszcze sprawdzany."
+        case .responding(let version): "Helper odpowiada (protokół w wersji \(version))."
+        case .failed(let code): "Helper nie odpowiada: \(code)."
+        }
+    }
+    var symbol: String {
+        switch self {
+        case .notRun: "questionmark.circle"
+        case .responding: "checkmark.seal"
+        case .failed: "xmark.seal"
+        }
+    }
+}
+
 struct CheckPresentation: Identifiable {
     let id: String
     let title: String
@@ -85,6 +104,7 @@ struct RepairCandidatePresentation {
     func preview(_ session: ActivitySession) -> String
     func registerHelper() -> HelperPresentationState
     func unregisterHelper() -> HelperPresentationState
+    func verifyHelper() async -> HelperHandshakePresentation
     func openHelperSettings()
 }
 
@@ -111,6 +131,7 @@ extension PresentationService {
     func preview(_ session: ActivitySession) -> String { ReportRenderer().preview(session: session).body }
     func registerHelper() -> HelperPresentationState { helper }
     func unregisterHelper() -> HelperPresentationState { helper }
+    func verifyHelper() async -> HelperHandshakePresentation { .notRun }
     func openHelperSettings() {}
 }
 
@@ -129,6 +150,7 @@ extension PresentationService {
     @Published var repairPhase = ""
     @Published var selectedSessionID: UUID?
     @Published var helperState: HelperPresentationState = .unavailable
+    @Published var helperHandshake: HelperHandshakePresentation = .notRun
     private let service: any PresentationService
     private var task: Task<Void, Never>?
     private var watcher: Task<Void, Never>?
@@ -191,6 +213,7 @@ extension PresentationService {
         if service.scenario == "production" {
             watcher = Task { [weak self] in
                 await self?.refreshSessions()
+                await self?.verifyHelperNow()
                 while !Task.isCancelled {
                     await self?.observeVPN()
                     try? await Task.sleep(for: .seconds(3))
@@ -228,6 +251,11 @@ extension PresentationService {
     func selectSession(_ id: UUID) { selectedSessionID = id }
     func registerHelper() { helperState = service.registerHelper() }
     func unregisterHelper() { helperState = service.unregisterHelper() }
+    func verifyHelper() { Task { await verifyHelperNow() } }
+    private func verifyHelperNow() async {
+        helperHandshake = await service.verifyHelper()
+        helperState = service.helper
+    }
     func openHelperSettings() { service.openHelperSettings() }
 
     func startDiagnosis() {

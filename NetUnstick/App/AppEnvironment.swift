@@ -23,6 +23,7 @@ import NetUnstickRepair
     private var currentSession: ActivitySession?
     private(set) var vpn: VPNAssessment = .init(state: .unknown, reasonCode: .stabilizationPending)
     private(set) var vpnServices: VPNServiceStatus = .unknown
+    private(set) var helperHandshake: HelperHandshakePresentation = .notRun
 
     var helper: HelperPresentationState {
         switch helperClient.status {
@@ -154,6 +155,31 @@ import NetUnstickRepair
     func unregisterHelper() -> HelperPresentationState {
         _ = helperClient.unregisterForUpdate()
         return helper
+    }
+    /// Runs at launch and on demand. launchd refuses a daemon whose build changed since registration;
+    /// the app then refreshes its own registration once and asks again, so an update needs no manual step
+    /// as long as the earlier Login Items approval is retained.
+    func verifyHelper() async -> HelperHandshakePresentation {
+        guard helperClient.status == .enabled else { helperHandshake = .notRun; return helperHandshake }
+        var reply = await handshake()
+        if [.disconnected, .timedOut, .executionFailed].contains(reply.code) {
+            logger.notice("Helper handshake failed: \(reply.code.rawValue, privacy: .public); refreshing registration")
+            let status = helperClient.refreshRegistrationAfterUpdate()
+            guard status == .enabled else {
+                helperHandshake = .failed(code: status.rawValue)
+                logger.notice("Helper registration refresh ended with \(status.rawValue, privacy: .public)")
+                return helperHandshake
+            }
+            reply = await handshake()
+        }
+        helperHandshake = reply.code == .success
+            ? .responding(version: Int(reply.result.after.values[.count] ?? "") ?? 0)
+            : .failed(code: reply.code.rawValue)
+        logger.notice("Helper handshake \(reply.code.rawValue, privacy: .public)")
+        return helperHandshake
+    }
+    private func handshake() async -> PrivilegedReply {
+        await withCheckedContinuation { continuation in helperClient.handshake { continuation.resume(returning: $0) } }
     }
     func openHelperSettings() { helperClient.openLoginItems() }
 }

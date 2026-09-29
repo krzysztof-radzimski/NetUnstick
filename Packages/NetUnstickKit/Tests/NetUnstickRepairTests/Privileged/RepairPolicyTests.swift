@@ -20,6 +20,9 @@ final class RepairPolicyTests: XCTestCase {
             XCTAssertThrowsError(try RepairPolicy.authorize(.init(action: .renewDHCP(interface: name)), snapshot: snapshot(), dhcpInterfaces: [name]))
         }
         XCTAssertThrowsError(try RepairPolicy.authorize(good, snapshot: snapshot(), dhcpInterfaces: []))
+        XCTAssertThrowsError(try RepairPolicy.authorize(.init(action: .handshake), snapshot: snapshot(), dhcpInterfaces: ["en0"])) {
+            XCTAssertEqual($0 as? RepairPolicyError, .invalidRequest)
+        }
     }
     func testVPNAndExactRoute() throws {
         let request = PrivilegedRequest(action: .removeOrphanedRoute(destination: "192.168.40.0", prefix: 24, interface: "en8"))

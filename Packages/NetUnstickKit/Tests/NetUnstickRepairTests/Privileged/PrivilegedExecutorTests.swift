@@ -105,7 +105,36 @@ private struct HangingCollector: NetworkStateCollecting {
     }
 }
 
+/// Fails the test if anything observes the network during a handshake.
+private actor CountingCollector: NetworkStateCollecting {
+    private(set) var calls = 0
+    func collect() async -> RawNetworkSnapshot {
+        calls += 1
+        return await FixtureCollector(vpn: false).collect()
+    }
+}
+
 extension PrivilegedExecutorTests {
+    func testHandshakeAnswersWithoutObservingOrChangingAnything() async throws {
+        let collector = CountingCollector()
+        let runner = RecordingRunner()
+        let executor = PrivilegedRepairExecutor(collector: collector, dhcp: FixtureDHCP(), runner: runner)
+        let reply = await executor.perform(.init(action: .handshake))
+        XCTAssertEqual(reply.code, .success)
+        XCTAssertEqual(reply.result.name, "helper_handshake")
+        XCTAssertEqual(reply.result.outcome, .success)
+        XCTAssertEqual(reply.result.after.values[.count], String(PrivilegedProtocol.version))
+        let stale = await executor.perform(.init(version: PrivilegedProtocol.version + 1, action: .handshake))
+        XCTAssertEqual(stale.code, .incompatibleVersion)
+        XCTAssertEqual(stale.result.outcome, .failure)
+        let observed = await collector.calls
+        let commands = await runner.count()
+        XCTAssertEqual(observed, 0)
+        XCTAssertEqual(commands, 0)
+        let encoded = try JSONEncoder().encode(PrivilegedRequest(action: .handshake))
+        XCTAssertEqual(try JSONDecoder().decode(PrivilegedRequest.self, from: encoded).action, .handshake)
+    }
+
     func testBlockedObservationYieldsTimedOutReplyInsteadOfHanging() async {
         let runner = RecordingRunner()
         let started = ContinuousClock().now

@@ -9,8 +9,11 @@ public protocol PrivilegedRequestTransport {
 public enum PrivilegedRequestClient {
     /// The helper runs one bounded command per route, so the grouped removal waits longer.
     public static func timeout(for action: PrivilegedAction) -> TimeInterval {
-        if case .removeStaleTunnelRoutes(let routes) = action { return min(150, 30 + 5 * Double(routes.count)) }
-        return 30
+        switch action {
+        case .removeStaleTunnelRoutes(let routes): return min(150, 30 + 5 * Double(routes.count))
+        case .handshake: return 10
+        default: return 30
+        }
     }
 
     public static func perform(_ action: PrivilegedAction, transport: PrivilegedRequestTransport,

@@ -91,3 +91,14 @@ Przyczyna: prezentacja traktowała każdy stan VPN inny niż `inactive` jak niez
 | Diagnoza hosta (test dymny) | `vpnServices=disconnected`, VPN `unknown/residualTunnel`, jedyna nieudana kontrola `interface_consistency/orphanedTunnel` — dokładnie warunki, które nowa prezentacja mapuje na stan „Sieć działa, pozostały ślady VPN”. |
 
 Ograniczenie: oględziny nowego nagłówka w oknie nie zostały wykonane przez sterownik pulpitu, bo użytkownik zatrzymał sterowanie klawiszem Escape; mapowanie warunków hosta na nowy stan potwierdza test jednostkowy z identycznymi wejściami.
+
+## Dystrybucja DMG i aktualizacja w miejscu — 29 września 2026, noc
+
+| Sprawdzenie | Wynik |
+| --- | --- |
+| `Tools/BuildDMG.sh` | Release arm64 z tożsamością „NetUnstick Local Code Signing”: `BUILD SUCCEEDED`, `check-helper-bundle.sh --require-stable-signing` ok, obraz `Artifacts/Distribution/NetUnstick-0.2.0-2.dmg` (UDZO, HFS+, skrót do `/Applications`) podpisany tą samą tożsamością; po zamontowaniu `codesign --verify --deep --strict` aplikacji i helpera przeszły, wersja z obrazu zgodna z buildem. |
+| `swift test` (pakiet) | Wszystkie zestawy przeszły, w tym handshake helpera bez obserwacji i bez poleceń, odrzucenie handshake przez politykę napraw oraz limity czasu klienta. |
+| `NetUnstickPresentationTests` | 11 testów, 0 błędów. Testy UI `testHelperApprovalAndLimitedEnvironmentRemainUsable` i `testKeyboardNavigationAndIdentifiers`: 0 błędów. |
+| Aktualizacja w miejscu (`~/Applications`, Debug 0.1.0 build 1 → Release 0.2.0 build 2, inny cdhash helpera) | Przy pierwszym połączeniu po uruchomieniu launchd zabił nowy helper: `CODESIGNING` kod 4 „Launch Constraint Violation” (raport z 21:03:47). Aplikacja odświeżyła własną rejestrację: zadanie launchd ma teraz `parent bundle version = 2`, daemon uruchomił się i działał (`state = running`), a baza elementów tła nadal pokazuje `enabled, allowed` bez nowego pytania o zgodę. Użytkownik nie wykonał żadnego kroku. |
+
+Wniosek: przy stałej tożsamości zgody TCC i zatwierdzenie elementu tła są zachowywane między aktualizacjami, a jedyny element wymagający odświeżenia (wymaganie kodu daemona w launchd) aplikacja odświeża sama przy starcie. Wpisy `Logger` aplikacji nie były widoczne w `log show` dla tego użytkownika; dowodem są raport awarii, stan zadania launchd i baza elementów tła.

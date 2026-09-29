@@ -28,6 +28,8 @@ public enum PrivilegedAction: Codable, Sendable, Equatable {
     case removeOrphanedRoute(destination: String, prefix: Int, interface: String)
     /// Every stale tunnel route shadowing the directly connected LAN, removed together.
     case removeStaleTunnelRoutes(routes: [PrivilegedRouteTarget])
+    /// Read-only liveness check: launchd could start this daemon build and the versions agree.
+    case handshake
 }
 
 public struct PrivilegedRequest: Codable, Sendable, Equatable {

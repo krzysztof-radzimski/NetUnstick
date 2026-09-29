@@ -104,8 +104,24 @@ public struct PrivilegedRepairExecutor: Sendable {
             nextStep: "Zaktualizuj aplikację i spróbuj ponownie.")
         return PrivilegedReply(code: .invalidRequest, result: result)
     }
+    /// Answers the read-only handshake without observing or changing anything. A reply proves
+    /// that launchd accepted this daemon build; the version tells the app whether they agree.
+    private func handshakeReply(_ request: PrivilegedRequest, startedAt: Date) -> PrivilegedReply {
+        let code: PrivilegedCode = request.version == PrivilegedProtocol.version ? .success : .incompatibleVersion
+        logger.info("helper handshake \(code.rawValue, privacy: .public)")
+        let evidence = EvidenceSanitizer.sanitize([.count: .count(PrivilegedProtocol.version),
+                                                   .checkStatus: .status(code == .success ? .passed : .failed)])
+        let result = try! OperationResult(operationID: UUID().uuidString, name: "helper_handshake", kind: .diagnostic,
+                                          startedAt: startedAt, endedAt: Date(),
+                                          outcome: code == .success ? .success : .failure, after: evidence,
+                                          error: code == .success ? nil : try! OperationError(domain: "helper", code: code.rawValue),
+                                          nextStep: NextStep.reviewDetails.rawValue)
+        return PrivilegedReply(code: code, result: result)
+    }
+
     public func perform(_ request: PrivilegedRequest) async -> PrivilegedReply {
         let started = Date()
+        if case .handshake = request.action { return handshakeReply(request, startedAt: started) }
         var code: PrivilegedCode = .success
         var before: SafeEvidence = .empty
         var after: SafeEvidence = .empty

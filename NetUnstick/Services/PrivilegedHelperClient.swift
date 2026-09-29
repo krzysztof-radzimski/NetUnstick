@@ -77,6 +77,14 @@ public final class PrivilegedHelperClient {
         return status
     }
     public func openLoginItems() { SMAppService.openSystemSettingsLoginItems() }
+    /// Read-only liveness check of the registered daemon; nothing is observed or changed.
+    public func handshake(completion: @escaping (PrivilegedReply) -> Void) { perform(.handshake, completion: completion) }
+    /// After an update, launchd may still hold the code requirement of the previous daemon build.
+    /// Registering again refreshes it; the Login Items approval granted earlier was observed to persist.
+    @discardableResult public func refreshRegistrationAfterUpdate() -> HelperRegistrationStatus {
+        _ = unregisterForUpdate()
+        return registerForSelectedRepair()
+    }
     /// Invoke only from an explicit user control, e.g. after updating the bundle so launchd
     /// stops the old daemon instance; the next registration may need approval again.
     @discardableResult public func unregisterForUpdate() -> HelperRegistrationStatus {

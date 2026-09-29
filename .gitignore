@@ -20,3 +20,5 @@ Artifacts/manual-large-text.png
 xcuserdata/
 *.xcresult/
 *.log
+Artifacts/ReleaseDerivedData/
+Artifacts/Distribution/

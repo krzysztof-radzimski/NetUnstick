@@ -61,7 +61,7 @@ public enum RepairPolicy {
         guard vpn != .active else { throw RepairPolicyError.vpnActive }
         guard vpn == .inactive else { throw RepairPolicyError.vpnUnknown }
         switch request.action {
-        case .refreshResolverCache, .removeStaleTunnelRoutes: throw RepairPolicyError.invalidRequest
+        case .refreshResolverCache, .removeStaleTunnelRoutes, .handshake: throw RepairPolicyError.invalidRequest
         case .renewDHCP(let name):
             guard validPhysicalName(name), dhcpInterfaces.contains(name),
                   snapshot.interfaces.filter({ $0.name == name && $0.isUp && ($0.type == "wifi" || $0.type == "ethernet") }).count == 1

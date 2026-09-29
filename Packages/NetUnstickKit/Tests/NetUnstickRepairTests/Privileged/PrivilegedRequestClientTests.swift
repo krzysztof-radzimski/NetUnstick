@@ -35,6 +35,10 @@ final class PrivilegedRequestClientTests: XCTestCase {
         }
         await fulfillment(of: [expectation], timeout: 1)
         XCTAssertEqual(PrivilegedRequestClient.failure(.approvalRequired).result.outcome, .permissionDenied)
+        XCTAssertEqual(PrivilegedRequestClient.timeout(for: .handshake), 10)
+        XCTAssertEqual(PrivilegedRequestClient.timeout(for: .renewDHCP(interface: "en0")), 30)
+        let eight = (0..<8).map { PrivilegedRouteTarget(destination: "192.168.44.\($0 * 2)", prefix: 31, interface: "utun4") }
+        XCTAssertEqual(PrivilegedRequestClient.timeout(for: .removeStaleTunnelRoutes(routes: eight)), 70)
     }
 }
 private struct ClientSnapshot: NetUnstickNetwork.NetworkStateCollecting {

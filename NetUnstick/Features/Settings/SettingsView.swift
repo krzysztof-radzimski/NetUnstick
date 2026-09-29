@@ -13,9 +13,14 @@ struct SettingsView: View {
                     Button("Zarejestruj helper") { store.registerHelper() }.accessibilityIdentifier("helper.register")
                     Button("Otwórz Elementy logowania") { store.openHelperSettings() }.accessibilityIdentifier("helper.settings")
                 }
-                if store.helper != .unavailable {
-                    Text("Po aktualizacji aplikacji wyrejestruj helper, aby launchd zakończył starą instancję; ponowna rejestracja może wymagać zgody.")
+                if store.helper == .available {
+                    Label(store.helperHandshake.text, systemImage: store.helperHandshake.symbol)
+                        .accessibilityIdentifier("settings.helperHandshake")
+                    Text("Sprawdzenie jest wyłącznie odczytowe. Po aktualizacji aplikacja sama odświeża rejestrację, gdy helper nie odpowiada; wcześniejsza zgoda w Elementach logowania zostaje zachowana.")
                         .foregroundStyle(.secondary)
+                    Button("Sprawdź helper") { store.verifyHelper() }.accessibilityIdentifier("helper.verify")
+                }
+                if store.helper != .unavailable {
                     Button("Wyrejestruj helper") { store.unregisterHelper() }.accessibilityIdentifier("helper.unregister")
                 }
             }
