@@ -7,11 +7,18 @@ public protocol PrivilegedRequestTransport {
 
 /// Transport-independent response handling used by the app's XPC adapter.
 public enum PrivilegedRequestClient {
+    /// The helper runs one bounded command per route, so the grouped removal waits longer.
+    public static func timeout(for action: PrivilegedAction) -> TimeInterval {
+        if case .removeStaleTunnelRoutes(let routes) = action { return min(150, 30 + 5 * Double(routes.count)) }
+        return 30
+    }
+
     public static func perform(_ action: PrivilegedAction, transport: PrivilegedRequestTransport,
-                               timeout: TimeInterval = 30, completion: @escaping (PrivilegedReply) -> Void) {
+                               timeout: TimeInterval? = nil, completion: @escaping (PrivilegedReply) -> Void) {
         guard let request = try? JSONEncoder().encode(PrivilegedRequest(action: action)) else {
             completion(failure(.invalidRequest)); return
         }
+        let limit = timeout ?? Self.timeout(for: action)
         let gate = CompletionGate(completion)
         transport.perform(request) { data, error in
             if let data, let reply = try? JSONDecoder().decode(PrivilegedReply.self, from: data) {
@@ -22,7 +29,7 @@ public enum PrivilegedRequestClient {
                 gate.finish(failure(.disconnected))
             }
         }
-        DispatchQueue.global().asyncAfter(deadline: .now() + max(0.01, timeout)) {
+        DispatchQueue.global().asyncAfter(deadline: .now() + max(0.01, limit)) {
             gate.finish(failure(.timedOut))
         }
     }

@@ -204,8 +204,10 @@ public struct SnapshotDiagnosticCheck: DiagnosticCheck {
         if path.status == "unsatisfied" { return .environmentLimited }
         let physical = s.interfaces.filter { $0.isUp && ($0.type == "wifi" || $0.type == "ethernet" || $0.type == "wired" || $0.type == "cellular") }
         let physicalNames = Set(physical.map(\.name))
-        let tunnels = Set(s.interfaces.filter { Self.isTunnel($0.name) }.map(\.name))
-        let activeTunnels = Set(s.interfaces.filter { $0.isUp && Self.isTunnel($0.name) }.map(\.name))
+        // System-internal utun devices (link-local only, unreferenced) are not VPN tunnels.
+        let vpnTunnels = TunnelSignals.vpnTunnelNames(in: s)
+        let upTunnels = TunnelSignals.upTunnelNames(in: s)
+        let loopbacks = Set(s.interfaces.filter { $0.type == "loopback" || $0.name.hasPrefix("lo") }.map(\.name))
         switch kind {
         case .physicalLink:
             guard !physical.isEmpty else { return s.path?.status == "unsatisfied" ? .noPhysicalLink : .dataIncomplete }
@@ -215,28 +217,50 @@ public struct SnapshotDiagnosticCheck: DiagnosticCheck {
             guard !s.routes.isEmpty else { return .dataIncomplete }
             let defaults = s.routes.filter(\.isDefault)
             guard !defaults.isEmpty else { return .noDefaultRoute }
-            if defaults.contains(where: { $0.interfaceName.map(Self.isTunnel) == true && (s.path?.selectedInterfaces.contains($0.interfaceName ?? "") != true || !activeTunnels.contains($0.interfaceName ?? "")) }) { return .residualDefaultRoute }
+            if defaults.contains(where: { $0.interfaceName.map(Self.isTunnel) == true && (s.path?.selectedInterfaces.contains($0.interfaceName ?? "") != true || !upTunnels.contains($0.interfaceName ?? "")) }) { return .residualDefaultRoute }
             let families = Dictionary(grouping: defaults, by: { $0.destination.contains(":") ? "ipv6" : "ipv4" })
             return families.values.contains(where: { $0.count > 1 }) ? .duplicateDefaultRoute : .healthy
         case .localSubnetRoute:
             guard !physical.isEmpty else { return .dataIncomplete }
-            let addresses = physical.flatMap(\.addresses)
-            let candidates = s.routes.filter { route in !route.isDefault && addresses.contains(where: { Self.matches($0, route.destination) }) }
+            let hosts = physical.flatMap(\.addresses).compactMap { IPPrefix(address: $0) }
+                .filter { !$0.isLinkLocal && !$0.isLoopback }
+            // Every entry covering a physical address, without neighbour-cache clones or loopback delivery.
+            let candidates = s.routes.compactMap { route -> (route: RawRoute, network: IPPrefix)? in
+                guard !route.isDefault, !route.isCloned, route.interfaceName.map(loopbacks.contains) != true,
+                      let network = IPPrefix(route.destination), !network.isLinkLocal, !network.isMulticast,
+                      hosts.contains(where: network.contains) else { return nil }
+                return (route, network)
+            }
             guard !candidates.isEmpty else { return .localRouteMissing }
-            let longest = candidates.map { Self.prefix($0.destination) }.max()!
-            let best = candidates.filter { Self.prefix($0.destination) == longest }
-            return best.allSatisfy { $0.interfaceName.map(physicalNames.contains) == true } ? .healthy : .localRouteViaTunnel
+            let longest = candidates.map(\.network.prefix).max()!
+            let best = candidates.filter { $0.network.prefix == longest }
+            guard best.allSatisfy({ $0.route.interfaceName.map(physicalNames.contains) == true }) else { return .localRouteViaTunnel }
+            // A more specific forwarding entry through another interface inside a directly connected
+            // network diverts part of the LAN even though the host's own address still resolves physically.
+            let connected = candidates.filter { $0.route.isLocal && $0.route.interfaceName.map(physicalNames.contains) == true }.map(\.network)
+            let shadowed = s.routes.contains { route in
+                guard !route.isDefault, TunnelSignals.isForwardingRoute(route), let name = route.interfaceName,
+                      !physicalNames.contains(name), !loopbacks.contains(name),
+                      let network = IPPrefix(route.destination) else { return false }
+                return connected.contains { $0.prefix < network.prefix && $0.contains(network) }
+            }
+            return shadowed ? .localRouteViaTunnel : .healthy
         case .resolverConfiguration:
             guard !s.resolvers.isEmpty else { return .resolverMissing }
             guard s.resolvers.contains(where: { !$0.nameservers.isEmpty }) else { return .resolverMissing }
             let tunnelResolvers = s.resolvers.filter { $0.interfaceName.map(Self.isTunnel) == true }
             if !tunnelResolvers.isEmpty {
-                if tunnelResolvers.contains(where: { !activeTunnels.contains($0.interfaceName ?? "") }) { return .residualScopedDNS }
+                if tunnelResolvers.contains(where: { !upTunnels.contains($0.interfaceName ?? "") }) { return .residualScopedDNS }
                 if let first = s.resolvers.first, first.interfaceName.map(Self.isTunnel) == true,
                    s.resolvers.contains(where: { $0.interfaceName.map(physicalNames.contains) == true }) { return .resolverOrder }
                 return .residualScopedDNS
             }
-            if s.resolvers.contains(where: { !$0.searchDomains.isEmpty && $0.interfaceName == nil }) && !tunnels.isEmpty { return .residualSearchDomain }
+            // A global search domain is residual only when no physical interface's own DNS service declares it.
+            let declaredByPhysical = Set(s.resolvers.filter { $0.interfaceName.map(physicalNames.contains) == true }
+                .flatMap { ($0.domain.map { [$0] } ?? []) + $0.searchDomains })
+            if !vpnTunnels.isEmpty, s.resolvers.contains(where: { resolver in
+                resolver.interfaceName == nil && resolver.searchDomains.contains { !declaredByPhysical.contains($0) }
+            }) { return .residualSearchDomain }
             return .healthy
         case .unicastDNSResolution:
             guard let path = s.path else { return .dataIncomplete }
@@ -263,46 +287,22 @@ public struct SnapshotDiagnosticCheck: DiagnosticCheck {
             if s.path?.transitionObserved == true { return .unstableAfterDisconnect }
             let all = Set(s.interfaces.map(\.name))
             if s.routes.contains(where: { $0.interfaceName.map { !all.contains($0) } == true }) { return .expectedInterfaceMissing }
-            if s.routes.contains(where: { $0.interfaceName.map(Self.isTunnel) == true && !activeTunnels.contains($0.interfaceName ?? "") }) { return .routingConflict }
-            let grouped = Dictionary(grouping: s.routes.filter { !$0.isDefault }, by: \.destination)
+            if s.routes.contains(where: { $0.interfaceName.map(Self.isTunnel) == true && !upTunnels.contains($0.interfaceName ?? "") }) { return .routingConflict }
+            // Multicast, link-local and neighbour-cache entries legitimately repeat per interface;
+            // a connected network and a forwarding entry for the same destination do not.
+            let comparable = s.routes.filter { route in
+                guard !route.isDefault, !route.isCloned else { return false }
+                return IPPrefix(route.destination).map { !$0.isMulticast && !$0.isLinkLocal } ?? true
+            }
+            let grouped = Dictionary(grouping: comparable, by: \.destination)
             if grouped.values.contains(where: { Set($0.compactMap(\.interfaceName)).count > 1 }) { return .routingConflict }
-            if !tunnels.isEmpty && s.path?.selectedInterfaces.allSatisfy({ !Self.isTunnel($0) }) == true && !s.routes.contains(where: { $0.interfaceName.map(Self.isTunnel) == true }) { return .orphanedTunnel }
+            if !vpnTunnels.isEmpty && s.path?.selectedInterfaces.allSatisfy({ !Self.isTunnel($0) }) == true &&
+                TunnelSignals.forwardingTunnelRouteNames(in: s).isDisjoint(with: vpnTunnels) { return .orphanedTunnel }
             return .healthy
         }
     }
-    private static func isTunnel(_ name: String) -> Bool {
-        let n = name.lowercased(); return n.hasPrefix("utun") || n.hasPrefix("ipsec") || n.hasPrefix("ppp")
-    }
+    private static func isTunnel(_ name: String) -> Bool { TunnelSignals.isTunnelName(name) }
     private static func usableAddress(_ address: String) -> Bool {
         !address.hasPrefix("169.254.") && !address.hasPrefix("fe80:") && address != "0.0.0.0" && address != "::"
-    }
-    private static func prefix(_ cidr: String) -> Int { Int(cidr.split(separator: "/").last ?? "") ?? (cidr.contains(":") ? 128 : 32) }
-    private static func matches(_ address: String, _ destination: String) -> Bool {
-        let parts = destination.split(separator: "/")
-        guard parts.count == 2, let bits = Int(parts[1]), bits >= 0 else { return false }
-        if address.contains(":") || destination.contains(":") {
-            guard bits <= 128 else { return false }
-            var host = in6_addr(); var network = in6_addr()
-            let hostText = String(address.split(separator: "%")[0])
-            let networkText = String(parts[0].split(separator: "%")[0])
-            guard inet_pton(AF_INET6, hostText, &host) == 1,
-                  inet_pton(AF_INET6, networkText, &network) == 1 else { return false }
-            let hostBytes = withUnsafeBytes(of: host) { Array($0.prefix(16)) }
-            let networkBytes = withUnsafeBytes(of: network) { Array($0.prefix(16)) }
-            for index in 0..<16 {
-                let remaining = bits - index * 8
-                let mask: UInt8 = remaining >= 8 ? 255 : remaining <= 0 ? 0 : UInt8(255 << (8 - remaining))
-                if hostBytes[index] & mask != networkBytes[index] & mask { return false }
-            }
-            return true
-        }
-        guard bits <= 32 else { return false }
-        var ip = in_addr(); var net = in_addr()
-        let rawNetwork = String(parts[0])
-        let pieces = rawNetwork.split(separator: ".")
-        let padded = pieces.count >= 1 && pieces.count < 4 ? (pieces.map(String.init) + Array(repeating: "0", count: 4 - pieces.count)).joined(separator: ".") : rawNetwork
-        guard inet_pton(AF_INET, address, &ip) == 1, inet_pton(AF_INET, padded, &net) == 1 else { return false }
-        let mask: UInt32 = bits == 0 ? 0 : UInt32.max << (32 - bits)
-        return (UInt32(bigEndian: ip.s_addr) & mask) == (UInt32(bigEndian: net.s_addr) & mask)
     }
 }

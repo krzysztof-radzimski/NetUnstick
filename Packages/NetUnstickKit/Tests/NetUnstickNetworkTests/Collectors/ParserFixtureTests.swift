@@ -33,16 +33,25 @@ final class ParserFixtureTests: XCTestCase {
         XCTAssertTrue(NetstatRouteParser.parse(table, family: "ipv6").isEmpty)
     }
 
-    func testRouteScopeFlagIsPreservedForDeletionPolicy() {
+    func testRouteScopeAndCloneFlagsArePreservedForDeletionPolicy() {
         let table = """
         Destination Gateway Flags Netif Expire
         192.168.44.32/27 10.5.0.1 UGSc utun4
         192.168.45.32/27 10.5.0.1 UGScI utun4
+        192.168.44/32 10.5.0.1 UGSc utun4
+        192.168.44.1 0:11:22:33:44:55 UHLWIir en0 1185
+        192.168.44.40 2:51:b5:16:dd:73 UHLWI lo0
         """
         let routes = NetstatRouteParser.parse(table, family: "ipv4")
-        XCTAssertEqual(routes.count, 2)
+        XCTAssertEqual(routes.count, 5)
         XCTAssertFalse(routes[0].isScoped)
+        XCTAssertFalse(routes[0].isCloned)
         XCTAssertTrue(routes[1].isScoped)
+        XCTAssertEqual(routes[2].destination, "192.168.44/32", "netstat abbreviates the network; the parser keeps the text")
+        XCTAssertFalse(routes[2].isLocal)
+        XCTAssertTrue(routes[3].isCloned)
+        XCTAssertTrue(routes[3].isLocal)
+        XCTAssertTrue(routes[4].isCloned)
     }
 
     func testScopedDNSRetainsTunnelInterfaceWithoutLeakingToDescription() throws {
@@ -51,6 +60,20 @@ final class ParserFixtureTests: XCTestCase {
         XCTAssertEqual(resolvers.filter { $0.interfaceName == "utun4" }.count, 2)
         XCTAssertEqual(resolvers[1].domain, "corp.example.test")
         XCTAssertFalse(String(describing: resolvers).contains("corp.example.test"))
+    }
+
+    func testNetworkConnectionListYieldsOnlyAggregateStatus() throws {
+        XCTAssertEqual(ScutilNetworkConnectionParser.parse(try fixture("scutil-nc-list.txt")), .disconnected)
+        let connected = """
+        Available network connection services in the current set (*=enabled):
+        * (Connected)      43A2222A-C174-4250-9445-5C75ABDD9708 VPN (com.example.vpn.client) "VPN" [VPN:com.example.vpn.client]
+        """
+        XCTAssertEqual(ScutilNetworkConnectionParser.parse(connected), .connected)
+        XCTAssertEqual(ScutilNetworkConnectionParser.parse(connected.replacingOccurrences(of: "Connected", with: "Connecting")), .connected)
+        XCTAssertEqual(ScutilNetworkConnectionParser.parse(connected.replacingOccurrences(of: "Connected", with: "Invalid")), .unknown)
+        XCTAssertEqual(ScutilNetworkConnectionParser.parse("Available network connection services in the current set (*=enabled):\n"), .unknown)
+        XCTAssertEqual(ScutilNetworkConnectionParser.parse(""), .unknown)
+        XCTAssertEqual(ScutilNetworkConnectionParser.parse("permission denied"), .unknown)
     }
 
     func testMalformedTablesDoNotInventRoutesOrResolvers() {

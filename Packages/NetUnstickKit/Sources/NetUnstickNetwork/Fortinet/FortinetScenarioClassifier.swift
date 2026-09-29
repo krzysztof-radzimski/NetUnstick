@@ -43,9 +43,11 @@ public struct FortinetScenarioClassifier: Sendable {
         let reasons = Set(checks.compactMap { $0.after.values[.errorCode] })
         let bonjour = checks.first { $0.operationID == "bonjour_discovery" }
         let physical = snapshot.interfaces.contains { $0.isUp && ["wifi", "ethernet", "wired"].contains($0.type.lowercased()) }
-        let tunnelNames = Set(snapshot.interfaces.filter { isTunnel($0.name) }.map(\.name))
-        let activeTunnels = Set(snapshot.interfaces.filter { $0.isUp && isTunnel($0.name) }.map(\.name))
-        let orphanRoute = snapshot.routes.contains { $0.interfaceName.map(isTunnel) == true && !activeTunnels.contains($0.interfaceName ?? "") }
+        // System-internal utun devices are not VPN tunnels and never count as leftovers.
+        let tunnelNames = TunnelSignals.vpnTunnelNames(in: snapshot)
+        let activeTunnels = TunnelSignals.activeVPNTunnelNames(in: snapshot)
+        let upTunnels = TunnelSignals.upTunnelNames(in: snapshot)
+        let orphanRoute = snapshot.routes.contains { $0.interfaceName.map(isTunnel) == true && TunnelSignals.isForwardingRoute($0) && !upTunnels.contains($0.interfaceName ?? "") }
         let previousTunnel = previous?.interfaces.contains { isTunnel($0.name) && $0.isUp } == true
         let disconnected = vpn.state != .active && (previousTunnel || !tunnelNames.isEmpty || orphanRoute)
         let version = sanitizedVersion(productVersion)
@@ -60,7 +62,7 @@ public struct FortinetScenarioClassifier: Sendable {
         if reasons.contains(NetworkCheckReason.localRouteViaTunnel.rawValue) {
             add(.localSubnetViaTunnel, [.localRouteViaTunnel], [.directIPTestNeeded, .compareWithoutVPNNeeded], .contactSupport)
         }
-        let tunnelResolver = snapshot.resolvers.contains { $0.interfaceName.map(isTunnel) == true && !activeTunnels.contains($0.interfaceName ?? "") }
+        let tunnelResolver = snapshot.resolvers.contains { $0.interfaceName.map(isTunnel) == true && !upTunnels.contains($0.interfaceName ?? "") }
         let residualSearch = disconnected && snapshot.resolvers.contains { !$0.searchDomains.isEmpty }
         if tunnelResolver || residualSearch || reasons.contains(NetworkCheckReason.residualSearchDomain.rawValue) {
             add(.residualResolver, tunnelResolver ? [.tunnelResolverAfterDisconnect] : [.searchDomainAfterDisconnect],
@@ -90,10 +92,7 @@ public struct FortinetScenarioClassifier: Sendable {
         }
         return findings
     }
-    private func isTunnel(_ name: String) -> Bool {
-        let value = name.lowercased()
-        return value.hasPrefix("utun") || value.hasPrefix("ipsec") || value.hasPrefix("ppp")
-    }
+    private func isTunnel(_ name: String) -> Bool { TunnelSignals.isTunnelName(name) }
     private func sanitizedVersion(_ value: String?) -> String? {
         guard let value, value.hasPrefix("FortiClient "),
               value.dropFirst(12).range(of: #"^[0-9]+(?:\.[0-9]+){0,3}$"#, options: .regularExpression) != nil else { return nil }

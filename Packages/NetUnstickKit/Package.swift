@@ -18,6 +18,7 @@ let package = Package(
             .copy("Fixtures/netstat-ipv4.txt"),
             .copy("Fixtures/netstat-ipv6.txt"),
             .copy("Fixtures/scutil-dns.txt"),
+            .copy("Fixtures/scutil-nc-list.txt"),
         ]),
         .testTarget(name: "NetUnstickRepairTests", dependencies: ["NetUnstickRepair"]),
     ]

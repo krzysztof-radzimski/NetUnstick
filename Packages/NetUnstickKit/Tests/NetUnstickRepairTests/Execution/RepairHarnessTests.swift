@@ -97,14 +97,17 @@ final class RepairHarnessTests: XCTestCase {
                              possibleImpact: "brief", verification: "recheck"))
     }
 
-    private func residualRouteSnapshot(removed: Bool = false) -> RawNetworkSnapshot {
+    private static let staleGroup = [
+        StaleTunnelRoute(destination: "192.168.44.32", prefix: 27, interface: "utun4", gateway: "10.5.0.1"),
+        StaleTunnelRoute(destination: "192.168.44.128", prefix: 25, interface: "utun4", gateway: "10.5.0.1")
+    ]
+    private func residualRouteSnapshot(remaining: [StaleTunnelRoute] = RepairHarnessTests.staleGroup) -> RawNetworkSnapshot {
         let time = Date(timeIntervalSince1970: 1_000)
         let routes: [RawRoute] = [
             .init(destination: "0.0.0.0/0", gateway: "192.168.44.1", interfaceName: "en0", isDefault: true),
             .init(destination: "192.168.44.0/24", gateway: "link#8", interfaceName: "en0",
                   isDefault: false, isLocal: true)
-        ] + (removed ? [] : [.init(destination: "192.168.44.32/27", gateway: "10.5.0.1",
-                                  interfaceName: "utun4", isDefault: false)])
+        ] + remaining.map { .init(destination: $0.cidr, gateway: $0.gateway, interfaceName: $0.interface, isDefault: false) }
         return RawNetworkSnapshot(startedAt: time, endedAt: time,
             path: .init(status: "satisfied", availableInterfaces: ["en0", "utun4"],
                         selectedInterfaces: ["en0"], supportsDNS: true, supportsIPv4: true,
@@ -181,9 +184,9 @@ final class RepairHarnessTests: XCTestCase {
     func testRoutePlanIsRejectedByCurrentVPNAndHelperContract() async {
         let helper = FakeHelper(.success)
         let (store, session) = journal()
-        let route = RepairPlan(kind: .removeOrphanedRoute, reasonCode: "expectedInterfaceMissing",
+        let route = RepairPlan(kind: .removeStaleTunnelRoutes, reasonCode: "expectedInterfaceMissing",
             checkID: "interface_consistency",
-            resource: .route(destination: "10.2.3.0", prefix: 24, interface: "en1", gateway: "10.2.3.1"),
+            resource: .tunnelRoutes([.init(destination: "10.2.3.0", prefix: 24, interface: "utun1", gateway: "10.2.3.1")]),
             summary: plan().summary)
         let executor = RepairExecutor(collector: FakeCollector(snapshots: [snapshot()]),
             checks: FakeChecks(reasons: ["expectedInterfaceMissing"]), helper: helper,
@@ -197,18 +200,18 @@ final class RepairHarnessTests: XCTestCase {
     func testResidualRouteRepairRequiresRemovalAndRecheckDespiteTunnelSignal() async {
         let before = residualRouteSnapshot()
         XCTAssertEqual(VPNStateDetector().assess(before).state, .active)
-        let target = RepairPlan(kind: .removeOrphanedRoute, reasonCode: "localRouteViaTunnel",
+        let target = RepairPlan(kind: .removeStaleTunnelRoutes, reasonCode: "localRouteViaTunnel",
             checkID: "local_subnet_route",
-            resource: .route(destination: "192.168.44.32", prefix: 27, interface: "utun4", gateway: "10.5.0.1"),
+            resource: .tunnelRoutes(Self.staleGroup),
             summary: plan().summary)
-        for (removed, recheckHealthy, expectedCode) in [
-            (true, true, Optional<String>.none),
-            (false, true, "route_still_present"),
-            (true, false, "recheck_failed")
+        for (remaining, recheckHealthy, expectedCode) in [
+            ([StaleTunnelRoute](), true, Optional<String>.none),
+            ([Self.staleGroup[1]], true, "route_still_present"),
+            ([], false, "recheck_failed")
         ] {
             let helper = FakeHelper(.success)
             let (store, session) = journal()
-            let after = residualRouteSnapshot(removed: removed)
+            let after = residualRouteSnapshot(remaining: remaining)
             let executor = RepairExecutor(collector: FakeCollector(snapshots: [before, before, before, after]),
                 checks: FakeChecks(reasons: ["localRouteViaTunnel", recheckHealthy ? "healthy" : "localRouteViaTunnel"]),
                 helper: helper,
@@ -217,8 +220,20 @@ final class RepairHarnessTests: XCTestCase {
             XCTAssertEqual(result.outcome, expectedCode == nil ? .success : .failure)
             XCTAssertEqual(result.error?.code, expectedCode)
             let calls = await helper.calls
-            XCTAssertEqual(calls, 1)
+            XCTAssertEqual(calls, 1, "One grouped helper request covers every entry")
         }
+        // A set that changed between planning and execution is skipped before the helper runs.
+        let helper = FakeHelper(.success)
+        let (store, session) = journal()
+        let shrunk = residualRouteSnapshot(remaining: [Self.staleGroup[0]])
+        let executor = RepairExecutor(collector: FakeCollector(snapshots: [shrunk]),
+            checks: FakeChecks(reasons: ["localRouteViaTunnel"]), helper: helper,
+            wait: ImmediateWait(fails: false), dhcpInterfaces: { [] }, store: store, session: session)
+        let skipped = await executor.execute(target, context: .init(clock: FakeClock()))
+        XCTAssertEqual(skipped.outcome, .skipped)
+        XCTAssertEqual(skipped.error?.code, "stale_route_ineligible")
+        let calls = await helper.calls
+        XCTAssertEqual(calls, 0)
     }
 
     func testPhaseRecordContainsNoRawNetworkEvidence() async throws {

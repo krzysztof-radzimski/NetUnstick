@@ -3,9 +3,22 @@ import NetUnstickCore
 import NetUnstickNetwork
 
 public enum PrivilegedProtocol {
-    public static let version = 1
+    /// Version 2 adds the grouped stale-tunnel-route removal; older helpers reject it.
+    public static let version = 2
     public static let machService = "org.netunstick.NetUnstick.helper"
     public static let plistName = "org.netunstick.NetUnstick.helper.plist"
+    /// Upper bound of one encoded request accepted by the helper listener.
+    public static let maximumRequestBytes = 4096
+}
+
+/// One routing-table entry named by its masked network, prefix length and tunnel interface.
+public struct PrivilegedRouteTarget: Codable, Sendable, Hashable {
+    public let destination: String
+    public let prefix: Int
+    public let interface: String
+    public init(destination: String, prefix: Int, interface: String) {
+        self.destination = destination; self.prefix = prefix; self.interface = interface
+    }
 }
 
 /// No executable, shell text, or argument array crosses this boundary.
@@ -13,6 +26,8 @@ public enum PrivilegedAction: Codable, Sendable, Equatable {
     case refreshResolverCache
     case renewDHCP(interface: String)
     case removeOrphanedRoute(destination: String, prefix: Int, interface: String)
+    /// Every stale tunnel route shadowing the directly connected LAN, removed together.
+    case removeStaleTunnelRoutes(routes: [PrivilegedRouteTarget])
 }
 
 public struct PrivilegedRequest: Codable, Sendable, Equatable {

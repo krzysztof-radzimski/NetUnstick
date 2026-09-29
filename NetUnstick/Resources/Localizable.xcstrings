@@ -534,13 +534,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Repair candidate · simulation"
+            "value": "Repair candidate"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kandydat do naprawy · symulacja"
+            "value": "Kandydat do naprawy"
           }
         }
       }

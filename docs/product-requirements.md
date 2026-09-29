@@ -2,7 +2,7 @@
 
 ## Cel i stan
 
-NetUnstick to natywne narzędzie macOS pomagające zdiagnozować brak dostępu do urządzeń w sieci lokalnej po rozłączeniu VPN i zmianie Wi-Fi, bez restartowania komputera. Pierwszy przypadek dotyczy FortiClient łączącego się z FortiGate. Sama obserwacja użytkownika nie wskazuje jednej przyczyny ani skutecznej naprawy. Ten dokument zachowuje wymagania produktu; stan faktycznej implementacji i dowody odbioru opisują README oraz `docs/verification.md`. Nie wszystkie wymagania pierwotnego MVP są dostępne: UI nie przyjmuje znanego adresu urządzenia, a rzeczywista skuteczność naprawy nie została potwierdzona na odtworzonej awarii.
+NetUnstick to natywne narzędzie macOS pomagające zdiagnozować brak dostępu do urządzeń w sieci lokalnej po rozłączeniu VPN i zmianie Wi-Fi, bez restartowania komputera. Pierwszy przypadek dotyczy FortiClient łączącego się z FortiGate. Sama obserwacja użytkownika nie wskazuje jednej przyczyny ani skutecznej naprawy. Ten dokument zachowuje wymagania produktu; stan faktycznej implementacji i dowody odbioru opisują README oraz `docs/verification.md`. Nie wszystkie wymagania pierwotnego MVP są dostępne: UI nie przyjmuje znanego adresu urządzenia, a spośród napraw tylko grupowe usunięcie tras pozostałych po VPN zostało potwierdzone na rzeczywistej awarii (29 września 2026); pozostałe kandydaci nie mają jeszcze takiego dowodu.
 
 Nazwa produktu: **NetUnstick**, krótka nazwa angielska. W rozmowie przeprowadzono jedynie wstępne wyszukanie nazwy; nie stanowi to weryfikacji znaków towarowych. Krótki opis projektu: „A native macOS utility for diagnosing and fixing local network issues after disconnecting from a VPN.”
 

@@ -26,8 +26,10 @@ public enum NetstatRouteParser {
             // macOS can retain one such IPv6 row for every utun after a VPN disconnect.
             if isDefault && flags.contains("I") { continue }
             let isLocal = !isDefault && (gateway.hasPrefix("link#") || gateway == destination || flags.contains("L"))
+            // RTF_WASCLONED (W) marks neighbour-cache and per-host entries derived from a parent.
             routes.append(RawRoute(destination: destination, gateway: gateway, interfaceName: interface,
-                                   isDefault: isDefault, isLocal: isLocal, isScoped: flags.contains("I")))
+                                   isDefault: isDefault, isLocal: isLocal, isScoped: flags.contains("I"),
+                                   isCloned: flags.contains("W")))
         }
         return routes
     }

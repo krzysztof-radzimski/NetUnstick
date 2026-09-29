@@ -70,6 +70,7 @@ struct RepairCandidatePresentation {
     func loadSessions() async throws -> [ActivitySession]
     func preview(_ session: ActivitySession) -> String
     func registerHelper() -> HelperPresentationState
+    func unregisterHelper() -> HelperPresentationState
     func openHelperSettings()
 }
 
@@ -93,6 +94,7 @@ extension PresentationService {
     func loadSessions() async throws -> [ActivitySession] { [] }
     func preview(_ session: ActivitySession) -> String { ReportRenderer().preview(session: session).body }
     func registerHelper() -> HelperPresentationState { helper }
+    func unregisterHelper() -> HelperPresentationState { helper }
     func openHelperSettings() {}
 }
 
@@ -128,7 +130,7 @@ extension PresentationService {
         switch vpn.state {
         case .active:
             return candidateValue?.allowsWhenResidualRoute == true ?
-                "Wykryto trasę pozostałą po rozłączeniu VPN. Dostępna jest tylko naprawa tej jednej trasy." :
+                "Wykryto trasy pozostałe po rozłączeniu VPN. Dostępna jest tylko naprawa dokładnie tych tras." :
                 "VPN aktywny. Zmiany sieci są zablokowane."
         case .inactive: return "VPN nieaktywny. Możesz uruchomić diagnostykę."
         case .unknown: return "Stan VPN niepewny. Zmiany sieci są zablokowane do ponownej oceny."
@@ -189,6 +191,7 @@ extension PresentationService {
     }
     func selectSession(_ id: UUID) { selectedSessionID = id }
     func registerHelper() { helperState = service.registerHelper() }
+    func unregisterHelper() { helperState = service.unregisterHelper() }
     func openHelperSettings() { service.openHelperSettings() }
 
     func startDiagnosis() {

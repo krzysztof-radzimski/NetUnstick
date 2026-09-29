@@ -5,7 +5,9 @@ struct DashboardView: View {
     @ObservedObject var store: PresentationStore
     @State private var expandedCheckIDs: Set<String> = []
     let highContrast: Bool
+    let confirmingRepair: Bool
     let showRepair: () -> Void
+    let dismissRepair: () -> Void
     let showReport: () -> Void
     var body: some View {
         ScrollView {
@@ -45,6 +47,9 @@ struct DashboardView: View {
                 }.padding(20).frame(maxWidth: .infinity, alignment: .leading)
                     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
                     .overlay(RoundedRectangle(cornerRadius: 16).stroke(highContrast ? Color.primary : Color.clear, lineWidth: 2))
+                if confirmingRepair, store.candidate != nil {
+                    RepairConfirmationView(store: store, dismiss: dismissRepair)
+                }
                 ForEach(Array(store.candidates.enumerated()), id: \.offset) { index, candidate in
                     if store.vpn.state == .inactive || candidate.allowsWhenResidualRoute {
                     VStack(alignment: .leading, spacing: 8) {

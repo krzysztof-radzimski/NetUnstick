@@ -95,10 +95,12 @@ public struct RawRoute: Sendable, CustomStringConvertible, CustomDebugStringConv
     public let isDefault: Bool
     public let isLocal: Bool
     public let isScoped: Bool
+    /// RTF_WASCLONED: a neighbour-cache or per-host entry derived from a parent route.
+    public let isCloned: Bool
     public init(destination: String, gateway: String?, interfaceName: String?, isDefault: Bool,
-                isLocal: Bool = false, isScoped: Bool = false) {
+                isLocal: Bool = false, isScoped: Bool = false, isCloned: Bool = false) {
         self.destination = destination; self.gateway = gateway; self.interfaceName = interfaceName
-        self.isDefault = isDefault; self.isLocal = isLocal; self.isScoped = isScoped
+        self.isDefault = isDefault; self.isLocal = isLocal; self.isScoped = isScoped; self.isCloned = isCloned
     }
     public var description: String { "<RawRoute redacted>" }
     public var debugDescription: String { description }

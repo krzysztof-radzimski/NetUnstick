@@ -102,6 +102,7 @@ public enum NextStep: String, Codable, Sendable {
     case waitForVPN = "Disconnect VPN and retry."
     case verifyVPN = "Verify that VPN is disconnected, then run the check again."
     case contactSupport = "Contact your network administrator."
+    case restartVPNClient = "Quit and reopen the VPN client so it releases its leftover tunnel interfaces."
 }
 
 extension SafeEvidence {

@@ -3,7 +3,7 @@ import NetUnstickCore
 import NetUnstickNetwork
 
 public enum RepairKind: String, Sendable, CaseIterable {
-    case retryCheck, refreshResolverCache, renewDHCP, removeOrphanedRoute
+    case retryCheck, refreshResolverCache, renewDHCP, removeStaleTunnelRoutes
 }
 
 public struct ConfirmationSummary: Sendable, Equatable {
@@ -30,7 +30,8 @@ public struct RepairPlan: Sendable {
 
 public enum RepairResource: Sendable, Equatable {
     case check(String), resolverCache, physicalInterface(String)
-    case route(destination: String, prefix: Int, interface: String, gateway: String)
+    /// Every stale tunnel route that shadows the directly connected LAN, removed together.
+    case tunnelRoutes([StaleTunnelRoute])
 }
 
 public struct RepairPlanningResult: Sendable {
@@ -44,8 +45,9 @@ public enum RepairCatalog {
         case (.retryCheck, "unicast_dns_resolution", "dnsFailure", .check("unicast_dns_resolution")),
              (.retryCheck, "bonjour_discovery", "browserFailed", .check("bonjour_discovery")),
              (.retryCheck, "bonjour_discovery", "noServices", .check("bonjour_discovery")),
-             (.renewDHCP, "physical_link", "noAddressLease", .physicalInterface),
-             (.removeOrphanedRoute, "local_subnet_route", "localRouteViaTunnel", .route): return true
+             (.renewDHCP, "physical_link", "noAddressLease", .physicalInterface): return true
+        case (.removeStaleTunnelRoutes, "local_subnet_route", "localRouteViaTunnel", .tunnelRoutes(let routes)):
+            return !routes.isEmpty && routes.count <= RepairPolicy.maximumStaleTunnelRoutes
         default: return false
         }
     }
@@ -56,7 +58,7 @@ public enum RepairCatalog {
         NetworkCheckReason.residualScopedDNS.rawValue: NextStep.contactSupport.rawValue,
         NetworkCheckReason.residualSearchDomain.rawValue: NextStep.contactSupport.rawValue,
         NetworkCheckReason.resolverOrder.rawValue: NextStep.contactSupport.rawValue,
-        NetworkCheckReason.orphanedTunnel.rawValue: NextStep.contactSupport.rawValue,
+        NetworkCheckReason.orphanedTunnel.rawValue: NextStep.restartVPNClient.rawValue,
         NetworkCheckReason.expectedInterfaceMissing.rawValue: NextStep.contactSupport.rawValue,
         NetworkCheckReason.routingConflict.rawValue: NextStep.contactSupport.rawValue
     ]
@@ -70,18 +72,19 @@ public struct RepairPlanBuilder {
     public init() {}
 
     /// `snapshot` remains ephemeral. The caller must obtain it from the same collection
-    /// as the report; execution re-collects and compares the exact target again.
+    /// as the report; execution re-collects and compares the exact targets again.
     public func build(report: DiagnosisReport, snapshot: RawNetworkSnapshot,
                       dhcpInterfaces: Set<String>) -> RepairPlanningResult {
         if report.results.contains(where: {
             $0.operationID == "local_subnet_route" && $0.outcome == .failure &&
             $0.after.values[.errorCode] == NetworkCheckReason.localRouteViaTunnel.rawValue
-        }), let route = RepairPolicy.staleLocalTunnelRoute(in: snapshot),
-           case .removeRoute(let destination, let prefix, let name, let gateway) = route {
-            let plan = make(.removeOrphanedRoute, NetworkCheckReason.localRouteViaTunnel.rawValue,
-                            "local_subnet_route", .route(destination: destination, prefix: prefix,
-                                                           interface: name, gateway: gateway))
-            return .init(plans: [plan], nextSteps: [])
+        }) {
+            let stale = RepairPolicy.staleLocalTunnelRoutes(in: snapshot)
+            if !stale.isEmpty {
+                let plan = make(.removeStaleTunnelRoutes, NetworkCheckReason.localRouteViaTunnel.rawValue,
+                                "local_subnet_route", .tunnelRoutes(stale))
+                return .init(plans: [plan], nextSteps: [])
+            }
         }
         let freshVPN = VPNStateDetector().assess(snapshot)
         guard report.vpn.state == .inactive, freshVPN.state == .inactive else {
@@ -117,25 +120,43 @@ public struct RepairPlanBuilder {
 
     private func make(_ kind: RepairKind, _ code: String, _ check: String, _ resource: RepairResource) -> RepairPlan {
         let label: String
+        var routeCount = 0
         switch resource {
         case .check: label = "Powiązane sprawdzenie"
         case .resolverCache: label = "Cache resolvera i mDNS"
         case .physicalInterface: label = "Jedyny wybrany interfejs fizyczny"
-        case .route: label = "Jedna trasa tunelowa nakładająca się na lokalną sieć"
+        case .tunnelRoutes(let routes):
+            routeCount = routes.count
+            label = Self.routeLabel(routes.count)
         }
         let change: String
         switch kind {
         case .retryCheck: change = "Ponowienie sprawdzenia bez zmiany systemu"
         case .refreshResolverCache: change = "Odświeżenie cache resolvera i mDNS"
         case .renewDHCP: change = "Odnowienie dzierżawy DHCP"
-        case .removeOrphanedRoute: change = "Usunięcie jednej trasy pozostałej po VPN"
+        case .removeStaleTunnelRoutes: change = "Usunięcie tras pozostałych po VPN (\(routeCount))"
+        }
+        let impact: String
+        switch kind {
+        case .retryCheck: impact = "Brak zmian sieci"
+        case .removeStaleTunnelRoutes:
+            impact = "Ruch do objętych fragmentów sieci lokalnej wróci na fizyczny interfejs; połączenia przez dawny tunel mogą się przerwać"
+        default: impact = "Krótkie zakłócenie łączności"
         }
         return .init(kind: kind, reasonCode: code, checkID: check, resource: resource,
                      summary: .init(change: change, resource: label, purpose: "Weryfikacja: \(check)",
                                     requiresAdministrator: kind != .retryCheck,
-                                    possibleImpact: kind == .retryCheck ? "Brak zmian sieci" :
-                                        kind == .removeOrphanedRoute ? "Zmieni się trasa do jednego fragmentu sieci lokalnej; połączenia mogą się na chwilę przerwać" :
-                                        "Krótkie zakłócenie łączności",
+                                    possibleImpact: impact,
                                     verification: "Nowy snapshot i ponowienie: \(check)"))
+    }
+
+    /// Polish plural forms for the confirmation summary; no interface name or address is included.
+    static func routeLabel(_ count: Int) -> String {
+        let tens = count % 100, ones = count % 10
+        if count == 1 { return "1 trasa tunelowa nakładająca się na lokalną sieć" }
+        if (2...4).contains(ones) && !(12...14).contains(tens) {
+            return "\(count) trasy tunelowe nakładające się na lokalną sieć"
+        }
+        return "\(count) tras tunelowych nakładających się na lokalną sieć"
     }
 }

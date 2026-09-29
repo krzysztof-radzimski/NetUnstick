@@ -99,6 +99,46 @@ final class DiagnosticChecksTests: XCTestCase {
         }
     }
 
+    /// The host's own /32 stays physical while a VPN client's split of the LAN prefix
+    /// diverts every neighbour into the old tunnel. System utun devices never count.
+    func testSplitLANShadowIsDetectedDespitePhysicalHostRoute() async {
+        let base = VPNFixtures.snapshot(.noVPN)
+        let loopback = RawInterface(name: "lo0", type: "loopback", isUp: true, addresses: ["127.0.0.1", "::1"])
+        func changed(interfaces: [RawInterface], routes: [RawRoute]) -> RawNetworkSnapshot {
+            RawNetworkSnapshot(startedAt: base.startedAt, endedAt: base.endedAt,
+                path: base.path, interfaces: base.interfaces + [loopback] + interfaces, routes: base.routes + routes,
+                resolvers: base.resolvers, proxy: RawProxy(settings: [:]), dynamicStoreVPNKeys: [], errors: [],
+                vpnServices: .disconnected)
+        }
+        let lan = RawRoute(destination: "192.0.2", gateway: "link#14", interfaceName: "en0", isDefault: false, isLocal: true)
+        let selfHost = RawRoute(destination: "192.0.2.10/32", gateway: "link#14", interfaceName: "en0", isDefault: false, isLocal: true)
+        let selfLoopback = RawRoute(destination: "192.0.2.10", gateway: "2:51:b5:16:dd:73", interfaceName: "lo0", isDefault: false, isLocal: true, isCloned: true)
+        let arp = RawRoute(destination: "192.0.2.1", gateway: "d8:33:b7:3d:30:0", interfaceName: "en0", isDefault: false, isLocal: true, isCloned: true)
+        let system = RawInterface(name: "utun0", type: "tunnel", isUp: true, addresses: ["fe80::1%utun0"])
+        let systemRoutes = [RawRoute(destination: "fe80::%utun0/64", gateway: "fe80::1%utun0", interfaceName: "utun0", isDefault: false, isScoped: true),
+                            RawRoute(destination: "ff02::%utun0/32", gateway: "link#18", interfaceName: "utun0", isDefault: false, isLocal: true)]
+        let leftover = RawInterface(name: "utun4", type: "tunnel", isUp: true, addresses: ["10.100.101.10"])
+        let split = ["192.0.2/32", "192.0.2.2/31", "192.0.2.4/30", "192.0.2.8/29", "192.0.2.16/28", "192.0.2.32/27", "192.0.2.64/26", "192.0.2.128/25"]
+            .map { RawRoute(destination: $0, gateway: "10.100.101.10", interfaceName: "utun4", isDefault: false) }
+        let ownHost = RawRoute(destination: "10.100.101.10", gateway: "10.100.101.10", interfaceName: "utun4", isDefault: false, isLocal: true)
+        let clean = changed(interfaces: [system], routes: [lan, selfHost, selfLoopback, arp] + systemRoutes)
+        let shadowed = changed(interfaces: [system, leftover], routes: [lan, selfHost, selfLoopback, arp, ownHost] + systemRoutes + split)
+        let stale = changed(interfaces: [system, leftover], routes: [lan, selfHost, selfLoopback, arp, ownHost] + systemRoutes)
+        let cases: [(String, NetworkCheckKind, RawNetworkSnapshot, NetworkCheckReason)] = [
+            ("clean LAN", .localSubnetRoute, clean, .healthy),
+            ("split shadow", .localSubnetRoute, shadowed, .localRouteViaTunnel),
+            ("tunnel without routes", .localSubnetRoute, stale, .healthy),
+            ("system utun only", .interfaceConsistency, clean, .healthy),
+            ("shadow keeps tunnel referenced", .interfaceConsistency, shadowed, .healthy),
+            ("leftover tunnel without routes", .interfaceConsistency, stale, .orphanedTunnel),
+            ("system utun default", .defaultRoute, clean, .healthy)
+        ]
+        for (name, kind, snapshot, expected) in cases {
+            let actual = await result(kind, snapshot)
+            XCTAssertEqual(actual, expected.rawValue, name)
+        }
+    }
+
     func testIPv6LocalRouteAndDuplicateDefault() async {
         let base = VPNFixtures.snapshot(.noVPN)
         let ipv6 = RawInterface(name: "en0", type: "wifi", isUp: true, addresses: ["2001:db8:1::2"])

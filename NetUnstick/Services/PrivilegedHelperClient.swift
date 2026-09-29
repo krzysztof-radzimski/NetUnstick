@@ -45,7 +45,8 @@ private final class XPCCompletionGate {
 
 public final class PrivilegedHelperClient {
     private let transport: PrivilegedRequestTransport
-    private let service = SMAppService.daemon(plistName: PrivilegedProtocol.plistName)
+    /// A fresh handle for every query, so an approval granted in System Settings is seen without relaunching.
+    private var service: SMAppService { SMAppService.daemon(plistName: PrivilegedProtocol.plistName) }
     public private(set) var lastRegistrationError: String?
     public init(transport: PrivilegedRequestTransport? = nil) { self.transport = transport ?? XPCTransport() }
     public var status: HelperRegistrationStatus {
@@ -76,6 +77,15 @@ public final class PrivilegedHelperClient {
         return status
     }
     public func openLoginItems() { SMAppService.openSystemSettingsLoginItems() }
+    /// Invoke only from an explicit user control, e.g. after updating the bundle so launchd
+    /// stops the old daemon instance; the next registration may need approval again.
+    @discardableResult public func unregisterForUpdate() -> HelperRegistrationStatus {
+        lastRegistrationError = nil
+        do { try service.unregister() } catch {
+            lastRegistrationError = "Wyrejestrowanie nie powiodło się. Sprawdź Elementy logowania."
+        }
+        return status
+    }
     public func perform(_ action: PrivilegedAction, completion: @escaping (PrivilegedReply) -> Void) {
         switch status {
         case .enabled:

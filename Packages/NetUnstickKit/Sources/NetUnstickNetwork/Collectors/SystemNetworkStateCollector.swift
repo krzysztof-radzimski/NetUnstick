@@ -51,7 +51,10 @@ public struct SystemNetworkStateCollector: NetworkStateCollecting {
             vpnKeys = result.vpnKeys
             tunnelStoreInterfaces = result.tunnelInterfaces
             errors += result.errorCodes.map(NetworkCollectionError.init(code:))
-            vpnServices = Self.readVPNServiceStatus()
+        }
+
+        if !Task.isCancelled {
+            vpnServices = await readVPNServices()
         }
 
         if !Task.isCancelled {
@@ -189,12 +192,15 @@ public struct SystemNetworkStateCollector: NetworkStateCollecting {
                         interfaceName: dictionary["InterfaceName"] as? String))
                 }
                 let interfaceName = dictionary["InterfaceName"] as? String ?? ""
-                if key.hasSuffix("/PPP") || key.hasSuffix("/IPSec") || key.hasSuffix("/VPN") ||
-                    interfaceName.hasPrefix("utun") || interfaceName.hasPrefix("ipsec") || interfaceName.hasPrefix("ppp") {
+                let tunnel = TunnelSignals.isTunnelName(interfaceName)
+                // macOS registers an IPv6 link-local state for each of its own utun devices.
+                // Only a routable address on a tunnel is VPN evidence; DNS, PPP, IPSec and VPN keys always are.
+                let addresses = dictionary["Addresses"] as? [String] ?? []
+                let routable = addresses.contains { IPPrefix(address: $0).map { !$0.isLinkLocal } ?? false }
+                let addressKey = key.hasSuffix("/IPv4") || key.hasSuffix("/IPv6")
+                if key.hasSuffix("/PPP") || key.hasSuffix("/IPSec") || key.hasSuffix("/VPN") || (tunnel && (!addressKey || routable)) {
                     result.vpnKeys.append(key)
-                    if interfaceName.hasPrefix("utun") || interfaceName.hasPrefix("ipsec") || interfaceName.hasPrefix("ppp") {
-                        result.tunnelInterfaces.append(interfaceName)
-                    }
+                    if tunnel { result.tunnelInterfaces.append(interfaceName) }
                 }
             }
         } else {
@@ -220,6 +226,25 @@ public struct SystemNetworkStateCollector: NetworkStateCollecting {
         return result
     }
 
+    /// `scutil --nc list` is bounded by the process runner and answers from a root daemon.
+    /// The SystemConfiguration connection API is only a fallback and runs on its own thread
+    /// with a deadline, because a blocked call must never hang the caller.
+    private func readVPNServices() async -> VPNServiceStatus {
+        if let output = try? await process.run(.scutilNetworkConnections) {
+            let parsed = ScutilNetworkConnectionParser.parse(output.stdout)
+            if parsed != .unknown { return parsed }
+        }
+        return await Self.boundedVPNServiceStatus(timeout: 3)
+    }
+
+    private static func boundedVPNServiceStatus(timeout: TimeInterval) async -> VPNServiceStatus {
+        await withCheckedContinuation { continuation in
+            let gate = SingleResume(continuation)
+            Thread.detachNewThread { gate.finish(readVPNServiceStatus()) }
+            DispatchQueue.global().asyncAfter(deadline: .now() + timeout) { gate.finish(.unknown) }
+        }
+    }
+
     private static func readVPNServiceStatus() -> VPNServiceStatus {
         guard let preferences = SCPreferencesCreate(nil, "NetUnstick.VPNStatus" as CFString, nil),
               let services = SCNetworkServiceCopyAll(preferences) as? [SCNetworkService] else { return .unknown }
@@ -237,6 +262,16 @@ public struct SystemNetworkStateCollector: NetworkStateCollecting {
             }
         }
         return foundVPN ? .disconnected : .unknown
+    }
+}
+
+private final class SingleResume: @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<VPNServiceStatus, Never>?
+    init(_ continuation: CheckedContinuation<VPNServiceStatus, Never>) { self.continuation = continuation }
+    func finish(_ value: VPNServiceStatus) {
+        lock.lock(); let pending = continuation; continuation = nil; lock.unlock()
+        pending?.resume(returning: value)
     }
 }
 

@@ -61,24 +61,31 @@ private actor RefreshSequenceCollector: NetworkStateCollecting {
 
 private actor RecordingRunner: PrivilegedCommandRunning {
     private var commands: [(String, [String])] = []
-    func run(executable: String, arguments: [String]) async throws { commands.append((executable, arguments)) }
+    private let failAt: Int?
+    init(failAt: Int? = nil) { self.failAt = failAt }
+    func run(executable: String, arguments: [String]) async throws {
+        commands.append((executable, arguments))
+        if let failAt, commands.count == failAt { throw PrivilegedExecutionError.nonZeroExit }
+    }
     func count() -> Int { commands.count }
-    func arguments() -> [String]? { commands.first?.1 }
+    func arguments() -> [[String]] { commands.map(\.1) }
 }
 
+/// Three leftover entries of a split LAN prefix; the third read drops whichever were deleted.
 private actor ResidualRouteSequenceCollector: NetworkStateCollecting {
     private var reads = 0
-    let removed: Bool
-    init(removed: Bool) { self.removed = removed }
+    let removed: Set<String>
+    init(removed: Set<String>) { self.removed = removed }
     func collect() async -> RawNetworkSnapshot {
         reads += 1
-        let tunnel = RawRoute(destination: "192.168.44.32/27", gateway: "10.5.0.1",
-                              interfaceName: "utun4", isDefault: false)
+        let stale = ["192.168.44/32", "192.168.44.32/27", "192.168.44.128/25"].map {
+            RawRoute(destination: $0, gateway: "10.5.0.1", interfaceName: "utun4", isDefault: false)
+        }
         let routes: [RawRoute] = [
             .init(destination: "0.0.0.0/0", gateway: "192.168.44.1", interfaceName: "en0", isDefault: true),
             .init(destination: "192.168.44.0/24", gateway: "link#8", interfaceName: "en0",
                   isDefault: false, isLocal: true)
-        ] + (removed && reads >= 3 ? [] : [tunnel])
+        ] + (reads >= 3 ? stale.filter { !removed.contains($0.destination) } : stale)
         return RawNetworkSnapshot(startedAt: Date(), endedAt: Date(),
             path: .init(status: "satisfied", availableInterfaces: ["en0", "utun4"],
                         selectedInterfaces: ["en0"], supportsDNS: true, supportsIPv4: true,
@@ -90,7 +97,31 @@ private actor ResidualRouteSequenceCollector: NetworkStateCollecting {
     }
 }
 
+/// A collector whose observation never completes on its own, like a system API that blocks in the daemon context.
+private struct HangingCollector: NetworkStateCollecting {
+    func collect() async -> RawNetworkSnapshot {
+        try? await Task.sleep(for: .seconds(30))
+        return await FixtureCollector(vpn: false).collect()
+    }
+}
+
 extension PrivilegedExecutorTests {
+    func testBlockedObservationYieldsTimedOutReplyInsteadOfHanging() async {
+        let runner = RecordingRunner()
+        let started = ContinuousClock().now
+        let reply = await PrivilegedRepairExecutor(collector: HangingCollector(), dhcp: FixtureDHCP(),
+            runner: runner, collectionTimeout: .milliseconds(100)).perform(.init(action: .removeStaleTunnelRoutes(routes: Self.groupTargets)))
+        XCTAssertEqual(reply.code, .timedOut)
+        XCTAssertEqual(reply.result.outcome, .timedOut)
+        XCTAssertLessThan(started.duration(to: ContinuousClock().now), .seconds(5))
+        let issued = await runner.count()
+        XCTAssertEqual(issued, 0, "Nothing may change while the observation is incomplete")
+    }
+
+    static let groupTargets = [("192.168.44.0", 32), ("192.168.44.32", 27), ("192.168.44.128", 25)]
+        .map { PrivilegedRouteTarget(destination: $0.0, prefix: $0.1, interface: "utun4") }
+    static let all: Set<String> = ["192.168.44/32", "192.168.44.32/27", "192.168.44.128/25"]
+
     func testRemovedGlobalRefreshNeverRunsACommand() async {
         let runner = RecordingRunner()
         let reply = await PrivilegedRepairExecutor(collector: RefreshSequenceCollector(),
@@ -111,20 +142,44 @@ extension PrivilegedExecutorTests {
         XCTAssertEqual(unresolved.result.outcome, .failure)
     }
 
-    func testResidualUnscopedTunnelRouteUsesExactUnscopedDeleteAndRequiresObservation() async {
-        let request = PrivilegedRequest(action: .removeOrphanedRoute(
-            destination: "192.168.44.32", prefix: 27, interface: "utun4"))
+    func testGroupedRemovalIssuesOneExactUnscopedDeletePerEntryAndRequiresObservation() async {
+        let request = PrivilegedRequest(action: .removeStaleTunnelRoutes(routes: Self.groupTargets.reversed()))
         let runner = RecordingRunner()
         let success = await PrivilegedRepairExecutor(
-            collector: ResidualRouteSequenceCollector(removed: true),
+            collector: ResidualRouteSequenceCollector(removed: Self.all),
             dhcp: FixtureDHCP(), runner: runner).perform(request)
         XCTAssertEqual(success.code, .success)
         let arguments = await runner.arguments()
-        XCTAssertEqual(arguments, ["-n", "delete", "-net", "192.168.44.32/27", "10.5.0.1"])
+        XCTAssertEqual(arguments, [
+            ["-n", "delete", "-net", "192.168.44.0/32", "10.5.0.1"],
+            ["-n", "delete", "-net", "192.168.44.32/27", "10.5.0.1"],
+            ["-n", "delete", "-net", "192.168.44.128/25", "10.5.0.1"]
+        ], "Sorted, normalised, unscoped and without any shell")
 
+        let partial = RecordingRunner()
         let unresolved = await PrivilegedRepairExecutor(
-            collector: ResidualRouteSequenceCollector(removed: false),
-            dhcp: FixtureDHCP(), runner: RecordingRunner()).perform(request)
-        XCTAssertEqual(unresolved.code, .nonZeroExit)
+            collector: ResidualRouteSequenceCollector(removed: ["192.168.44/32", "192.168.44.32/27"]),
+            dhcp: FixtureDHCP(), runner: partial).perform(request)
+        XCTAssertEqual(unresolved.code, .nonZeroExit, "Exit code zero is not proof while one entry remains")
+        let issued = await partial.count()
+        XCTAssertEqual(issued, 3)
+
+        let failing = RecordingRunner(failAt: 2)
+        let stopped = await PrivilegedRepairExecutor(
+            collector: ResidualRouteSequenceCollector(removed: Self.all),
+            dhcp: FixtureDHCP(), runner: failing).perform(request)
+        XCTAssertEqual(stopped.code, .nonZeroExit)
+        let attempted = await failing.count()
+        XCTAssertEqual(attempted, 2, "The first failing command stops the sequence")
+
+        let mismatched = PrivilegedRequest(action: .removeStaleTunnelRoutes(routes: Array(Self.groupTargets.prefix(2))))
+        let refusedRunner = RecordingRunner()
+        let refused = await PrivilegedRepairExecutor(
+            collector: ResidualRouteSequenceCollector(removed: Self.all),
+            dhcp: FixtureDHCP(), runner: refusedRunner).perform(mismatched)
+        XCTAssertEqual(refused.code, .ambiguousResource)
+        XCTAssertEqual(refused.result.outcome, .skipped)
+        let untouched = await refusedRunner.count()
+        XCTAssertEqual(untouched, 0)
     }
 }

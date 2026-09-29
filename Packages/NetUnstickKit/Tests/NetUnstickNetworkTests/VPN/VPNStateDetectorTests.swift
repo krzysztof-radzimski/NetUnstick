@@ -26,6 +26,44 @@ final class VPNStateDetectorTests: XCTestCase {
         }
     }
 
+    /// Modern macOS keeps link-local-only utun devices for its own services. They must not
+    /// block "inactive"; a leftover VPN tunnel with a routable address still does.
+    func testSystemLinkLocalTunnelsAreNotVPNSignals() {
+        let base = VPNFixtures.snapshot(.noVPN)
+        func snapshot(interfaces: [RawInterface], routes: [RawRoute]) -> RawNetworkSnapshot {
+            RawNetworkSnapshot(startedAt: base.startedAt, endedAt: base.endedAt,
+                path: RawPathState(status: "satisfied", availableInterfaces: ["en0", "utun0", "utun1"],
+                                   selectedInterfaces: ["en0"], supportsDNS: true, supportsIPv4: true,
+                                   supportsIPv6: true, gateways: ["192.0.2.1"]),
+                interfaces: base.interfaces + interfaces, routes: base.routes + routes,
+                resolvers: base.resolvers, proxy: nil, dynamicStoreVPNKeys: [], errors: [], vpnServices: .disconnected)
+        }
+        let system = [RawInterface(name: "utun0", type: "tunnel", isUp: true, addresses: ["fe80::1%utun0"]),
+                      RawInterface(name: "utun1", type: "tunnel", isUp: true, addresses: ["fe80::2%utun1"])]
+        let systemRoutes = [RawRoute(destination: "fe80::%utun0/64", gateway: "fe80::1%utun0", interfaceName: "utun0", isDefault: false, isScoped: true),
+                            RawRoute(destination: "fe80::%utun1/64", gateway: "fe80::2%utun1", interfaceName: "utun1", isDefault: false, isScoped: true),
+                            RawRoute(destination: "ff02::%utun0/32", gateway: "link#18", interfaceName: "utun0", isDefault: false, isLocal: true)]
+        let onlySystem = detector.assess(snapshot(interfaces: system, routes: systemRoutes))
+        XCTAssertEqual(onlySystem, .init(state: .inactive, reasonCode: .noVPNSignals))
+        XCTAssertTrue(TunnelSignals.vpnTunnelNames(in: snapshot(interfaces: system, routes: systemRoutes)).isEmpty)
+
+        let leftover = RawInterface(name: "utun4", type: "tunnel", isUp: true, addresses: ["10.100.101.10"])
+        let ownHost = RawRoute(destination: "10.100.101.10", gateway: "10.100.101.10", interfaceName: "utun4", isDefault: false, isLocal: true)
+        let residual = detector.assess(snapshot(interfaces: system + [leftover], routes: systemRoutes + [ownHost]))
+        XCTAssertEqual(residual, .init(state: .unknown, reasonCode: .residualTunnel))
+
+        let shadow = RawRoute(destination: "192.0.2.32/27", gateway: "10.100.101.10", interfaceName: "utun4", isDefault: false)
+        let active = detector.assess(snapshot(interfaces: system + [leftover], routes: systemRoutes + [ownHost, shadow]))
+        XCTAssertEqual(active, .init(state: .active, reasonCode: .tunnelRoute))
+
+        let referenced = RawRoute(destination: "10.9.0.0/16", gateway: "link#18", interfaceName: "utun0", isDefault: false)
+        let promoted = detector.assess(snapshot(interfaces: system, routes: systemRoutes + [referenced]))
+        XCTAssertEqual(promoted.state, .active, "A forwarding route turns a system-looking utun into VPN evidence")
+
+        let missing = detector.assess(snapshot(interfaces: system, routes: systemRoutes + [RawRoute(destination: "fe80::%utun7/64", gateway: "fe80::7%utun7", interfaceName: "utun7", isDefault: false)]))
+        XCTAssertEqual(missing.reasonCode, .conflictingSignals)
+    }
+
     func testDisconnectStabilizationNeedsMultipleConsistentSamples() async {
         let collector = FixtureCollector([.noVPN, .noVPN, .noVPN])
         let result = await detector.stabilizeAfterDisconnect(collecting: collector, interval: .zero)

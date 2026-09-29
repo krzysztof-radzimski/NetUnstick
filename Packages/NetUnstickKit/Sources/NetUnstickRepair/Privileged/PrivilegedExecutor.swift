@@ -1,5 +1,6 @@
 import Foundation
 import Darwin
+import os
 import SystemConfiguration
 import NetUnstickCore
 import NetUnstickNetwork
@@ -19,56 +20,21 @@ public struct BoundedPrivilegedCommandRunner: PrivilegedCommandRunning {
         guard executable == "/sbin/route" && arguments.starts(with: ["-n", "delete", "-net"]) &&
               ((arguments.count == 7 && arguments[3] == "-ifscope") || arguments.count == 5)
         else { throw PrivilegedExecutionError.launchFailed }
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: executable)
-        process.arguments = arguments
-        process.environment = ["PATH": "/usr/bin:/bin:/usr/sbin:/sbin", "LANG": "C"]
-        let stdout = Pipe(), stderr = Pipe()
-        process.standardOutput = stdout; process.standardError = stderr
-        let state = CommandState(process: process)
-        stdout.fileHandleForReading.readabilityHandler = { handle in state.consume(handle.availableData) }
-        stderr.fileHandleForReading.readabilityHandler = { handle in state.consume(handle.availableData) }
-        defer { stdout.fileHandleForReading.readabilityHandler = nil; stderr.fileHandleForReading.readabilityHandler = nil }
-        do { try process.run() } catch { throw PrivilegedExecutionError.launchFailed }
-        let deadline = DispatchWorkItem { state.expire() }
-        DispatchQueue.global().asyncAfter(deadline: .now() + 5, execute: deadline)
-        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            DispatchQueue.global().async { process.waitUntilExit(); continuation.resume() }
-        }
-        deadline.cancel()
-        if state.exceeded { throw PrivilegedExecutionError.outputLimit }
-        if state.expired { throw PrivilegedExecutionError.timedOut }
-        if process.terminationStatus != 0 {
-            if process.terminationStatus == 77 { throw PrivilegedExecutionError.permissionDenied }
-            throw PrivilegedExecutionError.nonZeroExit
-        }
-    }
-}
-
-private final class CommandState: @unchecked Sendable {
-    private let lock = NSLock()
-    private let process: Process
-    private var bytes = 0
-    private var didExpire = false, didExceed = false
-    init(process: Process) { self.process = process }
-    var expired: Bool { lock.lock(); defer { lock.unlock() }; return didExpire }
-    var exceeded: Bool { lock.lock(); defer { lock.unlock() }; return didExceed }
-    func consume(_ data: Data) {
-        lock.lock(); bytes += data.count
-        if bytes > 4096 { didExceed = true }
-        let terminate = didExceed && process.isRunning
-        lock.unlock()
-        if terminate { process.terminate(); forceKillIfNeeded() }
-    }
-    func expire() {
-        lock.lock(); didExpire = true
-        let terminate = process.isRunning
-        lock.unlock()
-        if terminate { process.terminate(); forceKillIfNeeded() }
-    }
-    private func forceKillIfNeeded() {
-        DispatchQueue.global().asyncAfter(deadline: .now() + 0.25) { [process] in
-            if process.isRunning { _ = Darwin.kill(process.processIdentifier, SIGKILL) }
+        do {
+            // Exit is observed through the shared kqueue-based launcher; five seconds and 4 KiB of output at most.
+            _ = try await BoundedProcess.run(executable: executable, arguments: arguments,
+                                             environment: ["PATH": "/usr/bin:/bin:/usr/sbin:/sbin", "LANG": "C"],
+                                             timeout: 5, outputLimit: 4096)
+        } catch let error as ProcessRunError {
+            switch error {
+            case .timedOut, .cancelled: throw PrivilegedExecutionError.timedOut
+            case .outputTooLarge: throw PrivilegedExecutionError.outputLimit
+            case .nonZeroExit(let status): throw status == 77 ? PrivilegedExecutionError.permissionDenied : .nonZeroExit
+            case .permissionDenied: throw PrivilegedExecutionError.permissionDenied
+            case .launchFailed, .invalidEncoding: throw PrivilegedExecutionError.launchFailed
+            }
+        } catch {
+            throw PrivilegedExecutionError.launchFailed
         }
     }
 }
@@ -104,10 +70,31 @@ public struct PrivilegedRepairExecutor: Sendable {
     private let collector: any NetworkStateCollecting
     private let dhcp: any DHCPConfigurationChecking
     private let runner: any PrivilegedCommandRunning
+    private let collectionTimeout: Duration
+    private let logger = Logger(subsystem: "org.netunstick.NetUnstick", category: "helper")
+    /// Every observation inside the helper is raced against `collectionTimeout`, so a system
+    /// API that blocks in the daemon context produces a `timedOut` reply instead of a hang.
     public init(collector: any NetworkStateCollecting = SystemNetworkStateCollector(),
                 dhcp: any DHCPConfigurationChecking = SystemDHCPConfiguration(),
-                runner: any PrivilegedCommandRunning = BoundedPrivilegedCommandRunner()) {
+                runner: any PrivilegedCommandRunning = BoundedPrivilegedCommandRunner(),
+                collectionTimeout: Duration = .seconds(12)) {
         self.collector = collector; self.dhcp = dhcp; self.runner = runner
+        self.collectionTimeout = collectionTimeout
+    }
+
+    private func collectBounded(_ phase: String) async throws -> RawNetworkSnapshot {
+        logger.info("helper observe \(phase, privacy: .public)")
+        let (stream, output) = AsyncStream.makeStream(of: RawNetworkSnapshot?.self, bufferingPolicy: .bufferingNewest(1))
+        let worker = Task { output.yield(await collector.collect()); output.finish() }
+        let timer = Task { try? await Task.sleep(for: collectionTimeout); output.yield(nil); output.finish() }
+        var iterator = stream.makeAsyncIterator()
+        let result = await iterator.next() ?? nil
+        worker.cancel(); timer.cancel(); output.finish()
+        guard let result else {
+            logger.error("helper observe \(phase, privacy: .public) timed out")
+            throw PrivilegedExecutionError.timedOut
+        }
+        return result
     }
     public static func rejectMalformedRequest() -> PrivilegedReply {
         let now = Date()
@@ -123,15 +110,16 @@ public struct PrivilegedRepairExecutor: Sendable {
         var before: SafeEvidence = .empty
         var after: SafeEvidence = .empty
         do {
-            let snapshot = await collector.collect()
+            let snapshot = try await collectBounded("before")
             before = SanitizedNetworkSnapshot(raw: snapshot).evidence
             let action = try RepairPolicy.authorize(request, snapshot: snapshot, dhcpInterfaces: dhcp.configuredInterfaces())
+            logger.info("helper authorized")
             switch action {
             case .renewDHCP(let name):
                 guard dhcp.refresh(name) else { throw PrivilegedExecutionError.nonZeroExit }
             case .removeRoute(let destination, let prefix, let name, let gateway):
                 // A second observation minimizes the gap before the exact route deletion.
-                let current = await collector.collect()
+                let current = try await collectBounded("recheck")
                 guard try RepairPolicy.authorize(request, snapshot: current,
                                                  dhcpInterfaces: dhcp.configuredInterfaces()) == action
                 else { throw RepairPolicyError.ambiguousResource }
@@ -143,11 +131,30 @@ public struct PrivilegedRepairExecutor: Sendable {
                     ? ["-n", "delete", "-net", target, gateway]
                     : ["-n", "delete", "-net", "-ifscope", name, target, gateway]
                 try await runner.run(executable: "/sbin/route", arguments: arguments)
+            case .removeRoutes(let routes):
+                // The observed set must still equal the request immediately before the first deletion.
+                let current = try await collectBounded("recheck")
+                guard try RepairPolicy.authorize(request, snapshot: current,
+                                                 dhcpInterfaces: dhcp.configuredInterfaces()) == action
+                else { throw RepairPolicyError.ambiguousResource }
+                // Policy admits only unscoped entries, so network plus next hop names each one exactly.
+                // One bounded command per entry; the first failure stops the sequence.
+                for (index, route) in routes.enumerated() {
+                    logger.info("helper command \(index + 1, privacy: .public) of \(routes.count, privacy: .public)")
+                    try await runner.run(executable: "/sbin/route",
+                                         arguments: ["-n", "delete", "-net", route.cidr, route.gateway])
+                }
             }
-            let observed = await collector.collect()
+            let observed = try await collectBounded("after")
             after = SanitizedNetworkSnapshot(raw: observed).evidence
             if case .removeRoute(let destination, let prefix, _, _) = action {
                 guard observed.errors.isEmpty, observed.routes.filter({ $0.destination == "\(destination)/\(prefix)" }).isEmpty else {
+                    throw PrivilegedExecutionError.nonZeroExit
+                }
+            }
+            if case .removeRoutes(let routes) = action {
+                guard observed.errors.isEmpty,
+                      !observed.routes.contains(where: { row in routes.contains { $0.matches(row) } }) else {
                     throw PrivilegedExecutionError.nonZeroExit
                 }
             }
@@ -168,6 +175,7 @@ public struct PrivilegedRepairExecutor: Sendable {
             case .launchFailed: code = .executionFailed
             }
         } catch { code = .executionFailed }
+        logger.info("helper reply \(code.rawValue, privacy: .public)")
         let outcome: OperationOutcome = code == .success ? .success :
             code == .timedOut ? .timedOut : code == .permissionDenied ? .permissionDenied :
             [.vpnActive, .vpnUnknown, .ambiguousResource].contains(code) ? .skipped : .failure

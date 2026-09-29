@@ -12,13 +12,14 @@ public struct PlannedRepairAction: RepairAction {
     public var name: String { plan.kind.rawValue }
     public var repairedCheckID: String { plan.checkID }
     public var requiredPrivilege: RepairPrivilege { plan.kind == .retryCheck ? .none : .administrator }
-    public var timeout: Duration { .seconds(90) }
+    /// The grouped route removal issues one bounded command per entry, so it gets a longer budget.
+    public var timeout: Duration { plan.kind == .removeStaleTunnelRoutes ? .seconds(180) : .seconds(90) }
     public var resourceScope: RepairResourceScope {
         switch plan.resource {
         case .check: return .diagnosticCheck
         case .resolverCache: return .dnsResolver
         case .physicalInterface: return .physicalInterface
-        case .route: return .localRoute
+        case .tunnelRoutes: return .localRoute
         }
     }
     public func run(context: OperationContext) async -> OperationResult {

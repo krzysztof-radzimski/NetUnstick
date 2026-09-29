@@ -1,0 +1,3 @@
+Available network connection services in the current set (*=enabled):
+* (Disconnected)   43A2222A-C174-4250-9445-5C75ABDD9708 VPN (com.example.vpn.client) "VPN"                            [VPN:com.example.vpn.client]
+  (Disconnected)   0F8D6C3A-1F0E-4C7B-9A1D-2B3C4D5E6F70 VPN (com.example.other) "Other VPN"                           [VPN:com.example.other]

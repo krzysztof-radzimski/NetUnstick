@@ -46,28 +46,28 @@ public struct VPNStateDetector: Sendable {
             return .init(state: .unknown, reasonCode: .incompleteSnapshot)
         }
         guard !path.transitionObserved else { return .init(state: .unknown, reasonCode: .pathTransition) }
-
-        let activeTunnels = Set(snapshot.interfaces.filter { $0.isUp && Self.isTunnel($0.name) }.map(\.name))
-        let observedTunnels = Set(snapshot.interfaces.filter { Self.isTunnel($0.name) }.map(\.name))
-        let routeTunnels = Set(snapshot.routes.compactMap { route -> String? in
-            guard let name = route.interfaceName, Self.isTunnel(name) else { return nil }
-            return name
-        })
-        let dnsTunnels = Set(snapshot.resolvers.compactMap { resolver -> String? in
-            guard let name = resolver.interfaceName, Self.isTunnel(name) else { return nil }
-            return name
-        })
-        let selectedTunnels = Set(path.selectedInterfaces.filter(Self.isTunnel))
-        let storeSignal = !snapshot.dynamicStoreVPNKeys.isEmpty
-
         guard path.status == "satisfied" else {
             return .init(state: .unknown, reasonCode: .incompleteSnapshot)
         }
 
+        // macOS keeps its own link-local-only utun devices; they are not VPN evidence.
+        // A tunnel with a routable address, a forwarding route or another reference is.
+        let vpnTunnels = TunnelSignals.vpnTunnelInterfaces(in: snapshot)
+        let activeTunnels = Set(vpnTunnels.filter(\.isUp).map(\.name))
+        let observedTunnels = Set(vpnTunnels.map(\.name))
+        let systemTunnels = Set(snapshot.interfaces.filter { TunnelSignals.isSystemInternalTunnel($0, in: snapshot) }.map(\.name))
+        let upTunnels = TunnelSignals.upTunnelNames(in: snapshot)
+        let routeTunnels = TunnelSignals.forwardingTunnelRouteNames(in: snapshot)
+        let dnsTunnels = Set(snapshot.resolvers.compactMap { resolver -> String? in
+            guard let name = resolver.interfaceName, TunnelSignals.isTunnelName(name) else { return nil }
+            return name
+        })
+        let selectedTunnels = Set(path.selectedInterfaces.filter(TunnelSignals.isTunnelName))
+        let storeSignal = !snapshot.dynamicStoreVPNKeys.isEmpty
+
         // A route, resolver or selected path referencing an absent/down interface is
         // ambiguous after disconnect. An old utun alone is likewise insufficient.
-        let referenced = routeTunnels.union(dnsTunnels).union(selectedTunnels)
-        guard referenced.isSubset(of: activeTunnels) else {
+        guard TunnelSignals.referencedTunnelNames(in: snapshot).isSubset(of: upTunnels) else {
             return .init(state: .unknown, reasonCode: .conflictingSignals)
         }
         if !routeTunnels.isEmpty { return .init(state: .active, reasonCode: .tunnelRoute) }
@@ -77,7 +77,7 @@ public struct VPNStateDetector: Sendable {
             return .init(state: .active, reasonCode: .dynamicStoreTunnel)
         }
         if !observedTunnels.isEmpty || storeSignal ||
-            path.availableInterfaces.contains(where: Self.isTunnel) {
+            path.availableInterfaces.contains(where: { TunnelSignals.isTunnelName($0) && !systemTunnels.contains($0) }) {
             return .init(state: .unknown, reasonCode: .residualTunnel)
         }
         return .init(state: .inactive, reasonCode: .noVPNSignals)
@@ -180,11 +180,6 @@ public struct VPNStateDetector: Sendable {
         timer.cancel()
         output.finish()
         return result
-    }
-
-    private static func isTunnel(_ name: String) -> Bool {
-        let lower = name.lowercased()
-        return lower.hasPrefix("utun") || lower.hasPrefix("ipsec") || lower.hasPrefix("ppp")
     }
 
     private static func pathChanged(_ previous: RawPathState, _ current: RawPathState) -> Bool {

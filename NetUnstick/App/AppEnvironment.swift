@@ -100,7 +100,7 @@ import NetUnstickRepair
                      resource: plan.summary.resource, impact: plan.summary.possibleImpact,
                      permission: plan.summary.requiresAdministrator ? "Wymaga zatwierdzonego helpera" : "Bez uprawnień administratora",
                      verification: plan.summary.verification,
-                     allowsWhenResidualRoute: plan.kind == .removeOrphanedRoute)
+                     allowsWhenResidualRoute: plan.kind == .removeStaleTunnelRoutes)
     }
 
     func executeRepair(onPhase: @escaping @Sendable (String, OperationOutcome) -> Void) async -> OperationResult? {
@@ -141,6 +141,10 @@ import NetUnstickRepair
     func preview(_ session: ActivitySession) -> String { renderer.preview(session: session).body }
     func registerHelper() -> HelperPresentationState {
         _ = helperClient.registerForSelectedRepair()
+        return helper
+    }
+    func unregisterHelper() -> HelperPresentationState {
+        _ = helperClient.unregisterForUpdate()
         return helper
     }
     func openHelperSettings() { helperClient.openLoginItems() }

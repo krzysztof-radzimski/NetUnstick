@@ -10,6 +10,7 @@ final class ProcessRunningTests: XCTestCase {
             (.netstatIPv6, "/usr/sbin/netstat", ["-rn", "-f", "inet6"]),
             (.scutilDNS, "/usr/sbin/scutil", ["--dns"]),
             (.scutilProxy, "/usr/sbin/scutil", ["--proxy"]),
+            (.scutilNetworkConnections, "/usr/sbin/scutil", ["--nc", "list"]),
         ]
         for (command, executable, arguments) in commands {
             XCTAssertEqual(command.executable, executable)
@@ -51,6 +52,25 @@ final class ProcessRunningTests: XCTestCase {
         XCTAssertFalse(output.stdout.isEmpty)
         XCTAssertLessThanOrEqual(output.stdout.utf8.count, runner.outputLimit)
         XCTAssertLessThanOrEqual(output.stderr.utf8.count, runner.outputLimit)
+    }
+
+    /// Short-lived children that exit before the waiting thread is scheduled used to leave
+    /// `waitUntilExit` blocked forever under load; the kqueue-based launcher must always return.
+    func testConcurrentShortLivedCommandsAlwaysComplete() async throws {
+        let runner = SystemProcessRunner(timeout: 5, outputLimit: 65_536)
+        let started = ContinuousClock().now
+        try await withThrowingTaskGroup(of: Int32.self) { group in
+            for index in 0..<48 {
+                group.addTask {
+                    let command: ReadOnlyNetworkCommand = index % 3 == 0 ? .scutilNetworkConnections : index % 3 == 1 ? .scutilDNS : .netstatIPv4
+                    return try await runner.run(command).exitStatus
+                }
+            }
+            var completed = 0
+            for try await status in group { XCTAssertEqual(status, 0); completed += 1 }
+            XCTAssertEqual(completed, 48)
+        }
+        XCTAssertLessThan(started.duration(to: ContinuousClock().now), .seconds(60))
     }
 
     func testCancellationBeforeLaunchIsReported() async throws {

@@ -123,7 +123,7 @@ public struct RepairExecutor: Sendable {
         guard RepairCatalog.permits(plan) else {
             return await finish(.failure, "invalid_plan")
         }
-        let staleLocalRoute = plan.kind == .removeOrphanedRoute
+        let staleLocalRoute = plan.kind == .removeStaleTunnelRoutes
         if Task.isCancelled || (try? context.cancellation.checkCancellation()) == nil {
             return await finish(.cancelled, nil)
         }
@@ -179,7 +179,13 @@ public struct RepairExecutor: Sendable {
             guard sameResource(plan.resource, beforeRaw, latest), authorized(plan, latest) else {
                 return await finish(.skipped, nil, before, .empty, .contactSupport)
             }
-            guard await record("helper_request") else {
+            let requestEvidence: SafeEvidence
+            if case .tunnelRoutes(let routes) = plan.resource {
+                requestEvidence = EvidenceSanitizer.sanitize([.count: .count(routes.count)])
+            } else {
+                requestEvidence = .empty
+            }
+            guard await record("helper_request", .success, requestEvidence) else {
                 return await finish(.failure, "session_write_failed", before)
             }
             let reply = await helper.perform(action)
@@ -215,8 +221,8 @@ public struct RepairExecutor: Sendable {
                                 VPNStateDetector().assess(afterRaw).state == .inactive else {
             return await finish(.failure, "after_snapshot_invalid", before, after, .contactSupport)
         }
-        if case .route(let destination, let prefix, _, _) = plan.resource,
-           afterRaw.routes.contains(where: { $0.destination == "\(destination)/\(prefix)" }) {
+        if case .tunnelRoutes(let routes) = plan.resource,
+           afterRaw.routes.contains(where: { row in routes.contains { $0.matches(row) } }) {
             return await finish(.failure, "route_still_present", before, after, .contactSupport)
         }
         guard let recheck = await checkBounded(plan.checkID, snapshot: afterRaw, context: context) else {
@@ -236,8 +242,8 @@ public struct RepairExecutor: Sendable {
         switch (kind, resource) {
         case (.refreshResolverCache, .resolverCache): return .refreshResolverCache
         case (.renewDHCP, .physicalInterface(let name)): return .renewDHCP(interface: name)
-        case (.removeOrphanedRoute, .route(let destination, let prefix, let name, _)):
-            return .removeOrphanedRoute(destination: destination, prefix: prefix, interface: name)
+        case (.removeStaleTunnelRoutes, .tunnelRoutes(let routes)):
+            return .removeStaleTunnelRoutes(routes: routes.map(\.target))
         default: return nil
         }
     }
@@ -285,12 +291,10 @@ public struct RepairExecutor: Sendable {
         case .physicalInterface(let name):
             let a = lhs.interfaces.filter { $0.name == name }, b = rhs.interfaces.filter { $0.name == name }
             return a.count == 1 && b.count == 1 && a[0].type == b[0].type && a[0].isUp == b[0].isUp && a[0].addresses == b[0].addresses
-        case .route(let destination, let prefix, let name, let gateway):
-            let key = "\(destination)/\(prefix)"
-            return [lhs, rhs].allSatisfy { snap in
-                snap.routes.filter { $0.destination == key }.count == 1 &&
-                snap.routes.contains { $0.destination == key && $0.interfaceName == name && $0.gateway == gateway && !$0.isDefault }
-            }
+        case .tunnelRoutes(let routes):
+            // Both observations must yield exactly the planned set, no more and no fewer.
+            let expected = Set(routes)
+            return [lhs, rhs].allSatisfy { Set(RepairPolicy.staleLocalTunnelRoutes(in: $0)) == expected }
         }
     }
 

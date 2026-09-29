@@ -5,7 +5,7 @@ struct ContentView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @StateObject private var store = CompositionRoot.makeStore()
     @State private var section = "status"
-    @State private var repairSheet = false
+    @State private var repairConfirmation = false
     @State private var previewSheet = false
     @State private var exporter = false
     @State private var exportError = false
@@ -24,12 +24,13 @@ struct ContentView: View {
                 switch section {
                 case "activity": ActivityView(store: store) { previewSheet = true }
                 case "settings": SettingsView(store: store)
-                default: DashboardView(store: store, highContrast: highContrast, showRepair: { repairSheet = true }, showReport: { previewSheet = true })
+                default: DashboardView(store: store, highContrast: highContrast, confirmingRepair: repairConfirmation,
+                                       showRepair: { repairConfirmation = true }, dismissRepair: { repairConfirmation = false },
+                                       showReport: { previewSheet = true })
                 }
             }.frame(minWidth: 560, minHeight: 500)
         }
         .font(dynamicTypeSize.isAccessibilitySize ? .system(size: 22) : .body)
-        .sheet(isPresented: $repairSheet) { RepairConfirmationView(store: store) { repairSheet = false } }
         .sheet(isPresented: $previewSheet) { ReportPreviewView(store: store, dismiss: { previewSheet = false }) {
             report = TextReport(text: store.reportText)
             previewSheet = false
