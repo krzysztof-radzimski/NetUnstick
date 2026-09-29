@@ -76,3 +76,18 @@ Zmiany: wspólny parser prefiksów `IPPrefix` z formami skróconymi netstat; kla
 | Helper po naprawie | Zakończył się kodem 0 po minucie bezczynności; `launchctl` pokazuje `not running`. |
 
 Ograniczenia: aplikacja nie kończy procesów klienta VPN, więc osierocone tunele pozostają, a kolejna sesja VPN może ponownie zostawić trasy; naprawę należy wtedy powtórzyć. Rekord bazy elementów tła dla kopii z DerivedData pozostał w stanie oczekiwania na zgodę i nie jest używany. Łączność sprawdzono na poziomie ICMP i TCP, nie przez montowanie udziału w Finderze. Test `NETUNSTICK_ROUTE_LIVE=1` jest pomijany, gdy host nie ma już pozostałych tras.
+
+## Prezentacja stanu po naprawie — 29 września 2026, późny wieczór
+
+Po naprawie użytkownik zgłosił sprzeczny ekran: wszystkie kontrole „Bez problemu” poza `interface consistency` („Pozostał interfejs tunelowy bez aktywnego połączenia”), a nagłówek „Stan sieci nieznany”, linia „Stan VPN niepewny” i wynik „Rozłącz VPN lub potwierdź jego stan” mimo rozłączonej usługi VPN; pod przyciskiem wisiała surowa etykieta `success` z poprzedniej naprawy. Odtworzono to sterownikiem pulpitu na działającej aplikacji (diagnostyka uruchomiona przez most, drzewo dostępności potwierdziło te teksty).
+
+Przyczyna: prezentacja traktowała każdy stan VPN inny niż `inactive` jak nieznany, a detektor celowo zwraca `unknown`/`residualTunnel` dla nieaktywnych interfejsów tunelowych pozostawionych przez klienta VPN. Zmiana: `PresentationStore` zna teraz stan skonfigurowanych usług VPN (`vpnServices`) z ostatniej obserwacji; gdy usługa zgłasza rozłączenie, przyczyną niepewności jest wyłącznie pozostały tunel, a jedyną nieudaną kontrolą jest `interface_consistency` z kodem `orphanedTunnel`, ekran pokazuje stan „Sieć działa, pozostały ślady VPN” z wynikiem i krokiem opisującym, że sieć lokalna działa, a zwykłe naprawy pozostają zablokowane do zniknięcia interfejsów. Linia stanu VPN nazywa przyczynę niepewności (pozostały tunel, zmiana ścieżki, niepełny odczyt, sprzeczne sygnały). Fazy naprawy są pokazywane po polsku w trakcie działania i znikają po wyniku; teksty „symulowane kontrole” zastąpiono neutralnymi.
+
+| Sprawdzenie | Wynik |
+| --- | --- |
+| `PresentationStoreTests.testLeftoverTunnelAfterConfirmedDisconnectIsNotAnUnknownNetwork` | Przeszedł: usługa rozłączona + `residualTunnel` + jedyna nieudana kontrola `orphanedTunnel` daje stan `residual`; scenariusz `vpn-unknown` nadal daje `unknown`. Cały zestaw `NetUnstickPresentationTests`: 0 błędów. |
+| Testy UI `testConfirmedRepairRequiresSuccessfulRecheck`, `testRealCompositionWithFakeSystemBoundary`, `testActiveAndUnknownVPNExplainBlockedChange`, `testNavigationDetailsRepairAndReport` | 4 testy, 0 błędów; po nieudanej naprawie nie zostaje surowa etykieta fazy. |
+| Build podpisany, `check-helper-bundle.sh --require-stable-signing`, cdhash helpera | `BUILD SUCCEEDED`; cdhash helpera bez zmian, więc zadanie launchd pozostało ważne (`state = not running`, ostatni kod wyjścia 0). Nowa wersja zainstalowana w `~/Applications` i uruchomiona. |
+| Diagnoza hosta (test dymny) | `vpnServices=disconnected`, VPN `unknown/residualTunnel`, jedyna nieudana kontrola `interface_consistency/orphanedTunnel` — dokładnie warunki, które nowa prezentacja mapuje na stan „Sieć działa, pozostały ślady VPN”. |
+
+Ograniczenie: oględziny nowego nagłówka w oknie nie zostały wykonane przez sterownik pulpitu, bo użytkownik zatrzymał sterowanie klawiszem Escape; mapowanie warunków hosta na nowy stan potwierdza test jednostkowy z identycznymi wejściami.

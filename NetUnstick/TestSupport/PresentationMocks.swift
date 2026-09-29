@@ -2,6 +2,7 @@
 import Foundation
 import SwiftUI
 import NetUnstickCore
+import NetUnstickNetwork
 
 @MainActor struct MockPresentationService: PresentationService {
     let scenario: String
@@ -11,6 +12,13 @@ import NetUnstickCore
         case "helper-approval": .approvalRequired
         case "healthy": .available
         default: .unavailable
+        }
+    }
+    var vpnServices: VPNServiceStatus {
+        switch scenario {
+        case "vpn-active": .connected
+        case "vpn-unknown", "default": .unknown
+        default: .disconnected
         }
     }
     static func fromLaunchArguments() -> Self {

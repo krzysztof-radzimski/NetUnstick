@@ -1,6 +1,70 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "state_residual": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network works, VPN leftovers remain"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sieć działa, pozostały ślady VPN"
+          }
+        }
+      }
+    },
+    "state_residual_detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The checks passed. The VPN client left inactive tunnel devices behind; ordinary network repairs stay blocked until they disappear."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kontrole przeszły. Klient VPN zostawił nieaktywne interfejsy tunelowe; zwykłe naprawy sieci pozostają zablokowane, dopóki nie znikną."
+          }
+        }
+      }
+    },
+    "result_residual": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The checks passed; the VPN client left inactive tunnel devices without routes."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kontrole przeszły; klient VPN zostawił nieaktywne interfejsy tunelowe bez tras."
+          }
+        }
+      }
+    },
+    "next_residual": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The local network works. To remove the leftover devices, quit and reopen the VPN client or restart the Mac; the app does not terminate other processes."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sieć lokalna działa. Aby usunąć pozostałe interfejsy, zamknij i uruchom ponownie klienta VPN albo komputer; aplikacja nie kończy cudzych procesów."
+          }
+        }
+      }
+    },
     "status": {
       "localizations": {
         "en": {
@@ -230,13 +294,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The simulated checks found no issue."
+            "value": "The checks found no issue."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Symulowane kontrole nie wykazały problemu."
+            "value": "Kontrole nie wykazały problemu."
           }
         }
       }
@@ -358,13 +422,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No problem found by simulated checks."
+            "value": "No problem found by the checks."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Symulowane kontrole nie wykryły problemu."
+            "value": "Kontrole nie wykryły problemu."
           }
         }
       }

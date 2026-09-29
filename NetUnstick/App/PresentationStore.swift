@@ -4,13 +4,16 @@ import NetUnstickCore
 import NetUnstickNetwork
 
 enum NetworkPresentationState: String {
-    case healthy, problem, investigating, unknown
+    /// `residual`: the checks pass and the VPN service reports disconnected, but the VPN
+    /// client left tunnel devices behind. The network works; ordinary repairs stay blocked.
+    case healthy, problem, investigating, unknown, residual
     var title: String {
         switch self {
         case .healthy: String(localized: "state_healthy")
         case .problem: String(localized: "state_problem")
         case .investigating: String(localized: "state_investigating")
         case .unknown: String(localized: "state_unknown")
+        case .residual: String(localized: "state_residual")
         }
     }
     var explanation: String {
@@ -19,9 +22,18 @@ enum NetworkPresentationState: String {
         case .problem: String(localized: "state_problem_detail")
         case .investigating: String(localized: "state_investigating_detail")
         case .unknown: String(localized: "state_unknown_detail")
+        case .residual: String(localized: "state_residual_detail")
         }
     }
-    var symbol: String { switch self { case .healthy: "checkmark.circle"; case .problem: "exclamationmark.triangle"; case .investigating: "waveform.path"; case .unknown: "questionmark.circle" } }
+    var symbol: String {
+        switch self {
+        case .healthy: "checkmark.circle"
+        case .problem: "exclamationmark.triangle"
+        case .investigating: "waveform.path"
+        case .unknown: "questionmark.circle"
+        case .residual: "checkmark.circle.trianglebadge.exclamationmark"
+        }
+    }
 }
 
 enum HelperPresentationState: String {
@@ -59,6 +71,8 @@ struct RepairCandidatePresentation {
 @MainActor protocol PresentationService {
     var scenario: String { get }
     var helper: HelperPresentationState { get }
+    /// Aggregate status of the configured VPN services from the latest observation.
+    var vpnServices: VPNServiceStatus { get }
     func diagnose() async throws -> [OperationResult]
     func diagnose(onCheck: @escaping @Sendable (OperationResult, Int, Int) -> Void) async throws -> [OperationResult]
     func repairCandidate() -> RepairCandidatePresentation?
@@ -75,6 +89,7 @@ struct RepairCandidatePresentation {
 }
 
 extension PresentationService {
+    var vpnServices: VPNServiceStatus { .unknown }
     func repairCandidates() -> [RepairCandidatePresentation] { repairCandidate().map { [$0] } ?? [] }
     func selectRepairCandidate(_ index: Int) {}
     func diagnose(onCheck: @escaping @Sendable (OperationResult, Int, Int) -> Void) async throws -> [OperationResult] {
@@ -87,6 +102,7 @@ extension PresentationService {
     func refreshVPN(stabilize: Bool) async -> VPNAssessment {
         switch scenario {
         case "vpn-active": .init(state: .active, reasonCode: .tunnelPath)
+        case "vpn-residual": .init(state: .unknown, reasonCode: .residualTunnel)
         case "vpn-unknown", "default": .init(state: .unknown, reasonCode: .incompleteSnapshot)
         default: .init(state: .inactive, reasonCode: .noVPNSignals)
         }
@@ -108,6 +124,7 @@ extension PresentationService {
     @Published var nextStep = String(localized: "start_next")
     @Published var filter = "all"
     @Published var vpn: VPNAssessment = .init(state: .unknown, reasonCode: .stabilizationPending)
+    @Published var vpnServices: VPNServiceStatus = .unknown
     @Published var disconnectBanner = false
     @Published var repairPhase = ""
     @Published var selectedSessionID: UUID?
@@ -126,6 +143,10 @@ extension PresentationService {
         service.selectRepairCandidate(index)
         candidateValue = candidates[index]
     }
+    /// Leftover tunnel devices after a disconnect the VPN service itself confirms.
+    var residualTunnelOnly: Bool {
+        vpn.state == .unknown && vpn.reasonCode == .residualTunnel && vpnServices == .disconnected
+    }
     var vpnStatus: String {
         switch vpn.state {
         case .active:
@@ -133,7 +154,21 @@ extension PresentationService {
                 "Wykryto trasy pozostałe po rozłączeniu VPN. Dostępna jest tylko naprawa dokładnie tych tras." :
                 "VPN aktywny. Zmiany sieci są zablokowane."
         case .inactive: return "VPN nieaktywny. Możesz uruchomić diagnostykę."
-        case .unknown: return "Stan VPN niepewny. Zmiany sieci są zablokowane do ponownej oceny."
+        case .unknown:
+            switch vpn.reasonCode {
+            case .residualTunnel where vpnServices == .disconnected:
+                return "Usługa VPN zgłasza rozłączenie, ale klient VPN zostawił nieaktywne interfejsy tunelowe. Zwykłe zmiany sieci są zablokowane."
+            case .residualTunnel:
+                return "Pozostał interfejs tunelowy, a stan usługi VPN jest nieznany. Zmiany sieci są zablokowane."
+            case .pathTransition:
+                return "Sieć właśnie się zmienia. Zmiany sieci są zablokowane do ponownej oceny."
+            case .partialReadFailure, .incompleteSnapshot:
+                return "Nie udało się w pełni odczytać stanu sieci. Zmiany sieci są zablokowane do ponownej oceny."
+            case .conflictingSignals:
+                return "Trasa lub resolver wskazuje nieobecny tunel. Zmiany sieci są zablokowane do ponownej oceny."
+            default:
+                return "Stan VPN niepewny. Zmiany sieci są zablokowane do ponownej oceny."
+            }
         }
     }
     var reportText: String {
@@ -175,6 +210,7 @@ extension PresentationService {
         let previous = vpn.state
         let assessment = await service.refreshVPN(stabilize: previous == .active)
         vpn = assessment
+        vpnServices = service.vpnServices
         if previous == .active && assessment.state == .inactive {
             disconnectBanner = true
             nextStep = "VPN został rozłączony. Uruchom diagnostykę, aby sprawdzić połączenie."
@@ -198,6 +234,7 @@ extension PresentationService {
         guard !isRunning else { return }
         task?.cancel()
         isRunning = true; progress = 0; state = .investigating; checks = []; candidateValue = nil; candidates = []
+        repairPhase = ""
         lastResultText = String(localized: "diagnosis_running")
         nextStep = String(localized: "wait_or_cancel")
         task = Task { [weak self] in
@@ -215,6 +252,7 @@ extension PresentationService {
                 candidates = service.repairCandidates()
                 candidateValue = candidates.first
                 vpn = await service.refreshVPN(stabilize: false)
+                vpnServices = service.vpnServices
                 accept(results)
                 await refreshSessions()
                 if service.scenario == "production" { selectedSessionID = sessions.last?.id }
@@ -254,7 +292,7 @@ extension PresentationService {
     }
     func confirmRepair() {
         guard !isRunning, candidateValue != nil else { return }
-        isRunning = true; repairPhase = "before / ponowna ocena VPN i warunków"
+        isRunning = true; repairPhase = "Ponowna ocena VPN i warunków"
         task = Task { [weak self] in
             guard let self else { return }
             vpn = await service.refreshVPN(stabilize: false)
@@ -262,13 +300,14 @@ extension PresentationService {
             guard let result = await service.executeRepair(onPhase: { [weak self] phase, _ in
                 Task { @MainActor [weak self] in
                     guard let self, self.isRunning else { return }
-                    self.repairPhase = phase
+                    self.repairPhase = Self.phaseLabel(phase)
                 }
             }) else {
-                isRunning = false; repairPhase = "skipped"; return
+                isRunning = false; repairPhase = ""; return
             }
             isRunning = false
-            repairPhase = result.outcome.rawValue
+            // The outcome is carried by the result text below; no raw phase name stays on screen.
+            repairPhase = ""
             lastResultText = result.outcome == .success ? "Naprawiono — ponowny check potwierdził poprawę." :
                 "Naprawa: \(Self.outcomeTitle(result.outcome)); \(result.error?.code ?? "bez kodu")"
             nextStep = result.nextStep ?? "Przejrzyj szczegóły operacji."
@@ -284,10 +323,24 @@ extension PresentationService {
     }
     private func accept(_ results: [OperationResult]) {
         checks = results.map(Self.present)
-        let failed = results.contains { $0.outcome == .failure || $0.outcome == .permissionDenied || $0.outcome == .timedOut }
-        state = vpn.state != .inactive ? .unknown : failed ? .problem : .healthy
-        lastResultText = vpn.state != .inactive ? String(localized: "result_vpn_unknown") : failed ? String(localized: "result_problem") : String(localized: "result_healthy")
-        nextStep = vpn.state != .inactive ? String(localized: "next_vpn_unknown") : failed ? String(localized: "next_problem") : String(localized: "next_healthy")
+        let failing = results.filter { $0.outcome == .failure || $0.outcome == .permissionDenied || $0.outcome == .timedOut }
+        // Leftover tunnel devices after a confirmed disconnect are a nuisance, not an unknown network.
+        let onlyLeftoverTunnels = failing.allSatisfy {
+            $0.operationID == "interface_consistency" && $0.after.values[.errorCode] == NetworkCheckReason.orphanedTunnel.rawValue
+        }
+        if residualTunnelOnly && onlyLeftoverTunnels {
+            state = .residual
+            lastResultText = String(localized: "result_residual")
+            nextStep = String(localized: "next_residual")
+        } else if vpn.state != .inactive {
+            state = .unknown
+            lastResultText = String(localized: "result_vpn_unknown")
+            nextStep = String(localized: "next_vpn_unknown")
+        } else {
+            state = failing.isEmpty ? .healthy : .problem
+            lastResultText = failing.isEmpty ? String(localized: "result_healthy") : String(localized: "result_problem")
+            nextStep = failing.isEmpty ? String(localized: "next_healthy") : String(localized: "next_problem")
+        }
         if results.contains(where: { $0.outcome == .permissionDenied }) {
             lastResultText = String(localized: "result_permission"); nextStep = String(localized: "next_permission")
         } else if results.contains(where: { $0.outcome == .timedOut }) {
@@ -317,6 +370,22 @@ extension PresentationService {
                      reason: result.outcome == .success ? nil : reason,
                      technicalDetail: "\(evidence) \(result.error.map { "\($0.domain)/\($0.code)" } ?? "")",
                      symbol: result.outcome == .success ? "checkmark.circle" : result.outcome == .skipped ? "minus.circle" : "exclamationmark.triangle")
+    }
+    /// Plain-language labels for the executor's phase names shown while a repair runs.
+    static func phaseLabel(_ phase: String) -> String {
+        switch phase {
+        case "revalidate": "Ponowna walidacja diagnozy"
+        case "fresh_vpn": "Świeża ocena VPN"
+        case "vpn_gate": "Blokada VPN"
+        case "before_snapshot": "Migawka stanu przed zmianą"
+        case "helper_request": "Żądanie do helpera"
+        case "read_only_retry": "Ponowienie sprawdzenia bez zmian"
+        case "settle": "Oczekiwanie na ustabilizowanie"
+        case "after_snapshot": "Migawka stanu po zmianie"
+        case "recheck": "Ponowne sprawdzenie"
+        case "result": "Wynik"
+        default: phase
+        }
     }
     static func outcomeTitle(_ outcome: OperationOutcome) -> String {
         switch outcome {

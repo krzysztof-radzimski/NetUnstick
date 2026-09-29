@@ -22,6 +22,7 @@ import NetUnstickRepair
     private var selectedPlanIndex = 0
     private var currentSession: ActivitySession?
     private(set) var vpn: VPNAssessment = .init(state: .unknown, reasonCode: .stabilizationPending)
+    private(set) var vpnServices: VPNServiceStatus = .unknown
 
     var helper: HelperPresentationState {
         switch helperClient.status {
@@ -68,6 +69,7 @@ import NetUnstickRepair
         currentSession = session
         let report = await diagnosis.diagnose(onCheck: onCheck)
         vpn = report.vpn
+        vpnServices = report.rawSnapshot.vpnServices
         for error in report.rawSnapshot.errors {
             logger.error("Network collection: \(error.code, privacy: .public)")
         }
@@ -116,7 +118,13 @@ import NetUnstickRepair
     }
 
     func refreshVPN(stabilize: Bool = false) async -> VPNAssessment {
-        vpn = stabilize ? await detector.stabilizeAfterDisconnect(collecting: collector) : detector.assess(await collector.collect())
+        if stabilize {
+            vpn = await detector.stabilizeAfterDisconnect(collecting: collector)
+        } else {
+            let snapshot = await collector.collect()
+            vpn = detector.assess(snapshot)
+            vpnServices = snapshot.vpnServices
+        }
         return vpn
     }
 

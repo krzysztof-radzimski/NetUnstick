@@ -16,6 +16,26 @@ import NetUnstickNetwork
     }
 }
 
+/// Checks pass, the VPN service reports disconnected, but the client left a tunnel device behind.
+@MainActor private final class ResidualPresentationService: PresentationService {
+    let scenario = "production"
+    let helper = HelperPresentationState.available
+    let vpnServices = VPNServiceStatus.disconnected
+    func diagnose() async throws -> [OperationResult] {
+        let now = Date()
+        func result(_ id: String, _ reason: String, failure: Bool) -> OperationResult {
+            try! OperationResult(operationID: id, name: id, kind: .diagnostic, startedAt: now, endedAt: now,
+                outcome: failure ? .failure : .success,
+                after: EvidenceSanitizer.sanitize([.errorCode: .errorCode(reason)]),
+                error: failure ? try! OperationError(domain: "network_diagnosis", code: reason) : nil)
+        }
+        return [result("local_subnet_route", "healthy", failure: false),
+                result("interface_consistency", "orphanedTunnel", failure: true)]
+    }
+    func repairCandidate() -> RepairCandidatePresentation? { nil }
+    func refreshVPN(stabilize: Bool) async -> VPNAssessment { .init(state: .unknown, reasonCode: .residualTunnel) }
+}
+
 @MainActor final class PresentationStoreTests: XCTestCase {
     private func settle(_ store: PresentationStore) async {
         for _ in 0..<30 {
@@ -41,6 +61,21 @@ import NetUnstickNetwork
             XCTAssertNil(store.candidate)
             XCTAssertNotEqual(store.vpn.state, .inactive)
         }
+    }
+
+    func testLeftoverTunnelAfterConfirmedDisconnectIsNotAnUnknownNetwork() async throws {
+        let store = PresentationStore(service: ResidualPresentationService())
+        store.startDiagnosis()
+        await settle(store)
+        XCTAssertEqual(store.state, .residual)
+        XCTAssertTrue(store.lastResultText.contains("tunelowe") || store.lastResultText.contains("tunnel"))
+        XCTAssertTrue(store.vpnStatus.contains("rozłączenie"))
+        XCTAssertNil(store.candidate)
+        XCTAssertTrue(store.repairPhase.isEmpty)
+        // Any other failing check keeps the conservative unknown presentation.
+        let unknown = PresentationStore(service: MockPresentationService(scenario: "vpn-unknown"))
+        await settle(unknown)
+        XCTAssertEqual(unknown.state, .unknown)
     }
 
     func testCancellationHasDistinctSessionOutcome() {

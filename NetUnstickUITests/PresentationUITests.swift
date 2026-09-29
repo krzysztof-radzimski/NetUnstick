@@ -123,8 +123,10 @@ final class PresentationUITests: XCTestCase {
         XCTAssertTrue(failed.buttons["repair.open"].waitForExistence(timeout: 10))
         failed.buttons["repair.open"].click()
         failed.buttons["repair.confirm"].click()
-        let failure = failed.staticTexts.matching(NSPredicate(format: "value == %@", "failure")).firstMatch
-        XCTAssertTrue(failure.waitForExistence(timeout: 5))
+        let failure = failed.staticTexts["dashboard.result"]
+        let failedPredicate = NSPredicate(format: "value CONTAINS %@", "recheck_failed")
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: failedPredicate, object: failure)], timeout: 5), .completed)
+        XCTAssertFalse(failed.staticTexts["repair.phase"].exists, "No raw phase name stays on screen after a repair")
         XCTAssertFalse((failed.staticTexts["dashboard.result"].value as? String)?.contains("Naprawiono") == true)
     }
 
