@@ -86,13 +86,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Starts read-only simulated checks."
+            "value": "Starts read-only network checks."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uruchamia symulowane kontrole tylko do odczytu."
+            "value": "Uruchamia kontrole sieci tylko do odczytu."
           }
         }
       }
@@ -294,13 +294,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The simulated checks are running."
+            "value": "The network checks are running."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trwają symulowane kontrole."
+            "value": "Trwają kontrole sieci."
           }
         }
       }

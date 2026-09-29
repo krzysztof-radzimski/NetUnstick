@@ -20,7 +20,17 @@ final class ParserFixtureTests: XCTestCase {
     func testIPv6FullTunnelDefaultAndLocalRoute() throws {
         let routes = NetstatRouteParser.parse(try fixture("netstat-ipv6.txt"), family: "ipv6")
         XCTAssertEqual(routes.filter(\.isDefault).map(\.interfaceName), ["utun4"])
+        XCTAssertFalse(routes.contains { $0.interfaceName == "utun5" })
         XCTAssertTrue(routes.contains { $0.interfaceName == "utun4" && $0.isLocal })
+    }
+
+    func testInterfaceScopedDefaultsDoNotInventSystemDefault() {
+        let table = """
+        Destination Gateway Flags Netif Expire
+        default fe80::1%utun4 UGcIg utun4
+        default fe80::2%utun5 UGcIg utun5
+        """
+        XCTAssertTrue(NetstatRouteParser.parse(table, family: "ipv6").isEmpty)
     }
 
     func testScopedDNSRetainsTunnelInterfaceWithoutLeakingToDescription() throws {

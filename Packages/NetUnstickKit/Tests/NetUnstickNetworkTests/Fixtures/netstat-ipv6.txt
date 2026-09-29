@@ -2,7 +2,7 @@ Routing tables
 
 Internet6:
 Destination                             Gateway                         Flags               Netif Expire
-default                                 fe80::1%utun4                   UGcIg               utun4
+default                                 fe80::1%utun4                   UGc                 utun4
+default                                 fe80::2%utun5                   UGcIg               utun5
 ::1                                     ::1                             UHL                   lo0
 fe80::%utun4/64                         link#23                         UCI                 utun4
-

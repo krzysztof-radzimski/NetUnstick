@@ -22,6 +22,9 @@ public enum NetstatRouteParser {
             let interface = fields[3]
             guard interface.range(of: #"^[A-Za-z][A-Za-z0-9._-]*$"#, options: .regularExpression) != nil else { continue }
             let isDefault = destination == "default" || destination == "0.0.0.0/0" || destination == "::/0"
+            // RTF_IFSCOPE (I) is a per-interface fallback, not the system default.
+            // macOS can retain one such IPv6 row for every utun after a VPN disconnect.
+            if isDefault && flags.contains("I") { continue }
             let isLocal = !isDefault && (gateway.hasPrefix("link#") || gateway == destination || flags.contains("L"))
             routes.append(RawRoute(destination: destination, gateway: gateway, interfaceName: interface,
                                    isDefault: isDefault, isLocal: isLocal))

@@ -113,4 +113,19 @@ final class DiagnosticChecksTests: XCTestCase {
         XCTAssertEqual(defaultResult, NetworkCheckReason.duplicateDefaultRoute.rawValue)
     }
 
+    func testScopedIPv6DefaultsDoNotReportResidualVPNDefault() async {
+        let base = VPNFixtures.snapshot(.noVPN)
+        let table = """
+        Destination Gateway Flags Netif Expire
+        default fe80::1%utun4 UGcIg utun4
+        default fe80::2%utun5 UGcIg utun5
+        """
+        let raw = RawNetworkSnapshot(startedAt: base.startedAt, endedAt: base.endedAt,
+            path: base.path, interfaces: base.interfaces,
+            routes: base.routes + NetstatRouteParser.parse(table, family: "ipv6"),
+            resolvers: base.resolvers, proxy: base.proxy, dynamicStoreVPNKeys: [], errors: [])
+        let defaultResult = await result(.defaultRoute, raw)
+        XCTAssertEqual(defaultResult, NetworkCheckReason.healthy.rawValue)
+    }
+
 }

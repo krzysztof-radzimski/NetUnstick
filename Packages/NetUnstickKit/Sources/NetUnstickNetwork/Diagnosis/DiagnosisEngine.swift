@@ -35,7 +35,7 @@ public struct DiagnosisEngine: Sendable {
     private let bonjourBrowser: any BonjourBrowsing
     public init(collector: any NetworkStateCollecting = SystemNetworkStateCollector(),
                 probe: any NetworkConnectivityProbing = SystemNetworkConnectivityProbe(),
-                detector: VPNStateDetector = VPNStateDetector(), collectionTimeout: Duration = .seconds(8),
+                detector: VPNStateDetector = VPNStateDetector(), collectionTimeout: Duration = .seconds(13),
                 bonjourBrowser: any BonjourBrowsing = SystemBonjourBrowser()) {
         self.collector = collector; self.probe = probe; self.detector = detector
         self.collectionTimeout = collectionTimeout
