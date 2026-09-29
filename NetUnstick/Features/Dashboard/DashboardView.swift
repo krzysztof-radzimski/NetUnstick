@@ -46,7 +46,7 @@ struct DashboardView: View {
                     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
                     .overlay(RoundedRectangle(cornerRadius: 16).stroke(highContrast ? Color.primary : Color.clear, lineWidth: 2))
                 ForEach(Array(store.candidates.enumerated()), id: \.offset) { index, candidate in
-                    if store.vpn.state == .inactive {
+                    if store.vpn.state == .inactive || candidate.allowsWhenResidualRoute {
                     VStack(alignment: .leading, spacing: 8) {
                         Label("repair_candidate", systemImage: "wrench.adjustable").font(.headline)
                         Text("\(candidate.change): \(candidate.reason)")

@@ -44,7 +44,8 @@ public enum RepairCatalog {
         case (.retryCheck, "unicast_dns_resolution", "dnsFailure", .check("unicast_dns_resolution")),
              (.retryCheck, "bonjour_discovery", "browserFailed", .check("bonjour_discovery")),
              (.retryCheck, "bonjour_discovery", "noServices", .check("bonjour_discovery")),
-             (.renewDHCP, "physical_link", "noAddressLease", .physicalInterface): return true
+             (.renewDHCP, "physical_link", "noAddressLease", .physicalInterface),
+             (.removeOrphanedRoute, "local_subnet_route", "localRouteViaTunnel", .route): return true
         default: return false
         }
     }
@@ -72,6 +73,16 @@ public struct RepairPlanBuilder {
     /// as the report; execution re-collects and compares the exact target again.
     public func build(report: DiagnosisReport, snapshot: RawNetworkSnapshot,
                       dhcpInterfaces: Set<String>) -> RepairPlanningResult {
+        if report.results.contains(where: {
+            $0.operationID == "local_subnet_route" && $0.outcome == .failure &&
+            $0.after.values[.errorCode] == NetworkCheckReason.localRouteViaTunnel.rawValue
+        }), let route = RepairPolicy.staleLocalTunnelRoute(in: snapshot),
+           case .removeRoute(let destination, let prefix, let name, let gateway) = route {
+            let plan = make(.removeOrphanedRoute, NetworkCheckReason.localRouteViaTunnel.rawValue,
+                            "local_subnet_route", .route(destination: destination, prefix: prefix,
+                                                           interface: name, gateway: gateway))
+            return .init(plans: [plan], nextSteps: [])
+        }
         let freshVPN = VPNStateDetector().assess(snapshot)
         guard report.vpn.state == .inactive, freshVPN.state == .inactive else {
             let step: NextStep = report.vpn.state == .active || freshVPN.state == .active ? .waitForVPN : .verifyVPN
@@ -110,19 +121,21 @@ public struct RepairPlanBuilder {
         case .check: label = "Powiązane sprawdzenie"
         case .resolverCache: label = "Cache resolvera i mDNS"
         case .physicalInterface: label = "Jedyny wybrany interfejs fizyczny"
-        case .route: label = "Jedna wskazana trasa lokalna"
+        case .route: label = "Jedna trasa tunelowa nakładająca się na lokalną sieć"
         }
         let change: String
         switch kind {
         case .retryCheck: change = "Ponowienie sprawdzenia bez zmiany systemu"
         case .refreshResolverCache: change = "Odświeżenie cache resolvera i mDNS"
         case .renewDHCP: change = "Odnowienie dzierżawy DHCP"
-        case .removeOrphanedRoute: change = "Usunięcie jednej osieroconej trasy"
+        case .removeOrphanedRoute: change = "Usunięcie jednej trasy pozostałej po VPN"
         }
         return .init(kind: kind, reasonCode: code, checkID: check, resource: resource,
                      summary: .init(change: change, resource: label, purpose: "Weryfikacja: \(check)",
                                     requiresAdministrator: kind != .retryCheck,
-                                    possibleImpact: kind == .retryCheck ? "Brak zmian sieci" : "Krótkie zakłócenie łączności",
+                                    possibleImpact: kind == .retryCheck ? "Brak zmian sieci" :
+                                        kind == .removeOrphanedRoute ? "Zmieni się trasa do jednego fragmentu sieci lokalnej; połączenia mogą się na chwilę przerwać" :
+                                        "Krótkie zakłócenie łączności",
                                     verification: "Nowy snapshot i ponowienie: \(check)"))
     }
 }

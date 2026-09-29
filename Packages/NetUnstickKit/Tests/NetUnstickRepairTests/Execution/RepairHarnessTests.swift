@@ -97,6 +97,24 @@ final class RepairHarnessTests: XCTestCase {
                              possibleImpact: "brief", verification: "recheck"))
     }
 
+    private func residualRouteSnapshot(removed: Bool = false) -> RawNetworkSnapshot {
+        let time = Date(timeIntervalSince1970: 1_000)
+        let routes: [RawRoute] = [
+            .init(destination: "0.0.0.0/0", gateway: "192.168.44.1", interfaceName: "en0", isDefault: true),
+            .init(destination: "192.168.44.0/24", gateway: "link#8", interfaceName: "en0",
+                  isDefault: false, isLocal: true)
+        ] + (removed ? [] : [.init(destination: "192.168.44.32/27", gateway: "10.5.0.1",
+                                  interfaceName: "utun4", isDefault: false)])
+        return RawNetworkSnapshot(startedAt: time, endedAt: time,
+            path: .init(status: "satisfied", availableInterfaces: ["en0", "utun4"],
+                        selectedInterfaces: ["en0"], supportsDNS: true, supportsIPv4: true,
+                        supportsIPv6: false, gateways: ["192.168.44.1"]),
+            interfaces: [.init(name: "en0", type: "wifi", isUp: true, addresses: ["192.168.44.40"]),
+                         .init(name: "utun4", type: "tunnel", isUp: true, addresses: ["10.5.0.2"])],
+            routes: routes, resolvers: [], proxy: nil, dynamicStoreVPNKeys: [], errors: [],
+            vpnServices: .disconnected)
+    }
+
     func testOutcomeMatrixUsesOnlyFakes() async {
         struct Scenario {
             let name: String; let snapshots: [RawNetworkSnapshot]; let reasons: [String]
@@ -174,6 +192,33 @@ final class RepairHarnessTests: XCTestCase {
         XCTAssertEqual(result.error?.code, "invalid_plan")
         let calls = await helper.calls
         XCTAssertEqual(calls, 0)
+    }
+
+    func testResidualRouteRepairRequiresRemovalAndRecheckDespiteTunnelSignal() async {
+        let before = residualRouteSnapshot()
+        XCTAssertEqual(VPNStateDetector().assess(before).state, .active)
+        let target = RepairPlan(kind: .removeOrphanedRoute, reasonCode: "localRouteViaTunnel",
+            checkID: "local_subnet_route",
+            resource: .route(destination: "192.168.44.32", prefix: 27, interface: "utun4", gateway: "10.5.0.1"),
+            summary: plan().summary)
+        for (removed, recheckHealthy, expectedCode) in [
+            (true, true, Optional<String>.none),
+            (false, true, "route_still_present"),
+            (true, false, "recheck_failed")
+        ] {
+            let helper = FakeHelper(.success)
+            let (store, session) = journal()
+            let after = residualRouteSnapshot(removed: removed)
+            let executor = RepairExecutor(collector: FakeCollector(snapshots: [before, before, before, after]),
+                checks: FakeChecks(reasons: ["localRouteViaTunnel", recheckHealthy ? "healthy" : "localRouteViaTunnel"]),
+                helper: helper,
+                wait: ImmediateWait(fails: false), dhcpInterfaces: { [] }, store: store, session: session)
+            let result = await executor.execute(target, context: .init(clock: FakeClock()))
+            XCTAssertEqual(result.outcome, expectedCode == nil ? .success : .failure)
+            XCTAssertEqual(result.error?.code, expectedCode)
+            let calls = await helper.calls
+            XCTAssertEqual(calls, 1)
+        }
     }
 
     func testPhaseRecordContainsNoRawNetworkEvidence() async throws {

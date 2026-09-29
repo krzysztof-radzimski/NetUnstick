@@ -14,6 +14,7 @@ public struct SystemRepairChecks: RepairCheckRunning {
         switch id {
         case "physical_link": check = PhysicalLinkCheck(snapshot: snapshot)
         case "interface_consistency": check = InterfaceConsistencyCheck(snapshot: snapshot)
+        case "local_subnet_route": check = LocalSubnetRouteCheck(snapshot: snapshot)
         case "unicast_dns_resolution": check = UnicastDNSResolutionCheck(snapshot: snapshot)
         case "bonjour_discovery": check = BonjourDiscoveryChecking(snapshot: snapshot)
         default: check = nil
@@ -122,6 +123,7 @@ public struct RepairExecutor: Sendable {
         guard RepairCatalog.permits(plan) else {
             return await finish(.failure, "invalid_plan")
         }
+        let staleLocalRoute = plan.kind == .removeOrphanedRoute
         if Task.isCancelled || (try? context.cancellation.checkCancellation()) == nil {
             return await finish(.cancelled, nil)
         }
@@ -131,7 +133,10 @@ public struct RepairExecutor: Sendable {
                                 Task.isCancelled ? nil : "collection_timeout")
         }
         let initialVPN = VPNStateDetector().assess(initial)
-        if initialVPN.state != .inactive {
+        if staleLocalRoute && !authorized(plan, initial) {
+            return await finish(.skipped, "stale_route_ineligible", .empty, .empty, .verifyVPN)
+        }
+        if !staleLocalRoute && initialVPN.state != .inactive {
             return await vpnSkip(initialVPN.state)
         }
         guard let check = await checkBounded(plan.checkID, snapshot: initial, context: context) else {
@@ -149,7 +154,7 @@ public struct RepairExecutor: Sendable {
         }
         let before = SanitizedNetworkSnapshot(raw: beforeRaw).evidence
         let beforeVPN = VPNStateDetector().assess(beforeRaw)
-        guard beforeVPN.state == .inactive else {
+        guard staleLocalRoute || beforeVPN.state == .inactive else {
             return await vpnSkip(beforeVPN.state, before: before)
         }
         guard sameResource(plan.resource, initial, beforeRaw), authorized(plan, beforeRaw) else {
@@ -168,7 +173,7 @@ public struct RepairExecutor: Sendable {
                                     Task.isCancelled ? nil : "collection_timeout", before)
             }
             let latestVPN = VPNStateDetector().assess(latest)
-            guard latestVPN.state == .inactive else {
+            guard staleLocalRoute || latestVPN.state == .inactive else {
                 return await vpnSkip(latestVPN.state, before: before)
             }
             guard sameResource(plan.resource, beforeRaw, latest), authorized(plan, latest) else {
@@ -204,7 +209,10 @@ public struct RepairExecutor: Sendable {
         if stateWorsened(beforeRaw, afterRaw) {
             return await finish(.failure, "state_worsened", before, after, .contactSupport)
         }
-        guard afterRaw.errors.isEmpty, VPNStateDetector().assess(afterRaw).state == .inactive else {
+        guard afterRaw.errors.isEmpty,
+              staleLocalRoute ? (afterRaw.vpnServices == .disconnected && afterRaw.path?.status == "satisfied" &&
+                                 afterRaw.path?.transitionObserved == false) :
+                                VPNStateDetector().assess(afterRaw).state == .inactive else {
             return await finish(.failure, "after_snapshot_invalid", before, after, .contactSupport)
         }
         if case .route(let destination, let prefix, _, _) = plan.resource,
@@ -237,7 +245,7 @@ public struct RepairExecutor: Sendable {
     private func collectBounded() async -> RawNetworkSnapshot? {
         let (stream, output) = AsyncStream.makeStream(of: RawNetworkSnapshot?.self, bufferingPolicy: .bufferingNewest(1))
         let worker = Task { output.yield(await collector.collect()); output.finish() }
-        let timer = Task { try? await Task.sleep(for: .seconds(8)); output.yield(nil); output.finish() }
+        let timer = Task { try? await Task.sleep(for: .seconds(16)); output.yield(nil); output.finish() }
         var iterator = stream.makeAsyncIterator()
         let result = await withTaskCancellationHandler { await iterator.next() ?? nil } onCancel: {
             output.yield(nil); output.finish(); worker.cancel(); timer.cancel()

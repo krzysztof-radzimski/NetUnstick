@@ -33,6 +33,18 @@ final class ParserFixtureTests: XCTestCase {
         XCTAssertTrue(NetstatRouteParser.parse(table, family: "ipv6").isEmpty)
     }
 
+    func testRouteScopeFlagIsPreservedForDeletionPolicy() {
+        let table = """
+        Destination Gateway Flags Netif Expire
+        192.168.44.32/27 10.5.0.1 UGSc utun4
+        192.168.45.32/27 10.5.0.1 UGScI utun4
+        """
+        let routes = NetstatRouteParser.parse(table, family: "ipv4")
+        XCTAssertEqual(routes.count, 2)
+        XCTAssertFalse(routes[0].isScoped)
+        XCTAssertTrue(routes[1].isScoped)
+    }
+
     func testScopedDNSRetainsTunnelInterfaceWithoutLeakingToDescription() throws {
         let resolvers = ScutilDNSParser.parse(try fixture("scutil-dns.txt"))
         XCTAssertEqual(resolvers.count, 3)

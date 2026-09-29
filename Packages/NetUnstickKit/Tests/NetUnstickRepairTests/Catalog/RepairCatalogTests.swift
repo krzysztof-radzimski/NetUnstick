@@ -77,6 +77,29 @@ final class RepairCatalogTests: XCTestCase {
             snapshot: snap, dhcpInterfaces: []))
     }
 
+    func testDisconnectedTunnelShadowingLANOffersOneConfirmedRepair() async {
+        let now = Date(timeIntervalSince1970: 1_000)
+        let snap = RawNetworkSnapshot(startedAt: now, endedAt: now,
+            path: .init(status: "satisfied", availableInterfaces: ["en0", "utun4"],
+                        selectedInterfaces: ["en0"], supportsDNS: true, supportsIPv4: true,
+                        supportsIPv6: false, gateways: ["192.168.44.1"]),
+            interfaces: [.init(name: "en0", type: "wifi", isUp: true, addresses: ["192.168.44.40"]),
+                         .init(name: "utun4", type: "tunnel", isUp: true, addresses: ["10.5.0.2"])],
+            routes: [.init(destination: "0.0.0.0/0", gateway: "192.168.44.1",
+                           interfaceName: "en0", isDefault: true),
+                     .init(destination: "192.168.44.0/24", gateway: "link#8",
+                           interfaceName: "en0", isDefault: false, isLocal: true),
+                     .init(destination: "192.168.44.32/27", gateway: "10.5.0.1",
+                           interfaceName: "utun4", isDefault: false)],
+            resolvers: [.init(domain: nil, searchDomains: [], nameservers: ["192.168.44.1"],
+                              interfaceName: "en0")], proxy: nil, dynamicStoreVPNKeys: [],
+            errors: [], vpnServices: .disconnected)
+        let result = await plans(snap)
+        XCTAssertEqual(result.plans.map(\.kind), [.removeOrphanedRoute])
+        XCTAssertEqual(result.plans.first?.checkID, "local_subnet_route")
+        XCTAssertTrue(result.plans.first.map(RepairCatalog.permits) ?? false)
+    }
+
     func testConfirmationSummariesDescribeActionsWithoutSensitiveValues() async {
         let candidates = await plans(snapshot(address: "192.168.1.2"))
         XCTAssertFalse(candidates.plans.isEmpty)

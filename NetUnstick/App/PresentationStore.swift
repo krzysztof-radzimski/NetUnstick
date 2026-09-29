@@ -53,6 +53,7 @@ struct RepairCandidatePresentation {
     let impact: String
     let permission: String
     let verification: String
+    var allowsWhenResidualRoute = false
 }
 
 @MainActor protocol PresentationService {
@@ -115,7 +116,9 @@ extension PresentationService {
     private var candidateValue: RepairCandidatePresentation?
     @Published private(set) var candidates: [RepairCandidatePresentation] = []
     var helper: HelperPresentationState { helperState }
-    var candidate: RepairCandidatePresentation? { vpn.state == .inactive ? candidateValue : nil }
+    var candidate: RepairCandidatePresentation? {
+        vpn.state == .inactive || candidateValue?.allowsWhenResidualRoute == true ? candidateValue : nil
+    }
     func selectCandidate(_ index: Int) {
         guard candidates.indices.contains(index) else { return }
         service.selectRepairCandidate(index)
@@ -123,7 +126,10 @@ extension PresentationService {
     }
     var vpnStatus: String {
         switch vpn.state {
-        case .active: return "VPN aktywny. Zmiany sieci są zablokowane."
+        case .active:
+            return candidateValue?.allowsWhenResidualRoute == true ?
+                "Wykryto trasę pozostałą po rozłączeniu VPN. Dostępna jest tylko naprawa tej jednej trasy." :
+                "VPN aktywny. Zmiany sieci są zablokowane."
         case .inactive: return "VPN nieaktywny. Możesz uruchomić diagnostykę."
         case .unknown: return "Stan VPN niepewny. Zmiany sieci są zablokowane do ponownej oceny."
         }

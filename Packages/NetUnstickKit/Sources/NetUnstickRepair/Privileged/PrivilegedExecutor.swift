@@ -16,8 +16,8 @@ public enum PrivilegedExecutionError: Error, Equatable {
 public struct BoundedPrivilegedCommandRunner: PrivilegedCommandRunning {
     public init() {}
     public func run(executable: String, arguments: [String]) async throws {
-        guard executable == "/sbin/route" && arguments.count == 7 &&
-              arguments[0...2] == ["-n", "delete", "-net"] && arguments[3] == "-ifscope"
+        guard executable == "/sbin/route" && arguments.starts(with: ["-n", "delete", "-net"]) &&
+              ((arguments.count == 7 && arguments[3] == "-ifscope") || arguments.count == 5)
         else { throw PrivilegedExecutionError.launchFailed }
         let process = Process()
         process.executableURL = URL(fileURLWithPath: executable)
@@ -135,7 +135,14 @@ public struct PrivilegedRepairExecutor: Sendable {
                 guard try RepairPolicy.authorize(request, snapshot: current,
                                                  dhcpInterfaces: dhcp.configuredInterfaces()) == action
                 else { throw RepairPolicyError.ambiguousResource }
-                try await runner.run(executable: "/sbin/route", arguments: ["-n", "delete", "-net", "-ifscope", name, "\(destination)/\(prefix)", gateway])
+                // route(8): -ifscope is required only for entries with RTF_IFSCOPE.
+                // The residual tunnel route on this host is unscoped, so a scoped
+                // delete would target a different routing-table entry.
+                let target = "\(destination)/\(prefix)"
+                let arguments = name.hasPrefix("utun")
+                    ? ["-n", "delete", "-net", target, gateway]
+                    : ["-n", "delete", "-net", "-ifscope", name, target, gateway]
+                try await runner.run(executable: "/sbin/route", arguments: arguments)
             }
             let observed = await collector.collect()
             after = SanitizedNetworkSnapshot(raw: observed).evidence

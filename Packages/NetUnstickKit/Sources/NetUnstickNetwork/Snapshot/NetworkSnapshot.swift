@@ -13,11 +13,14 @@ public struct RawNetworkSnapshot: @unchecked Sendable, CustomStringConvertible, 
     public let resolvers: [RawResolver]
     public let proxy: RawProxy?
     public let dynamicStoreVPNKeys: [String]
+    public let dynamicStoreTunnelInterfaces: [String]
+    public let vpnServices: VPNServiceStatus
     public let errors: [NetworkCollectionError]
 
     public init(startedAt: Date, endedAt: Date, path: RawPathState?, interfaces: [RawInterface],
                 routes: [RawRoute], resolvers: [RawResolver], proxy: RawProxy?,
-                dynamicStoreVPNKeys: [String], errors: [NetworkCollectionError]) {
+                dynamicStoreVPNKeys: [String], errors: [NetworkCollectionError],
+                dynamicStoreTunnelInterfaces: [String] = [], vpnServices: VPNServiceStatus = .unknown) {
         self.startedAt = startedAt
         self.endedAt = endedAt
         self.path = path
@@ -26,11 +29,18 @@ public struct RawNetworkSnapshot: @unchecked Sendable, CustomStringConvertible, 
         self.resolvers = resolvers
         self.proxy = proxy
         self.dynamicStoreVPNKeys = dynamicStoreVPNKeys
+        self.dynamicStoreTunnelInterfaces = dynamicStoreTunnelInterfaces
+        self.vpnServices = vpnServices
         self.errors = errors
     }
 
     public var description: String { "<RawNetworkSnapshot redacted>" }
     public var debugDescription: String { description }
+}
+
+/// Only the aggregate connection state is kept; service names and IDs are never logged.
+public enum VPNServiceStatus: String, Sendable {
+    case disconnected, connected, unknown
 }
 
 public protocol NetworkStateCollecting: Sendable {
@@ -84,9 +94,11 @@ public struct RawRoute: Sendable, CustomStringConvertible, CustomDebugStringConv
     public let interfaceName: String?
     public let isDefault: Bool
     public let isLocal: Bool
-    public init(destination: String, gateway: String?, interfaceName: String?, isDefault: Bool, isLocal: Bool = false) {
+    public let isScoped: Bool
+    public init(destination: String, gateway: String?, interfaceName: String?, isDefault: Bool,
+                isLocal: Bool = false, isScoped: Bool = false) {
         self.destination = destination; self.gateway = gateway; self.interfaceName = interfaceName
-        self.isDefault = isDefault; self.isLocal = isLocal
+        self.isDefault = isDefault; self.isLocal = isLocal; self.isScoped = isScoped
     }
     public var description: String { "<RawRoute redacted>" }
     public var debugDescription: String { description }

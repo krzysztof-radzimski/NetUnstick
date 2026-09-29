@@ -24,6 +24,8 @@ public struct SystemNetworkStateCollector: NetworkStateCollecting {
         var resolvers: [RawResolver] = []
         var proxy: RawProxy?
         var vpnKeys: [String] = []
+        var tunnelStoreInterfaces: [String] = []
+        var vpnServices: VPNServiceStatus = .unknown
 
         do {
             try Task.checkCancellation()
@@ -47,7 +49,9 @@ public struct SystemNetworkStateCollector: NetworkStateCollecting {
             resolvers = result.resolvers
             proxy = result.proxy
             vpnKeys = result.vpnKeys
+            tunnelStoreInterfaces = result.tunnelInterfaces
             errors += result.errorCodes.map(NetworkCollectionError.init(code:))
+            vpnServices = Self.readVPNServiceStatus()
         }
 
         if !Task.isCancelled {
@@ -84,7 +88,8 @@ public struct SystemNetworkStateCollector: NetworkStateCollecting {
         if Task.isCancelled { errors.append(NetworkCollectionError(code: "network_collection_cancelled")) }
         return RawNetworkSnapshot(startedAt: startedAt, endedAt: Date(), path: path,
                                   interfaces: interfaces, routes: routes, resolvers: resolvers,
-                                  proxy: proxy, dynamicStoreVPNKeys: vpnKeys, errors: errors)
+                                  proxy: proxy, dynamicStoreVPNKeys: vpnKeys, errors: errors,
+                                  dynamicStoreTunnelInterfaces: tunnelStoreInterfaces, vpnServices: vpnServices)
     }
 
     private static func commandErrorCode(_ prefix: String, _ error: ProcessRunError) -> String {
@@ -159,6 +164,7 @@ public struct SystemNetworkStateCollector: NetworkStateCollecting {
         var resolvers: [RawResolver] = []
         var proxy: RawProxy?
         var vpnKeys: [String] = []
+        var tunnelInterfaces: [String] = []
         var errorCodes: [String] = []
     }
 
@@ -186,6 +192,9 @@ public struct SystemNetworkStateCollector: NetworkStateCollecting {
                 if key.hasSuffix("/PPP") || key.hasSuffix("/IPSec") || key.hasSuffix("/VPN") ||
                     interfaceName.hasPrefix("utun") || interfaceName.hasPrefix("ipsec") || interfaceName.hasPrefix("ppp") {
                     result.vpnKeys.append(key)
+                    if interfaceName.hasPrefix("utun") || interfaceName.hasPrefix("ipsec") || interfaceName.hasPrefix("ppp") {
+                        result.tunnelInterfaces.append(interfaceName)
+                    }
                 }
             }
         } else {
@@ -209,6 +218,25 @@ public struct SystemNetworkStateCollector: NetworkStateCollecting {
             result.errorCodes.append("network_proxy_read_failed")
         }
         return result
+    }
+
+    private static func readVPNServiceStatus() -> VPNServiceStatus {
+        guard let preferences = SCPreferencesCreate(nil, "NetUnstick.VPNStatus" as CFString, nil),
+              let services = SCNetworkServiceCopyAll(preferences) as? [SCNetworkService] else { return .unknown }
+        var foundVPN = false
+        for service in services {
+            guard let networkInterface = SCNetworkServiceGetInterface(service),
+                  SCNetworkInterfaceGetInterfaceType(networkInterface) as String? == "VPN" else { continue }
+            foundVPN = true
+            guard let id = SCNetworkServiceGetServiceID(service),
+                  let connection = SCNetworkConnectionCreateWithServiceID(nil, id, nil, nil) else { return .unknown }
+            switch SCNetworkConnectionGetStatus(connection) {
+            case .disconnected: break
+            case .connected, .connecting, .disconnecting: return .connected
+            default: return .unknown
+            }
+        }
+        return foundVPN ? .disconnected : .unknown
     }
 }
 

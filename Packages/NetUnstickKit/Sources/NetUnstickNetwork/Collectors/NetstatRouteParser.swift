@@ -27,7 +27,7 @@ public enum NetstatRouteParser {
             if isDefault && flags.contains("I") { continue }
             let isLocal = !isDefault && (gateway.hasPrefix("link#") || gateway == destination || flags.contains("L"))
             routes.append(RawRoute(destination: destination, gateway: gateway, interfaceName: interface,
-                                   isDefault: isDefault, isLocal: isLocal))
+                                   isDefault: isDefault, isLocal: isLocal, isScoped: flags.contains("I")))
         }
         return routes
     }

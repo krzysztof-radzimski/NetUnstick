@@ -68,6 +68,9 @@ import NetUnstickRepair
         currentSession = session
         let report = await diagnosis.diagnose(onCheck: onCheck)
         vpn = report.vpn
+        for error in report.rawSnapshot.errors {
+            logger.error("Network collection: \(error.code, privacy: .public)")
+        }
         // Persist each structured result. A failed write is surfaced and no repair is offered.
         for result in report.results {
             do { try await sessionsStore.append(result, to: session.id) }
@@ -96,7 +99,8 @@ import NetUnstickRepair
                      reason: "\(plan.summary.purpose) (\(plan.reasonCode))",
                      resource: plan.summary.resource, impact: plan.summary.possibleImpact,
                      permission: plan.summary.requiresAdministrator ? "Wymaga zatwierdzonego helpera" : "Bez uprawnień administratora",
-                     verification: plan.summary.verification)
+                     verification: plan.summary.verification,
+                     allowsWhenResidualRoute: plan.kind == .removeOrphanedRoute)
     }
 
     func executeRepair(onPhase: @escaping @Sendable (String, OperationOutcome) -> Void) async -> OperationResult? {
