@@ -139,6 +139,42 @@ final class DiagnosticChecksTests: XCTestCase {
         }
     }
 
+    /// A desktop with Ethernet and Wi-Fi on the same network carries interface-scoped copies of
+    /// the connected route; that is consistent. An unscoped copy through a tunnel, or a route
+    /// through a tunnel that is not up, is not.
+    func testSecondInterfaceOnTheSameNetworkIsNotARoutingConflict() async {
+        let base = VPNFixtures.snapshot(.noVPN)
+        func changed(interfaces: [RawInterface], routes: [RawRoute]) -> RawNetworkSnapshot {
+            RawNetworkSnapshot(startedAt: base.startedAt, endedAt: base.endedAt,
+                path: base.path, interfaces: base.interfaces + interfaces, routes: base.routes + routes,
+                resolvers: base.resolvers, proxy: RawProxy(settings: [:]), dynamicStoreVPNKeys: [], errors: [],
+                vpnServices: .disconnected)
+        }
+        let ethernet = RawInterface(name: "en1", type: "ethernet", isUp: true, addresses: ["192.0.2.11"])
+        let wifiLAN = RawRoute(destination: "192.0.2", gateway: "link#14", interfaceName: "en0", isDefault: false, isLocal: true)
+        let ethernetLAN = RawRoute(destination: "192.0.2", gateway: "link#15", interfaceName: "en1", isDefault: false, isLocal: true, isScoped: true)
+        let ethernetGateway = RawRoute(destination: "192.0.2.1/32", gateway: "link#15", interfaceName: "en1", isDefault: false, isLocal: true, isScoped: true)
+        let wifiGateway = RawRoute(destination: "192.0.2.1/32", gateway: "link#14", interfaceName: "en0", isDefault: false, isLocal: true)
+        let dualHomed = changed(interfaces: [ethernet], routes: [wifiLAN, wifiGateway, ethernetLAN, ethernetGateway])
+        let downTunnel = RawInterface(name: "utun4", type: "tunnel", isUp: false, addresses: ["10.5.0.2"])
+        let staleForwarding = RawRoute(destination: "10.20.0.0/16", gateway: "10.5.0.1", interfaceName: "utun4", isDefault: false)
+        let inactiveTunnel = changed(interfaces: [ethernet, downTunnel], routes: [wifiLAN, ethernetLAN, staleForwarding])
+        let upTunnel = RawInterface(name: "utun5", type: "tunnel", isUp: true, addresses: ["10.1.2.4"])
+        let hijacked = RawRoute(destination: "192.0.2", gateway: "10.1.2.1", interfaceName: "utun5", isDefault: false)
+        let conflict = changed(interfaces: [ethernet, upTunnel], routes: [wifiLAN, ethernetLAN, hijacked])
+        let cases: [(String, RawNetworkSnapshot, NetworkCheckReason)] = [
+            ("ethernet and wifi on one network", dualHomed, .healthy),
+            ("forwarding route through a down tunnel", inactiveTunnel, .routeViaInactiveTunnel),
+            ("unscoped tunnel copy of the connected network", conflict, .routingConflict)
+        ]
+        for (name, snapshot, expected) in cases {
+            let actual = await result(.interfaceConsistency, snapshot)
+            XCTAssertEqual(actual, expected.rawValue, name)
+        }
+        let local = await result(.localSubnetRoute, dualHomed)
+        XCTAssertEqual(local, NetworkCheckReason.healthy.rawValue, "Both physical interfaces serve the LAN")
+    }
+
     func testIPv6LocalRouteAndDuplicateDefault() async {
         let base = VPNFixtures.snapshot(.noVPN)
         let ipv6 = RawInterface(name: "en0", type: "wifi", isUp: true, addresses: ["2001:db8:1::2"])

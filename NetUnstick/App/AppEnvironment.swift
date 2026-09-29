@@ -156,15 +156,21 @@ import NetUnstickRepair
         _ = helperClient.unregisterForUpdate()
         return helper
     }
-    /// Runs at launch and on demand. launchd refuses a daemon whose build changed since registration;
-    /// the app then refreshes its own registration once and asks again, so an update needs no manual step
-    /// as long as the earlier Login Items approval is retained.
+    /// Runs at launch and on demand. launchd refuses a daemon whose build changed since registration.
+    /// The app first registers again in place (keeps the Login Items record), asks again, and only
+    /// then replaces the registration after the removal has settled, so an update needs no manual
+    /// step as long as the earlier approval is retained. If the system still asks for approval,
+    /// Settings shows it.
     func verifyHelper() async -> HelperHandshakePresentation {
         guard helperClient.status == .enabled else { helperHandshake = .notRun; return helperHandshake }
         var reply = await handshake()
-        if [.disconnected, .timedOut, .executionFailed].contains(reply.code) {
-            logger.notice("Helper handshake failed: \(reply.code.rawValue, privacy: .public); refreshing registration")
-            let status = helperClient.refreshRegistrationAfterUpdate()
+        if Self.needsRegistrationRefresh(reply.code) {
+            logger.notice("Helper handshake failed: \(reply.code.rawValue, privacy: .public); registering again in place")
+            if helperClient.reregisterInPlace() == .enabled { reply = await handshake() }
+        }
+        if Self.needsRegistrationRefresh(reply.code) {
+            logger.notice("Helper still not answering: \(reply.code.rawValue, privacy: .public); replacing the registration")
+            let status = await helperClient.refreshRegistrationAfterUpdate()
             guard status == .enabled else {
                 helperHandshake = .failed(code: status.rawValue)
                 logger.notice("Helper registration refresh ended with \(status.rawValue, privacy: .public)")
@@ -177,6 +183,9 @@ import NetUnstickRepair
             : .failed(code: reply.code.rawValue)
         logger.notice("Helper handshake \(reply.code.rawValue, privacy: .public)")
         return helperHandshake
+    }
+    private static func needsRegistrationRefresh(_ code: PrivilegedCode) -> Bool {
+        [.disconnected, .timedOut, .executionFailed].contains(code)
     }
     private func handshake() async -> PrivilegedReply {
         await withCheckedContinuation { continuation in helperClient.handshake { continuation.resume(returning: $0) } }

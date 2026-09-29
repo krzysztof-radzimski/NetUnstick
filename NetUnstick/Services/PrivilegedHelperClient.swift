@@ -80,9 +80,23 @@ public final class PrivilegedHelperClient {
     /// Read-only liveness check of the registered daemon; nothing is observed or changed.
     public func handshake(completion: @escaping (PrivilegedReply) -> Void) { perform(.handshake, completion: completion) }
     /// After an update, launchd may still hold the code requirement of the previous daemon build.
-    /// Registering again refreshes it; the Login Items approval granted earlier was observed to persist.
-    @discardableResult public func refreshRegistrationAfterUpdate() -> HelperRegistrationStatus {
+    /// A plain re-registration is tried first: it keeps the Login Items record untouched.
+    @discardableResult public func reregisterInPlace() -> HelperRegistrationStatus {
+        lastRegistrationError = nil
+        do { try service.register() } catch {
+            lastRegistrationError = "Ponowna rejestracja nie powiodła się. Sprawdź Elementy logowania."
+        }
+        return status
+    }
+    /// Fallback after an update: remove the stale job, wait until the system reports it gone,
+    /// then register again. Removing and re-adding too quickly was observed to create a new
+    /// Login Items record that waits for approval, so the removal must settle first.
+    public func refreshRegistrationAfterUpdate() async -> HelperRegistrationStatus {
         _ = unregisterForUpdate()
+        let deadline = Date().addingTimeInterval(5)
+        while status != .notRegistered && Date() < deadline {
+            try? await Task.sleep(for: .milliseconds(200))
+        }
         return registerForSelectedRepair()
     }
     /// Invoke only from an explicit user control, e.g. after updating the bundle so launchd

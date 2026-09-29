@@ -60,7 +60,8 @@ public enum RepairCatalog {
         NetworkCheckReason.resolverOrder.rawValue: NextStep.contactSupport.rawValue,
         NetworkCheckReason.orphanedTunnel.rawValue: NextStep.restartVPNClient.rawValue,
         NetworkCheckReason.expectedInterfaceMissing.rawValue: NextStep.contactSupport.rawValue,
-        NetworkCheckReason.routingConflict.rawValue: NextStep.contactSupport.rawValue
+        NetworkCheckReason.routingConflict.rawValue: NextStep.contactSupport.rawValue,
+        NetworkCheckReason.routeViaInactiveTunnel.rawValue: NextStep.verifyVPN.rawValue
     ]
     public static let blockedScenarios: Set<FortinetScenario> = [
         .managedLocalLANRestriction, .infrastructureMDNSCandidate, .activeProxy,

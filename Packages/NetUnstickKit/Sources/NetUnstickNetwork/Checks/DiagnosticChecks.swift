@@ -11,6 +11,7 @@ public enum NetworkCheckReason: String, Sendable, CaseIterable {
     case dnsNXDomain, dnsTimeout, dnsServerUnavailable, dnsNoPath, dnsFailure
     case localPathUnavailable, internetUnavailable, internetReachable, activeProxy, activePAC
     case orphanedTunnel, routingConflict, expectedInterfaceMissing, unstableAfterDisconnect
+    case routeViaInactiveTunnel
 
     public var message: String {
         switch self {
@@ -42,7 +43,8 @@ public enum NetworkCheckReason: String, Sendable, CaseIterable {
         case .activeProxy: return "Aktywny proxy może wpływać na łączność po VPN."
         case .activePAC: return "Aktywna konfiguracja PAC może wpływać na łączność po VPN."
         case .orphanedTunnel: return "Pozostał interfejs tunelowy bez aktywnego połączenia."
-        case .routingConflict: return "Trasy i interfejsy są niespójne."
+        case .routingConflict: return "Ta sama sieć ma trasy przez różne interfejsy; ruch może wychodzić niewłaściwą drogą."
+        case .routeViaInactiveTunnel: return "Trasa wskazuje nieaktywny interfejs tunelowy."
         case .expectedInterfaceMissing: return "Brakuje interfejsu używanego przez trasę."
         case .unstableAfterDisconnect: return "Stan sieci nadal się zmienia po rozłączeniu."
         }
@@ -287,11 +289,13 @@ public struct SnapshotDiagnosticCheck: DiagnosticCheck {
             if s.path?.transitionObserved == true { return .unstableAfterDisconnect }
             let all = Set(s.interfaces.map(\.name))
             if s.routes.contains(where: { $0.interfaceName.map { !all.contains($0) } == true }) { return .expectedInterfaceMissing }
-            if s.routes.contains(where: { $0.interfaceName.map(Self.isTunnel) == true && !upTunnels.contains($0.interfaceName ?? "") }) { return .routingConflict }
-            // Multicast, link-local and neighbour-cache entries legitimately repeat per interface;
-            // a connected network and a forwarding entry for the same destination do not.
+            if s.routes.contains(where: { $0.interfaceName.map(Self.isTunnel) == true && !upTunnels.contains($0.interfaceName ?? "") }) { return .routeViaInactiveTunnel }
+            // Multicast, link-local and neighbour-cache entries legitimately repeat per interface, and
+            // macOS keeps an interface-scoped copy of a connected network for every additional interface
+            // on that network (Ethernet plus Wi-Fi). Only unscoped entries for one destination through
+            // different interfaces, such as a connected network and a tunnel, are a conflict.
             let comparable = s.routes.filter { route in
-                guard !route.isDefault, !route.isCloned else { return false }
+                guard !route.isDefault, !route.isCloned, !route.isScoped else { return false }
                 return IPPrefix(route.destination).map { !$0.isMulticast && !$0.isLinkLocal } ?? true
             }
             let grouped = Dictionary(grouping: comparable, by: \.destination)
