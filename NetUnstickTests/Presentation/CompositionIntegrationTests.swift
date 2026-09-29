@@ -20,6 +20,12 @@ private struct FixtureProbe: NetworkConnectivityProbing {
     func resolveFixedName() async -> ProbeOutcome { dns }
     func probeInternet() async -> ProbeOutcome { .reachable }
 }
+private struct FixtureFileSharing: FileSharingProbing {
+    let accountEnabled: Bool
+    func observe() async -> FileSharingObservation {
+        .init(smbListening: true, accountEnabledForSMB: accountEnabled, sharedFolderCount: 1, guestFolderCount: 1)
+    }
+}
 private struct FixtureBonjour: BonjourBrowsing {
     func browse(_ service: BonjourService, timeout: Duration) async -> BonjourObservation {
         .init(count: 1, reason: .servicesFound)
@@ -73,6 +79,7 @@ private struct FixtureRepairWait: RepairWaiting {
             proxy: nil, dynamicStoreVPNKeys: [], errors: [])
     }
     private func environment(_ vpn: String = "inactive", dns: ProbeOutcome = .reachable, leaseFailure: Bool = false,
+                             smbAccountEnabled: Bool = true,
                              checks: any RepairCheckRunning = FixtureRepairChecks(recheckSucceeds: true),
                              helper: any RepairHelperCalling = FixtureRepairHelper()) throws -> AppEnvironment {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
@@ -80,6 +87,7 @@ private struct FixtureRepairWait: RepairWaiting {
         let dir = root.appendingPathComponent("DerivedData/IntegrationSessions/\(UUID().uuidString)/sessions.json")
         return try AppEnvironment(collector: FixtureCollector(snapshot: snapshot(vpn, leaseFailure: leaseFailure)), probe: FixtureProbe(dns: dns),
             bonjour: FixtureBonjour(), store: try BoundedSessionStore(fileURL: dir),
+            fileSharing: FixtureFileSharing(accountEnabled: smbAccountEnabled),
             repairChecks: checks, repairHelper: helper, repairWait: FixtureRepairWait(),
             dhcpInterfaces: { leaseFailure ? ["en0"] : [] })
     }
@@ -87,7 +95,7 @@ private struct FixtureRepairWait: RepairWaiting {
     func testRealCompositionStreamsChecksPersistsSessionAndRedactsReport() async throws {
         let environment = try environment()
         let results = try await environment.diagnose()
-        XCTAssertEqual(results.count, 11)
+        XCTAssertEqual(results.count, DiagnosisEngine.checkCount)
         XCTAssertEqual(environment.vpn.state, .inactive)
         let sessions = try await environment.loadSessions()
         XCTAssertEqual(sessions.last?.entries, results)
@@ -95,6 +103,19 @@ private struct FixtureRepairWait: RepairWaiting {
         XCTAssertFalse(text.contains("secret.corp"))
         XCTAssertFalse(text.contains("192.0.2.53"))
         XCTAssertFalse(text.contains("utun1"))
+    }
+
+    func testAccountWithoutSMBPasswordIsReportedWithoutARepair() async throws {
+        let environment = try environment(smbAccountEnabled: false)
+        let results = try await environment.diagnose()
+        let sharing = try XCTUnwrap(results.first { $0.operationID == FileSharingReadinessCheck.checkID })
+        XCTAssertEqual(sharing.outcome, .failure)
+        XCTAssertEqual(sharing.after.values[.errorCode], FileSharingReason.accountNotEnabledForSMB.rawValue)
+        XCTAssertEqual(sharing.nextStep, NextStep.enableSMBAccount.rawValue)
+        // No network change can fix an account setting; the app must not offer a repair for it.
+        XCTAssertNil(environment.repairCandidate())
+        let sessions = try await environment.loadSessions()
+        XCTAssertFalse(environment.preview(try XCTUnwrap(sessions.last)).contains(NSUserName()))
     }
 
     func testActiveAndUnknownVPNDoNotOfferCandidate() async throws {

@@ -61,7 +61,9 @@ public enum RepairCatalog {
         NetworkCheckReason.orphanedTunnel.rawValue: NextStep.restartVPNClient.rawValue,
         NetworkCheckReason.expectedInterfaceMissing.rawValue: NextStep.contactSupport.rawValue,
         NetworkCheckReason.routingConflict.rawValue: NextStep.contactSupport.rawValue,
-        NetworkCheckReason.routeViaInactiveTunnel.rawValue: NextStep.verifyVPN.rawValue
+        NetworkCheckReason.routeViaInactiveTunnel.rawValue: NextStep.verifyVPN.rawValue,
+        // Enabling an account for SMB stores a password hash; that is a user decision in System Settings.
+        FileSharingReason.accountNotEnabledForSMB.rawValue: NextStep.enableSMBAccount.rawValue
     ]
     public static let blockedScenarios: Set<FortinetScenario> = [
         .managedLocalLANRestriction, .infrastructureMDNSCandidate, .activeProxy,

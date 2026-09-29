@@ -36,6 +36,32 @@ import NetUnstickNetwork
     func refreshVPN(stabilize: Bool) async -> VPNAssessment { .init(state: .unknown, reasonCode: .residualTunnel) }
 }
 
+/// Every network check passes; only this Mac's file sharing rejects account logins. With `residual`
+/// the VPN client also left a tunnel device behind, as on a Mac that just disconnected FortiClient.
+@MainActor private final class SharingPresentationService: PresentationService {
+    let scenario = "production"
+    let helper = HelperPresentationState.available
+    let vpnServices = VPNServiceStatus.disconnected
+    private let residual: Bool
+    init(residual: Bool = false) { self.residual = residual }
+    func diagnose() async throws -> [OperationResult] {
+        let now = Date()
+        func result(_ id: String, _ reason: String, failure: Bool) -> OperationResult {
+            try! OperationResult(operationID: id, name: id, kind: .diagnostic, startedAt: now, endedAt: now,
+                outcome: failure ? .failure : .success,
+                after: EvidenceSanitizer.sanitize([.errorCode: .errorCode(reason)]),
+                error: failure ? try! OperationError(domain: "file_sharing", code: reason) : nil)
+        }
+        return [result("local_subnet_route", "healthy", failure: false),
+                result(FileSharingReadinessCheck.checkID, FileSharingReason.accountNotEnabledForSMB.rawValue, failure: true)] +
+            (residual ? [result("interface_consistency", NetworkCheckReason.orphanedTunnel.rawValue, failure: true)] : [])
+    }
+    func repairCandidate() -> RepairCandidatePresentation? { nil }
+    func refreshVPN(stabilize: Bool) async -> VPNAssessment {
+        residual ? .init(state: .unknown, reasonCode: .residualTunnel) : .init(state: .inactive, reasonCode: .noVPNSignals)
+    }
+}
+
 @MainActor final class PresentationStoreTests: XCTestCase {
     private func settle(_ store: PresentationStore) async {
         for _ in 0..<30 {
@@ -73,6 +99,25 @@ import NetUnstickNetwork
         XCTAssertNil(store.candidate)
         XCTAssertTrue(store.repairPhase.isEmpty)
         // Any other failing check keeps the conservative unknown presentation.
+        let unknown = PresentationStore(service: MockPresentationService(scenario: "vpn-unknown"))
+        await settle(unknown)
+        XCTAssertEqual(unknown.state, .unknown)
+    }
+
+    func testAccountWithoutSMBPasswordIsAServerSettingNotANetworkFault() async throws {
+        for residual in [false, true] {
+            let store = PresentationStore(service: SharingPresentationService(residual: residual))
+            store.startDiagnosis()
+            await settle(store)
+            XCTAssertEqual(store.state, .serverNotReady, "residual=\(residual)")
+            XCTAssertTrue(store.lastResultText.contains("SMB"))
+            XCTAssertTrue(store.nextStep.contains("Udostępnianie") || store.nextStep.contains("Sharing"))
+            XCTAssertNil(store.candidate)
+            let check = try XCTUnwrap(store.checks.first { $0.id == FileSharingReadinessCheck.checkID })
+            XCTAssertEqual(check.reason, FileSharingReason.accountNotEnabledForSMB.message)
+            XCTAssertTrue(check.technicalDetail.contains("file_sharing/accountNotEnabledForSMB"))
+        }
+        // A genuine network failure next to the sharing failure keeps the conservative presentation.
         let unknown = PresentationStore(service: MockPresentationService(scenario: "vpn-unknown"))
         await settle(unknown)
         XCTAssertEqual(unknown.state, .unknown)

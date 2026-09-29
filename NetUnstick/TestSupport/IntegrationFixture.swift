@@ -15,6 +15,12 @@ private struct FixtureConnectivityProbe: NetworkConnectivityProbing {
     func probeInternet() async -> ProbeOutcome { .reachable }
 }
 
+private struct FixtureFileSharingProbe: FileSharingProbing {
+    func observe() async -> FileSharingObservation {
+        .init(smbListening: true, accountEnabledForSMB: true, sharedFolderCount: 1, guestFolderCount: 1)
+    }
+}
+
 private struct FixtureBonjourBrowser: BonjourBrowsing {
     func browse(_ service: BonjourService, timeout: Duration) async -> BonjourObservation {
         .init(count: 1, reason: .servicesFound)
@@ -60,6 +66,7 @@ private struct FixtureWait: RepairWaiting {
         return try AppEnvironment(collector: FixtureNetworkCollector(snapshot: snapshot(vpn: scenario, leaseFailure: leaseFailure)),
             probe: FixtureConnectivityProbe(failsDNS: ["fault", "vpn-active", "vpn-unknown"].contains(scenario)),
             bonjour: FixtureBonjourBrowser(), store: BoundedSessionStore(fileURL: file),
+            fileSharing: FixtureFileSharingProbe(),
             repairChecks: FixtureRepairCheckRunner(resolves: scenario == "verified"),
             repairHelper: FixturePrivilegedHelper(), repairWait: FixtureWait(),
             dhcpInterfaces: { leaseFailure ? ["en0"] : [] })

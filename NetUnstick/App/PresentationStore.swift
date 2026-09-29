@@ -6,7 +6,9 @@ import NetUnstickNetwork
 enum NetworkPresentationState: String {
     /// `residual`: the checks pass and the VPN service reports disconnected, but the VPN
     /// client left tunnel devices behind. The network works; ordinary repairs stay blocked.
-    case healthy, problem, investigating, unknown, residual
+    /// `serverNotReady`: every network check passed, but this Mac's own file sharing cannot
+    /// accept logins from other Macs; that is a settings change, not a network repair.
+    case healthy, problem, investigating, unknown, residual, serverNotReady
     var title: String {
         switch self {
         case .healthy: String(localized: "state_healthy")
@@ -14,6 +16,7 @@ enum NetworkPresentationState: String {
         case .investigating: String(localized: "state_investigating")
         case .unknown: String(localized: "state_unknown")
         case .residual: String(localized: "state_residual")
+        case .serverNotReady: String(localized: "state_sharing")
         }
     }
     var explanation: String {
@@ -23,6 +26,7 @@ enum NetworkPresentationState: String {
         case .investigating: String(localized: "state_investigating_detail")
         case .unknown: String(localized: "state_unknown_detail")
         case .residual: String(localized: "state_residual_detail")
+        case .serverNotReady: String(localized: "state_sharing_detail")
         }
     }
     var symbol: String {
@@ -32,6 +36,7 @@ enum NetworkPresentationState: String {
         case .investigating: "waveform.path"
         case .unknown: "questionmark.circle"
         case .residual: "checkmark.circle.trianglebadge.exclamationmark"
+        case .serverNotReady: "person.crop.circle.badge.exclamationmark"
         }
     }
 }
@@ -397,10 +402,18 @@ extension PresentationService {
         checks = results.map(Self.present)
         let failing = results.filter { $0.outcome == .failure || $0.outcome == .permissionDenied || $0.outcome == .timedOut }
         // Leftover tunnel devices after a confirmed disconnect are a nuisance, not an unknown network.
-        let onlyLeftoverTunnels = failing.allSatisfy {
+        let leftoverTunnels = failing.filter {
             $0.operationID == "interface_consistency" && $0.after.values[.errorCode] == NetworkCheckReason.orphanedTunnel.rawValue
         }
-        if residualTunnelOnly && onlyLeftoverTunnels {
+        let sharingFailures = failing.filter { $0.operationID == FileSharingReadinessCheck.checkID }
+        let networkFailures = failing.count - leftoverTunnels.count - sharingFailures.count
+        let vpnSettled = vpn.state == .inactive || residualTunnelOnly
+        if vpnSettled, networkFailures == 0, leftoverTunnels.isEmpty || residualTunnelOnly, !sharingFailures.isEmpty {
+            // The network works; only this Mac's own file sharing keeps other Macs from logging in.
+            state = .serverNotReady
+            lastResultText = String(localized: "result_sharing")
+            nextStep = String(localized: "next_sharing")
+        } else if residualTunnelOnly && networkFailures == 0 && sharingFailures.isEmpty {
             state = .residual
             lastResultText = String(localized: "result_residual")
             nextStep = String(localized: "next_residual")
@@ -423,6 +436,8 @@ extension PresentationService {
         let code = result.after.values[.errorCode] ?? result.error?.code
         let reason: String? = if let code, let network = NetworkCheckReason(rawValue: code) {
             network.message
+        } else if let code, let sharing = FileSharingReason(rawValue: code) {
+            sharing.message
         } else if let code, let bonjour = BonjourReason(rawValue: code) {
             switch bonjour {
             case .noServices: "Nie znaleziono odbiornika; może go nie być w tej sieci."

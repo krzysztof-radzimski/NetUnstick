@@ -1552,6 +1552,70 @@
           }
         }
       }
+    },
+    "state_sharing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network works; this Mac is not ready to share files"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sieć działa; ten Mac nie jest gotowy do udostępniania plików"
+          }
+        }
+      }
+    },
+    "state_sharing_detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other Macs reach this Mac, but a file sharing setting blocks logging in."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inne komputery Mac docierają do tego Maca, ale ustawienie udostępniania plików blokuje logowanie."
+          }
+        }
+      }
+    },
+    "result_sharing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The network checks passed; your account has no SMB password stored, so other Macs cannot log in to this Mac’s shared folders."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kontrole sieci przeszły; Twoje konto nie ma zapisanego hasła SMB, więc inne komputery Mac nie mogą zalogować się do udostępnionych folderów tego Maca."
+          }
+        }
+      }
+    },
+    "next_sharing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open System Settings › General › Sharing › File Sharing › ⓘ › Options…, turn on your account under “Share files and folders using SMB” and enter your password; then use “Connect As…” on the other Mac."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz Ustawienia systemowe › Ogólne › Udostępnianie › Udostępnianie plików › ⓘ › Opcje…, włącz swoje konto w „Udostępnianie plików i folderów za pomocą SMB” i podaj hasło; potem na drugim Macu wybierz „Połącz jako…”."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

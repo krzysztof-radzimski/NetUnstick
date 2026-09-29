@@ -42,6 +42,7 @@ import NetUnstickRepair
          store: BoundedSessionStore? = nil,
          helper: PrivilegedHelperClient = PrivilegedHelperClient(),
          deviceProbe: any DeviceConnectionProbing = SystemDeviceConnectionProbe(),
+         fileSharing: any FileSharingProbing = SystemFileSharingProbe(),
          repairChecks: any RepairCheckRunning = SystemRepairChecks(),
          repairHelper: (any RepairHelperCalling)? = nil,
          repairWait: any RepairWaiting = BoundedRepairWait(),
@@ -49,7 +50,8 @@ import NetUnstickRepair
          renderer: ReportRenderer = ReportRenderer()) throws {
         self.collector = collector
         self.detector = detector
-        self.diagnosis = DiagnosisEngine(collector: collector, probe: probe, detector: detector, bonjourBrowser: bonjour)
+        self.diagnosis = DiagnosisEngine(collector: collector, probe: probe, detector: detector, bonjourBrowser: bonjour,
+                                         fileSharing: fileSharing)
         self.sessionsStore = try store ?? BoundedSessionStore()
         self.helperClient = helper
         self.deviceProbe = deviceProbe

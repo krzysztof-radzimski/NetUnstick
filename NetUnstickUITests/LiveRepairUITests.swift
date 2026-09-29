@@ -1,8 +1,8 @@
 import XCTest
 
 /// Opt-in live harness against the already running production app. Each step is selected
-/// with TEST_RUNNER_NETUNSTICK_LIVE_ACTION=unregister|register|repair and drives the real UI,
-/// helper registration and launchd daemon on this host. Nothing runs without the variable.
+/// with TEST_RUNNER_NETUNSTICK_LIVE_ACTION=unregister|register|repair|diagnose and drives the
+/// real UI, helper registration and launchd daemon on this host. Nothing runs without the variable.
 final class LiveRepairUITests: XCTestCase {
     private var action: String { ProcessInfo.processInfo.environment["NETUNSTICK_LIVE_ACTION"] ?? "" }
 
@@ -52,6 +52,28 @@ final class LiveRepairUITests: XCTestCase {
         let ready = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: available, object: status)], timeout: 20)
         print("NETUNSTICK_LIVE: helper after register: \(text(status))")
         XCTAssertEqual(ready, .completed, "Helper must be available; status: \(text(status))")
+    }
+
+    /// Runs one diagnosis in the installed app and prints the headline state, result and next step.
+    func testLiveDiagnosis() throws {
+        guard action == "diagnose" else { throw XCTSkip("Opt-in live step") }
+        let app = try attach()
+        app.descendants(matching: .any)["nav.status"].click()
+        let start = app.buttons["diagnosis.start"]
+        XCTAssertTrue(start.waitForExistence(timeout: 5))
+        start.click()
+        // The result text carries the running marker first and the verdict afterwards.
+        let result = app.staticTexts["dashboard.result"]
+        let running = NSPredicate(format: "value CONTAINS %@ OR label CONTAINS %@", "Trwa diagnostyka", "Trwa diagnostyka")
+        _ = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: running, object: result)], timeout: 5)
+        let finished = NSPredicate(format: "NOT (value CONTAINS %@) AND NOT (label CONTAINS %@)", "Trwa diagnostyka", "Trwa diagnostyka")
+        let outcome = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: finished, object: result)], timeout: 120)
+        let state = text(app.descendants(matching: .any)["dashboard.state"])
+        let verdict = text(result)
+        let next = text(app.staticTexts["dashboard.nextStep"])
+        print("NETUNSTICK_LIVE: state: \(state) | result: \(verdict) | next: \(next)")
+        XCTAssertEqual(outcome, .completed, "Diagnosis must finish; last text: \(verdict)")
+        XCTAssertFalse(verdict.isEmpty)
     }
 
     func testLiveStaleTunnelRouteRepair() throws {

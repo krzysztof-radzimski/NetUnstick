@@ -103,6 +103,7 @@ public enum NextStep: String, Codable, Sendable {
     case verifyVPN = "Verify that VPN is disconnected, then run the check again."
     case contactSupport = "Contact your network administrator."
     case restartVPNClient = "Quit and reopen the VPN client so it releases its leftover tunnel interfaces."
+    case enableSMBAccount = "Enable your account for SMB in File Sharing options on this Mac, then connect again."
 }
 
 extension SafeEvidence {
