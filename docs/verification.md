@@ -125,3 +125,18 @@ Druga aktualizacja w miejscu (`~/Applications`, Release 0.2.0 build 2 → build 
 | build 5 → build 6 | inny cdhash | odrzucony (raport 22:11:28), dwustopniowe odświeżenie z buildu 4 zakończyło się wpisem „pending authorization” i daemonem `disabled, disallowed`; wymagana zgoda |
 
 Wniosek: przy tożsamości bez Team ID zgoda jest przypięta do binarki helpera, a nie do aplikacji ani wersji pakietu. Procedura w aplikacji nadal jest potrzebna, bo bez niej launchd nigdy nie przyjąłby nowego helpera, ale nie zastępuje zgody. `Tools/BuildDMG.sh` ostrzega przy wydaniu, gdy helper się zmienił. Stan tego hosta po eksperymencie: build 6 zainstalowany i uruchomiony, rejestracja oczekuje na zatwierdzenie w Elementach logowania.
+
+## Kierunek Mac Studio → MacBook i test połączenia z urządzeniem — 29 września 2026, noc
+
+Po instalacji buildu 6 na drugim komputerze Mac diagnoza tam była w całości zielona, ale Finder na tym komputerze pokazał „Błąd połączenia” przy MacBooku w sekcji Sieć, mimo że urządzenie było widoczne (Bonjour) i dostępna była opcja pokazania ekranu. Udostępnianie ekranu nie ma na to wpływu. Stan MacBooka jako serwera sprawdzony z tego hosta: `smbd` działa, port 445 nasłuchuje na IPv4 i IPv6, zapora wyłączona, tras po VPN brak, usługa `_smb._tcp` ogłaszana na fizycznym interfejsie z nazwą hosta rozwiązywaną do adresu w sieci lokalnej, folder publiczny z dostępem gościa. W tablicy połączeń nie było żadnej próby z drugiego komputera na port 445 ani wpisu w logu `smbd`, więc próby albo nie docierają, albo Finder pokazywał zapamiętany wynik; rozstrzyga „Połącz jako…” na drugim komputerze. Anomalia po naprawie: dla adresu drugiego komputera MacBook ma sklonowany wpis hosta przez bramę domyślną (flagi `GATEWAY, HOST, WASCLONED`), więc ruch wychodzi przez router zamiast bezpośrednio; TCP działa (SMB, VNC, SSH otwarte), a wpis wygasa samoczynnie lub po przełączeniu Wi‑Fi.
+
+Dodana funkcja: karta „Test połączenia z urządzeniem” (`DeviceConnectionCheck`, `SystemDeviceConnectionProbe`) wykonuje odczytowe połączenie TCP z podaną nazwą lub adresem i portem, z limitem 5 s, i zwraca zamknięty kod: `reachable`, `refused`, `timedOut`, `unreachable`, `nameUnresolved`, `invalidInput`, `failed`, `cancelled`, z typem interfejsu i flagą ścieżki przez tunel; nazwa i port nie trafiają do wyniku, sesji ani raportu.
+
+| Sprawdzenie | Wynik |
+| --- | --- |
+| `DeviceConnectionProbeTests` | lokalny listener: `reachable` na `loopback`; zamknięty port: `refused` (po poprawce stanów `waiting` Network.framework, które wcześniej dawały `timedOut`); nazwa `.invalid`: `nameUnresolved`; TEST-NET: `timedOut`/`unreachable`; wejścia z separatorami i znakami powłoki: `invalidInput`; JSON wyniku nie zawiera nazwy hosta ani portu. |
+| `NETUNSTICK_DEVICE_LIVE` z tego hosta do drugiego komputera | port 445: `reachable`, Wi‑Fi, bez tunelu; port 5900: `reachable`; port 548: `refused` (usługa nieoferowana). |
+| `NetUnstickPresentationTests` | 12 testów, 0 błędów (test publikacji wyniku bez nazwy hosta i odrzucenia błędnego wejścia przed sondą). |
+| `PresentationUITests` | 9 testów, 0 błędów z nową kartą na ekranie Stan. |
+
+Ten sam test uruchomiony na drugim komputerze w kierunku MacBooka (nazwa Bonjour MacBooka, port 445) rozstrzygnie, czy problem leży w sieci (`timedOut`/`unreachable`), w usłudze (`refused`) czy w logowaniu (`reachable`, a Finder wymaga „Połącz jako…”).

@@ -14,6 +14,7 @@ import NetUnstickRepair
     private let helperClient: PrivilegedHelperClient
     private let renderer: ReportRenderer
     private let logger = Logger(subsystem: "org.netunstick.NetUnstick", category: "diagnosis")
+    private let deviceProbe: any DeviceConnectionProbing
     private let repairChecks: any RepairCheckRunning
     private let repairHelper: (any RepairHelperCalling)?
     private let repairWait: any RepairWaiting
@@ -40,6 +41,7 @@ import NetUnstickRepair
          bonjour: any BonjourBrowsing = SystemBonjourBrowser(),
          store: BoundedSessionStore? = nil,
          helper: PrivilegedHelperClient = PrivilegedHelperClient(),
+         deviceProbe: any DeviceConnectionProbing = SystemDeviceConnectionProbe(),
          repairChecks: any RepairCheckRunning = SystemRepairChecks(),
          repairHelper: (any RepairHelperCalling)? = nil,
          repairWait: any RepairWaiting = BoundedRepairWait(),
@@ -50,6 +52,7 @@ import NetUnstickRepair
         self.diagnosis = DiagnosisEngine(collector: collector, probe: probe, detector: detector, bonjourBrowser: bonjour)
         self.sessionsStore = try store ?? BoundedSessionStore()
         self.helperClient = helper
+        self.deviceProbe = deviceProbe
         self.repairChecks = repairChecks
         self.repairHelper = repairHelper
         self.repairWait = repairWait
@@ -115,6 +118,23 @@ import NetUnstickRepair
             dhcpInterfaces: dhcpInterfaces, store: sessionsStore, session: session)
         let result = await executor.execute(plan, onPhase: onPhase)
         plans = []
+        return result
+    }
+
+    /// The host and port are used for the probe only; the persisted result holds codes and the interface type.
+    func testDeviceConnection(host: String, port: UInt16) async -> OperationResult? {
+        let session: ActivitySession
+        if let currentSession { session = currentSession } else {
+            let os = ProcessInfo.processInfo.operatingSystemVersion
+            session = ActivitySession(startedAt: Date(),
+                appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.1.0",
+                macOSVersion: "\(os.majorVersion).\(os.minorVersion).\(os.patchVersion)")
+            do { try await sessionsStore.startSession(session) } catch { logger.error("Could not start device test session"); return nil }
+            currentSession = session
+        }
+        let result = await DeviceConnectionCheck(host: host, port: port, probe: deviceProbe).run(context: .init())
+        do { try await sessionsStore.append(result, to: session.id) } catch { logger.error("Could not persist device test result") }
+        logger.info("Device connection test: \(result.outcome.rawValue, privacy: .public), code \(result.error?.code ?? "none", privacy: .public)")
         return result
     }
 

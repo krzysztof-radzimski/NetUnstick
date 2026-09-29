@@ -1,5 +1,6 @@
 import SwiftUI
 import NetUnstickCore
+import NetUnstickNetwork
 
 struct DashboardView: View {
     @ObservedObject var store: PresentationStore
@@ -64,6 +65,35 @@ struct DashboardView: View {
                 }
                 Button("preview_report") { showReport() }
                     .disabled(store.sessions.isEmpty).accessibilityIdentifier("report.preview.open")
+                VStack(alignment: .leading, spacing: 10) {
+                    Label("device_test", systemImage: "point.3.connected.trianglepath.dotted").font(.headline)
+                    Text("device_test_hint").foregroundStyle(.secondary)
+                    HStack {
+                        TextField("device_host", text: $store.deviceHost)
+                            .textFieldStyle(.roundedBorder).frame(maxWidth: 320)
+                            .accessibilityIdentifier("device.host")
+                            .onSubmit { store.testDeviceConnection() }
+                        Picker("device_port", selection: $store.devicePort) {
+                            Text("SMB · 445").tag("445")
+                            Text("AFP · 548").tag("548")
+                            Text("Udostępnianie ekranu · 5900").tag("5900")
+                            Text("SSH · 22").tag("22")
+                            Text("HTTP · 80").tag("80")
+                        }.labelsHidden().frame(maxWidth: 220).accessibilityIdentifier("device.port")
+                        Button("device_test_run") { store.testDeviceConnection() }
+                            .disabled(store.deviceTestRunning).accessibilityIdentifier("device.test")
+                        if store.deviceTestRunning { ProgressView().controlSize(.small) }
+                    }
+                    if let connection = store.deviceConnection {
+                        HStack { Image(systemName: connection.symbol).accessibilityHidden(true); Text(connection.outcome).bold() }
+                            .accessibilityIdentifier("device.outcome")
+                        Text(connection.reason).foregroundStyle(.secondary).accessibilityIdentifier("device.result")
+                        Text(connection.technicalDetail).font(.caption.monospaced()).textSelection(.enabled)
+                            .accessibilityIdentifier("device.detail")
+                    }
+                }.padding(20).frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                    .overlay(RoundedRectangle(cornerRadius: 16).stroke(highContrast ? Color.primary : Color.clear, lineWidth: 2))
                 Text("checks").font(.headline)
                 if store.checks.isEmpty { ContentUnavailableView("no_checks", systemImage: "list.bullet.clipboard") }
                 ForEach(store.checks) { check in

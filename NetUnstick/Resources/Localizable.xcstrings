@@ -1,6 +1,86 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "device_test": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection test to a device"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Test połączenia z urządzeniem"
+          }
+        }
+      }
+    },
+    "device_test_hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read-only TCP connect to a name or address on your network. The name and port stay here; the activity log keeps only the outcome and interface type."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odczytowe połączenie TCP z nazwą lub adresem w Twojej sieci. Nazwa i port zostają tutaj; dziennik aktywności zapisuje tylko wynik i typ interfejsu."
+          }
+        }
+      }
+    },
+    "device_host": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name or address, e.g. Mac-Studio.local"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nazwa lub adres, np. Mac-Studio.local"
+          }
+        }
+      }
+    },
+    "device_port": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Port"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Port"
+          }
+        }
+      }
+    },
+    "device_test_run": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Test connection"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sprawdź połączenie"
+          }
+        }
+      }
+    },
     "state_residual": {
       "localizations": {
         "en": {

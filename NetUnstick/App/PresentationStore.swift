@@ -68,6 +68,14 @@ enum HelperHandshakePresentation: Equatable {
     }
 }
 
+/// Outcome of the device connection test; the host stays in the text field only.
+struct DeviceConnectionPresentation: Equatable {
+    let outcome: String
+    let reason: String
+    let technicalDetail: String
+    let symbol: String
+}
+
 struct CheckPresentation: Identifiable {
     let id: String
     let title: String
@@ -105,6 +113,8 @@ struct RepairCandidatePresentation {
     func registerHelper() -> HelperPresentationState
     func unregisterHelper() -> HelperPresentationState
     func verifyHelper() async -> HelperHandshakePresentation
+    /// Read-only TCP connect to a device chosen by the user; the result carries codes only.
+    func testDeviceConnection(host: String, port: UInt16) async -> OperationResult?
     func openHelperSettings()
 }
 
@@ -132,6 +142,7 @@ extension PresentationService {
     func registerHelper() -> HelperPresentationState { helper }
     func unregisterHelper() -> HelperPresentationState { helper }
     func verifyHelper() async -> HelperHandshakePresentation { .notRun }
+    func testDeviceConnection(host: String, port: UInt16) async -> OperationResult? { nil }
     func openHelperSettings() {}
 }
 
@@ -151,6 +162,10 @@ extension PresentationService {
     @Published var selectedSessionID: UUID?
     @Published var helperState: HelperPresentationState = .unavailable
     @Published var helperHandshake: HelperHandshakePresentation = .notRun
+    @Published var deviceHost = ""
+    @Published var devicePort = "445"
+    @Published var deviceTestRunning = false
+    @Published var deviceConnection: DeviceConnectionPresentation?
     private let service: any PresentationService
     private var task: Task<Void, Never>?
     private var watcher: Task<Void, Never>?
@@ -252,6 +267,35 @@ extension PresentationService {
     func registerHelper() { helperState = service.registerHelper() }
     func unregisterHelper() { helperState = service.unregisterHelper() }
     func verifyHelper() { Task { await verifyHelperNow() } }
+    func testDeviceConnection() {
+        guard !deviceTestRunning else { return }
+        guard let port = DeviceConnectionInput.port(from: devicePort), DeviceConnectionInput.isValidHost(deviceHost) else {
+            deviceConnection = .init(outcome: Self.outcomeTitle(.skipped), reason: DeviceConnectionReason.invalidInput.message,
+                                     technicalDetail: "errorCode: invalidInput", symbol: "minus.circle")
+            return
+        }
+        deviceTestRunning = true
+        Task { [weak self] in
+            guard let self else { return }
+            let result = await service.testDeviceConnection(host: deviceHost, port: port)
+            deviceTestRunning = false
+            guard let result else { deviceConnection = nil; return }
+            deviceConnection = Self.presentDevice(result)
+            if service.scenario == "production" { await refreshSessions() }
+        }
+    }
+    static func presentDevice(_ result: OperationResult) -> DeviceConnectionPresentation {
+        let code = result.after.values[.errorCode] ?? result.error?.code ?? ""
+        var reason = DeviceConnectionReason(rawValue: code)?.message ?? "Nie można ocenić wyniku."
+        if result.after.values[.networkStatus] == "active" {
+            reason += " Ruch do tego urządzenia idzie przez interfejs tunelowy."
+        }
+        let evidence = result.after.values.sorted { $0.key.rawValue < $1.key.rawValue }
+            .map { "\($0.key.rawValue): \($0.value)" }.joined(separator: " · ")
+        return .init(outcome: outcomeTitle(result.outcome), reason: reason,
+                     technicalDetail: "\(evidence) \(result.error.map { "\($0.domain)/\($0.code)" } ?? "")",
+                     symbol: result.outcome == .success ? "checkmark.circle" : result.outcome == .skipped ? "minus.circle" : "exclamationmark.triangle")
+    }
     private func verifyHelperNow() async {
         helperHandshake = await service.verifyHelper()
         helperState = service.helper

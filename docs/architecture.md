@@ -6,7 +6,7 @@ Obecny kod ma okno SwiftUI i trzy rozdzielone moduły. `NetUnstickCore` implemen
 
 | Odpowiedzialność | Miejsce | Kontrakt |
 | --- | --- | --- |
-| Zbieranie stanu | `NetUnstickNetwork` | Odczyt `NWPath`, `getifaddrs`, SystemConfiguration i tras z ograniczonego procesu. Testy Bonjour są oddzielnymi operacjami NWBrowser; testy połączenia z urządzeniem pozostają przyszłym zakresem. Bez zmian konfiguracji. |
+| Zbieranie stanu | `NetUnstickNetwork` | Odczyt `NWPath`, `getifaddrs`, SystemConfiguration i tras z ograniczonego procesu. Testy Bonjour są oddzielnymi operacjami NWBrowser; test połączenia z urządzeniem (`DeviceConnectionCheck`) to ograniczone czasowo połączenie TCP bez ładunku, którego wynik zawiera tylko kod i typ interfejsu. Bez zmian konfiguracji. |
 | Diagnoza | `NetUnstickCore` | Czyste decyzje na oczyszczonych obserwacjach; wynik „nieustalone”, gdy danych brakuje. Stabilne kody i strukturalne wyniki. |
 | Pojedyncze naprawy | `NetUnstickRepair` | Oddzielna jawna akcja, ograniczony zakres i czas, kontrola stanu VPN, ponowny test. Kandydat pozostaje niezweryfikowany do realnego incydentu; usunięcie tras po VPN ma już taki dowód. |
 | Rejestr sesji i eksport | `NetUnstickCore` | `Logger` do diagnostyki; ograniczona historia aplikacji i oczyszczony raport UTF-8. UI udostępnia podgląd i jawnie otwierany dialog zapisu. |

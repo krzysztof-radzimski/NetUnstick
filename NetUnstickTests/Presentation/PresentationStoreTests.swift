@@ -78,6 +78,43 @@ import NetUnstickNetwork
         XCTAssertEqual(unknown.state, .unknown)
     }
 
+    func testDeviceConnectionTestPublishesOutcomeWithoutTheHost() async throws {
+        @MainActor final class DeviceService: PresentationService {
+            let scenario = "production"
+            let helper = HelperPresentationState.unavailable
+            private(set) var received: [(String, UInt16)] = []
+            func diagnose() async throws -> [OperationResult] { [] }
+            func repairCandidate() -> RepairCandidatePresentation? { nil }
+            func refreshVPN(stabilize: Bool) async -> VPNAssessment { .init(state: .inactive, reasonCode: .noVPNSignals) }
+            func testDeviceConnection(host: String, port: UInt16) async -> OperationResult? {
+                received.append((host, port))
+                let now = Date()
+                return try? OperationResult(operationID: "device_connection", name: "device_connection", kind: .diagnostic,
+                    startedAt: now, endedAt: now, outcome: .failure,
+                    after: EvidenceSanitizer.sanitize([.errorCode: .errorCode("refused"), .interfaceType: .interfaceType(.wifi), .networkStatus: .status(.inactive)]),
+                    error: OperationError(domain: "device_connection", code: "refused"))
+            }
+        }
+        let service = DeviceService()
+        let store = PresentationStore(service: service)
+        store.deviceHost = "nas.example.internal"
+        store.devicePort = "445"
+        store.testDeviceConnection()
+        for _ in 0..<30 where store.deviceConnection == nil || store.deviceTestRunning {
+            try await Task.sleep(for: .milliseconds(100))
+        }
+        let presentation = try XCTUnwrap(store.deviceConnection)
+        XCTAssertEqual(service.received.first?.0, "nas.example.internal")
+        XCTAssertEqual(service.received.first?.1, 445)
+        XCTAssertTrue(presentation.reason.contains("odrzuca") || presentation.reason.contains("refuses"))
+        XCTAssertFalse(presentation.technicalDetail.contains("nas.example"))
+        XCTAssertTrue(presentation.technicalDetail.contains("refused"))
+        store.deviceHost = "not valid host"
+        store.testDeviceConnection()
+        XCTAssertEqual(store.deviceConnection?.technicalDetail, "errorCode: invalidInput")
+        XCTAssertEqual(service.received.count, 1, "Invalid input never reaches the probe")
+    }
+
     func testCancellationHasDistinctSessionOutcome() {
         let store = PresentationStore(service: MockPresentationService(scenario: "operation-progress"))
         XCTAssertTrue(store.isRunning)
