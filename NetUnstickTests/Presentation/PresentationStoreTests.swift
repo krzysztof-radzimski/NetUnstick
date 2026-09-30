@@ -43,7 +43,10 @@ import NetUnstickNetwork
     let helper = HelperPresentationState.available
     let vpnServices = VPNServiceStatus.disconnected
     private let residual: Bool
-    init(residual: Bool = false) { self.residual = residual }
+    private let code: String
+    init(residual: Bool = false, code: String = FileSharingReason.accountNotEnabledForSMB.rawValue) {
+        self.residual = residual; self.code = code
+    }
     func diagnose() async throws -> [OperationResult] {
         let now = Date()
         func result(_ id: String, _ reason: String, failure: Bool) -> OperationResult {
@@ -53,7 +56,7 @@ import NetUnstickNetwork
                 error: failure ? try! OperationError(domain: "file_sharing", code: reason) : nil)
         }
         return [result("local_subnet_route", "healthy", failure: false),
-                result(FileSharingReadinessCheck.checkID, FileSharingReason.accountNotEnabledForSMB.rawValue, failure: true)] +
+                result(FileSharingReadinessCheck.checkID, code, failure: true)] +
             (residual ? [result("interface_consistency", NetworkCheckReason.orphanedTunnel.rawValue, failure: true)] : [])
     }
     func repairCandidate() -> RepairCandidatePresentation? { nil }
@@ -117,6 +120,13 @@ import NetUnstickNetwork
             XCTAssertEqual(check.reason, FileSharingReason.accountNotEnabledForSMB.message)
             XCTAssertTrue(check.technicalDetail.contains("file_sharing/accountNotEnabledForSMB"))
         }
+        // Guest rejected as well: the headline names both missing login methods.
+        let noLogin = PresentationStore(service: SharingPresentationService(code: FileSharingReason.noLoginMethod.rawValue))
+        noLogin.startDiagnosis()
+        await settle(noLogin)
+        XCTAssertEqual(noLogin.state, .serverNotReady)
+        XCTAssertTrue(noLogin.lastResultText.contains("gościa") || noLogin.lastResultText.contains("guest"), noLogin.lastResultText)
+        XCTAssertTrue(noLogin.nextStep.contains("Gość") || noLogin.nextStep.contains("Guest"), noLogin.nextStep)
         // A genuine network failure next to the sharing failure keeps the conservative presentation.
         let unknown = PresentationStore(service: MockPresentationService(scenario: "vpn-unknown"))
         await settle(unknown)

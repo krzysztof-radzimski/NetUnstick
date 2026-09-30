@@ -3,12 +3,16 @@ import NetUnstickCore
 
 /// Closed outcome codes for the read-only check of this Mac as a file server for other Macs.
 public enum FileSharingReason: String, Sendable, CaseIterable {
-    case healthy, sharingOff, accountNotEnabledForSMB, noSharedFolders, dataIncomplete, cancelled
+    case healthy, guestRejected, sharingOff, accountNotEnabledForSMB, noLoginMethod, noSharedFolders, dataIncomplete, cancelled
 
     public var message: String {
         switch self {
         case .healthy:
             return "Udostępnianie plików przyjmuje połączenia, a Twoje konto może logować się przez SMB."
+        case .guestRejected:
+            return "Twoje konto może logować się przez SMB, ale serwer odrzuca gości; Finder na drugim komputerze pokaże „Błąd połączenia” do czasu użycia „Połącz jako…” z tym kontem."
+        case .noLoginMethod:
+            return "Udostępnianie działa, ale serwer odrzuca logowanie gościa, a Twoje konto nie ma zapisanego hasła SMB; żaden komputer nie zaloguje się do folderów tego Maca."
         case .sharingOff:
             return "Udostępnianie plików na tym Macu jest wyłączone; inne komputery nie połączą się z jego dyskami."
         case .accountNotEnabledForSMB:
@@ -29,11 +33,15 @@ public struct FileSharingObservation: Sendable, Equatable {
     public let accountEnabledForSMB: Bool?
     public let sharedFolderCount: Int?
     public let guestFolderCount: Int?
-    public init(smbListening: Bool, accountEnabledForSMB: Bool?, sharedFolderCount: Int?, guestFolderCount: Int?) {
+    /// Whether the server accepted an anonymous (guest) session over loopback; nil when not tested.
+    public let guestLoginAccepted: Bool?
+    public init(smbListening: Bool, accountEnabledForSMB: Bool?, sharedFolderCount: Int?, guestFolderCount: Int?,
+                guestLoginAccepted: Bool? = nil) {
         self.smbListening = smbListening
         self.accountEnabledForSMB = accountEnabledForSMB
         self.sharedFolderCount = sharedFolderCount
         self.guestFolderCount = guestFolderCount
+        self.guestLoginAccepted = guestLoginAccepted
     }
 }
 
@@ -49,6 +57,7 @@ public protocol FileSharingProbing: Sendable {
 public struct SystemFileSharingProbe: FileSharingProbing {
     public static let sharingExecutable = "/usr/sbin/sharing"
     public static let directoryExecutable = "/usr/bin/dscl"
+    public static let smbClientExecutable = "/usr/bin/smbutil"
     private let deviceProbe: any DeviceConnectionProbing
 
     public init(deviceProbe: any DeviceConnectionProbing = SystemDeviceConnectionProbe()) {
@@ -73,8 +82,31 @@ public struct SystemFileSharingProbe: FileSharingProbing {
             shared = counts.smbShared
             guest = counts.guest
         }
+        var guestLogin: Bool?
+        if listening {
+            // The same anonymous session Finder on another Mac opens first; only the exit status is read.
+            do {
+                let output = try await BoundedProcess.run(executable: Self.smbClientExecutable,
+                                                          arguments: ["view", "-N", "//127.0.0.1"], timeout: 6, outputLimit: 65_536)
+                guestLogin = Self.classifyGuestListing(exitStatus: output.exitStatus)
+            } catch ProcessRunError.nonZeroExit(let status) {
+                guestLogin = Self.classifyGuestListing(exitStatus: status)
+            } catch {
+                guestLogin = nil
+            }
+        }
         return .init(smbListening: listening, accountEnabledForSMB: accountEnabled,
-                     sharedFolderCount: shared, guestFolderCount: guest)
+                     sharedFolderCount: shared, guestFolderCount: guest, guestLoginAccepted: guestLogin)
+    }
+
+    /// `smbutil view -N` exits 0 after listing shares and 77 (EX_NOPERM) when the server rejects the
+    /// anonymous session; any other status says nothing about guest policy.
+    public static func classifyGuestListing(exitStatus: Int32) -> Bool? {
+        switch exitStatus {
+        case 0: return true
+        case 77: return false
+        default: return nil
+        }
     }
 
     /// The account name becomes one fixed argument; anything outside this alphabet is not queried.
@@ -147,14 +179,14 @@ public struct FileSharingReadinessCheck: DiagnosticCheck {
         }
         let outcome: OperationOutcome
         switch reason {
-        case .healthy: outcome = .success
-        case .accountNotEnabledForSMB: outcome = .failure
+        case .healthy, .guestRejected: outcome = .success
+        case .accountNotEnabledForSMB, .noLoginMethod: outcome = .failure
         case .cancelled: outcome = .cancelled
         case .sharingOff, .noSharedFolders, .dataIncomplete: outcome = .skipped
         }
         let next: NextStep
         switch reason {
-        case .accountNotEnabledForSMB: next = .enableSMBAccount
+        case .accountNotEnabledForSMB, .noLoginMethod: next = .enableSMBAccount
         case .dataIncomplete, .cancelled: next = .retryCheck
         default: next = .reviewDetails
         }
@@ -169,15 +201,18 @@ public struct FileSharingReadinessCheck: DiagnosticCheck {
             nextStep: next.rawValue)
     }
 
-    /// Sharing off or nothing shared is a configuration choice, so it is reported as skipped;
-    /// an account without an SMB password is the one state that silently breaks Finder logins.
+    /// Sharing off or nothing shared is a configuration choice, so it is reported as skipped.
+    /// An account without an SMB password silently breaks Finder logins; when guests are rejected
+    /// as well, no login method is left and the failure says so. A rejected guest next to a
+    /// working account is only a hint, because Finder tries the guest session first.
     public static func decide(_ observation: FileSharingObservation) -> FileSharingReason {
         guard observation.smbListening else { return .sharingOff }
         guard let enabled = observation.accountEnabledForSMB, let folders = observation.sharedFolderCount else {
             return .dataIncomplete
         }
-        if !enabled { return .accountNotEnabledForSMB }
+        let guestRejected = observation.guestLoginAccepted == false
+        if !enabled { return guestRejected ? .noLoginMethod : .accountNotEnabledForSMB }
         if folders == 0 { return .noSharedFolders }
-        return .healthy
+        return guestRejected ? .guestRejected : .healthy
     }
 }

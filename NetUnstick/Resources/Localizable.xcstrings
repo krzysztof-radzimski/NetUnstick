@@ -1616,6 +1616,38 @@
           }
         }
       }
+    },
+    "result_sharing_nologin": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The network checks passed, but this Mac rejects guest logins and your account has no SMB password stored, so no computer can log in to its shared folders."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kontrole sieci przeszły, ale ten Mac odrzuca logowanie gościa, a Twoje konto nie ma zapisanego hasła SMB, więc żaden komputer nie zaloguje się do jego udostępnionych folderów."
+          }
+        }
+      }
+    },
+    "next_sharing_nologin": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open System Settings › General › Sharing › File Sharing › ⓘ › Options…, turn on your account under “Share files and folders using SMB” and enter your password. Optionally allow guests under Users & Groups › Guest User › “Allow guests to connect to shared folders”. Then use “Connect As…” on the other Mac."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwórz Ustawienia systemowe › Ogólne › Udostępnianie › Udostępnianie plików › ⓘ › Opcje…, włącz swoje konto w „Udostępnianie plików i folderów za pomocą SMB” i podaj hasło. Opcjonalnie w Użytkownicy i grupy › Gość włącz „Zezwalaj gościom na łączenie się z udostępnianymi folderami”. Potem na drugim Macu wybierz „Połącz jako…”."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

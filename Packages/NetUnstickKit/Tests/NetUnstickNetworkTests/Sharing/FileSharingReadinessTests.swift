@@ -70,16 +70,30 @@ final class FileSharingReadinessTests: XCTestCase {
             (.init(smbListening: true, accountEnabledForSMB: false, sharedFolderCount: 1, guestFolderCount: 1), .accountNotEnabledForSMB),
             (.init(smbListening: true, accountEnabledForSMB: false, sharedFolderCount: 0, guestFolderCount: 0), .accountNotEnabledForSMB),
             (.init(smbListening: true, accountEnabledForSMB: true, sharedFolderCount: 0, guestFolderCount: 0), .noSharedFolders),
-            (.init(smbListening: true, accountEnabledForSMB: true, sharedFolderCount: 2, guestFolderCount: 1), .healthy)
+            (.init(smbListening: true, accountEnabledForSMB: true, sharedFolderCount: 2, guestFolderCount: 1), .healthy),
+            (.init(smbListening: true, accountEnabledForSMB: true, sharedFolderCount: 2, guestFolderCount: 1, guestLoginAccepted: true), .healthy),
+            (.init(smbListening: true, accountEnabledForSMB: true, sharedFolderCount: 2, guestFolderCount: 1, guestLoginAccepted: false), .guestRejected),
+            (.init(smbListening: true, accountEnabledForSMB: false, sharedFolderCount: 1, guestFolderCount: 1, guestLoginAccepted: false), .noLoginMethod),
+            (.init(smbListening: true, accountEnabledForSMB: false, sharedFolderCount: 1, guestFolderCount: 1, guestLoginAccepted: true), .accountNotEnabledForSMB),
+            (.init(smbListening: false, accountEnabledForSMB: false, sharedFolderCount: 1, guestFolderCount: 1, guestLoginAccepted: false), .sharingOff)
         ]
         for (observation, expected) in cases {
             XCTAssertEqual(FileSharingReadinessCheck.decide(observation), expected, expected.rawValue)
         }
     }
 
+    func testGuestListingIsClassifiedByExitStatusOnly() {
+        XCTAssertEqual(SystemFileSharingProbe.classifyGuestListing(exitStatus: 0), true)
+        XCTAssertEqual(SystemFileSharingProbe.classifyGuestListing(exitStatus: 77), false)
+        XCTAssertNil(SystemFileSharingProbe.classifyGuestListing(exitStatus: 68))
+        XCTAssertNil(SystemFileSharingProbe.classifyGuestListing(exitStatus: 1))
+    }
+
     func testCheckResultCarriesOnlyCodeAndCount() async throws {
         let cases: [(FileSharingObservation, OperationOutcome, String?, NextStep)] = [
             (.init(smbListening: true, accountEnabledForSMB: true, sharedFolderCount: 2, guestFolderCount: 1), .success, nil, .reviewDetails),
+            (.init(smbListening: true, accountEnabledForSMB: true, sharedFolderCount: 2, guestFolderCount: 1, guestLoginAccepted: false), .success, nil, .reviewDetails),
+            (.init(smbListening: true, accountEnabledForSMB: false, sharedFolderCount: 1, guestFolderCount: 1, guestLoginAccepted: false), .failure, "noLoginMethod", .enableSMBAccount),
             (.init(smbListening: true, accountEnabledForSMB: false, sharedFolderCount: 1, guestFolderCount: 1), .failure, "accountNotEnabledForSMB", .enableSMBAccount),
             (.init(smbListening: false, accountEnabledForSMB: nil, sharedFolderCount: nil, guestFolderCount: nil), .skipped, nil, .reviewDetails),
             (.init(smbListening: true, accountEnabledForSMB: nil, sharedFolderCount: nil, guestFolderCount: nil), .skipped, nil, .retryCheck)
@@ -118,6 +132,7 @@ final class FileSharingReadinessTests: XCTestCase {
         let observation = await SystemFileSharingProbe().observe()
         print("NETUNSTICK_FILE_SHARING: listening=\(observation.smbListening) account=\(observation.accountEnabledForSMB.map(String.init) ?? "nil") " +
               "smbShared=\(observation.sharedFolderCount.map(String.init) ?? "nil") guest=\(observation.guestFolderCount.map(String.init) ?? "nil") " +
+              "guestLogin=\(observation.guestLoginAccepted.map(String.init) ?? "nil") " +
               "decision=\(FileSharingReadinessCheck.decide(observation).rawValue)")
     }
 }

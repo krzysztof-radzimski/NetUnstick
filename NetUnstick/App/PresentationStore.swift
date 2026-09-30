@@ -440,8 +440,9 @@ extension PresentationService {
         if vpnSettled, networkFailures == 0, leftoverTunnels.isEmpty || residualTunnelOnly, !sharingFailures.isEmpty {
             // The network works; only this Mac's own file sharing keeps other Macs from logging in.
             state = .serverNotReady
-            lastResultText = String(localized: "result_sharing")
-            nextStep = String(localized: "next_sharing")
+            let noLogin = sharingFailures.contains { $0.after.values[.errorCode] == FileSharingReason.noLoginMethod.rawValue }
+            lastResultText = String(localized: noLogin ? "result_sharing_nologin" : "result_sharing")
+            nextStep = String(localized: noLogin ? "next_sharing_nologin" : "next_sharing")
         } else if residualTunnelOnly && networkFailures == 0 && sharingFailures.isEmpty {
             state = .residual
             lastResultText = String(localized: "result_residual")

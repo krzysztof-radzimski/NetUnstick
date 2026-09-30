@@ -63,7 +63,8 @@ public enum RepairCatalog {
         NetworkCheckReason.routingConflict.rawValue: NextStep.contactSupport.rawValue,
         NetworkCheckReason.routeViaInactiveTunnel.rawValue: NextStep.verifyVPN.rawValue,
         // Enabling an account for SMB stores a password hash; that is a user decision in System Settings.
-        FileSharingReason.accountNotEnabledForSMB.rawValue: NextStep.enableSMBAccount.rawValue
+        FileSharingReason.accountNotEnabledForSMB.rawValue: NextStep.enableSMBAccount.rawValue,
+        FileSharingReason.noLoginMethod.rawValue: NextStep.enableSMBAccount.rawValue
     ]
     public static let blockedScenarios: Set<FortinetScenario> = [
         .managedLocalLANRestriction, .infrastructureMDNSCandidate, .activeProxy,
