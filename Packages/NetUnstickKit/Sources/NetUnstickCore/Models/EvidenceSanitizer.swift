@@ -114,6 +114,7 @@ public enum NextStep: String, Codable, Sendable {
     case enableSMBAccount = "Enable your account for SMB in File Sharing options on this Mac, then connect again."
     case disableLocalFirewall = "Turn off the firewall on this Mac in System Settings › Network › Firewall, then run the test again."
     case connectAsAccount = "Use “Connect As…” with an account of the other computer."
+    case limitSMBToVersion2 = "The other Mac’s SMB server drops this Mac’s SMB 3 negotiate: add protocol_vers_map=2 to /etc/nsmb.conf on this Mac or update the other Mac, then retry."
 }
 
 extension SafeEvidence {

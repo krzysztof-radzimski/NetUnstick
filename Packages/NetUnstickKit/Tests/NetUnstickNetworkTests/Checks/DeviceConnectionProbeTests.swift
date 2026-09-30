@@ -162,12 +162,13 @@ final class DeviceConnectionProbeTests: XCTestCase {
         XCTAssertEqual(SMBSessionOutcome.classify(exitStatus: 0), .sharesListed)
         XCTAssertEqual(SMBSessionOutcome.classify(exitStatus: 77), .authRejected)
         XCTAssertEqual(SMBSessionOutcome.classify(exitStatus: 68), .sessionFailed)
-        XCTAssertEqual(SMBSessionOutcome.classify(exitStatus: 1), .unknown)
+        XCTAssertEqual(SMBSessionOutcome.classify(exitStatus: 1), .otherExit)
+        XCTAssertEqual(SMBSessionOutcome.classify(exitStatus: 69), .otherExit)
         struct Fixed: DeviceConnectionProbing {
             let observation: DeviceConnectionObservation
             func probe(host: String, port: UInt16, timeout: Duration) async -> DeviceConnectionObservation { observation }
         }
-        // Port answers, the local firewall filter ends the kernel client's session: a failure of this Mac.
+        // Port answers but the server drops the SMB 3 negotiate of this newer client: the step is the SMB 2 workaround.
         let blocked = await DeviceConnectionCheck(host: "nas.example.internal", port: 445, probe: Fixed(observation:
             .init(reason: .reachable, interfaceType: .wifi, ipv4: .reachable, smb: .sessionFailed, firewallEnabled: true, contentFilterActive: true))).run(context: .init())
         XCTAssertEqual(blocked.outcome, .failure)
@@ -176,7 +177,7 @@ final class DeviceConnectionProbeTests: XCTestCase {
         XCTAssertEqual(blocked.after.values[.smbResult], "sessionFailed")
         XCTAssertEqual(blocked.after.values[.firewallStatus], "active")
         XCTAssertEqual(blocked.after.values[.contentFilterStatus], "active")
-        XCTAssertEqual(blocked.nextStep, NextStep.disableLocalFirewall.rawValue)
+        XCTAssertEqual(blocked.nextStep, NextStep.limitSMBToVersion2.rawValue)
         // Session negotiated, guest rejected: the service works and only a login is missing.
         let login = await DeviceConnectionCheck(host: "nas.example.internal", port: 445, probe: Fixed(observation:
             .init(reason: .reachable, interfaceType: .wifi, ipv4: .reachable, smb: .authRejected))).run(context: .init())
@@ -184,11 +185,17 @@ final class DeviceConnectionProbeTests: XCTestCase {
         XCTAssertEqual(login.after.values[.smbResult], "authRejected")
         XCTAssertNil(login.after.values[.firewallStatus])
         XCTAssertEqual(login.nextStep, NextStep.connectAsAccount.rawValue)
-        // Session failed without any filter: still this Mac's problem, but no firewall step.
+        // Session failed without any filter: same verdict and step, the filter only adds a note.
         let other = await DeviceConnectionCheck(host: "nas.example.internal", port: 445, probe: Fixed(observation:
             .init(reason: .reachable, interfaceType: .wifi, ipv4: .reachable, smb: .sessionFailed, firewallEnabled: false, contentFilterActive: false))).run(context: .init())
         XCTAssertEqual(other.outcome, .failure)
-        XCTAssertEqual(other.nextStep, NextStep.reviewDetails.rawValue)
+        XCTAssertEqual(other.nextStep, NextStep.limitSMBToVersion2.rawValue)
+        // A client that timed out or exited oddly is not a verdict about the server.
+        let slow = await DeviceConnectionCheck(host: "nas.example.internal", port: 445, probe: Fixed(observation:
+            .init(reason: .reachable, interfaceType: .wifi, ipv4: .reachable, smb: .timedOut))).run(context: .init())
+        XCTAssertEqual(slow.outcome, .success)
+        XCTAssertEqual(slow.after.values[.smbResult], "timedOut")
+        XCTAssertEqual(slow.nextStep, NextStep.retryCheck.rawValue)
         let json = String(decoding: try JSONEncoder().encode(blocked), as: UTF8.self)
         XCTAssertFalse(json.contains("nas.example"))
     }

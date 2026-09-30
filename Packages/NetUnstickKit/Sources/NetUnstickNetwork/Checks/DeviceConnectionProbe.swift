@@ -33,16 +33,18 @@ public enum AddressFamily: String, Sendable, CaseIterable {
 
 /// Outcome of one anonymous SMB session opened by this Mac's own SMB client (`smbutil view -N`).
 /// Exit 0 lists shares, 77 (EX_NOPERM) means the session was negotiated and the guest login
-/// rejected, 68 (EX_NOHOST) while the port answers means the client never got a session.
+/// rejected, 68 (EX_NOHOST) while the port answers means the client never got a session: the
+/// server closed the connection right after the negotiate. Seen between a macOS 27.0 client and a
+/// macOS 26.6 server; limiting the client to SMB 2 (`protocol_vers_map=2` in nsmb.conf) fixed it.
 public enum SMBSessionOutcome: String, Sendable, CaseIterable {
-    case sharesListed, authRejected, sessionFailed, unknown
+    case sharesListed, authRejected, sessionFailed, timedOut, otherExit, unknown
 
     public static func classify(exitStatus: Int32) -> SMBSessionOutcome {
         switch exitStatus {
         case 0: return .sharesListed
         case 77: return .authRejected
         case 68: return .sessionFailed
-        default: return .unknown
+        default: return .otherExit
         }
     }
 }
@@ -65,6 +67,8 @@ public struct SystemSMBSessionProbe: SMBSessionProbing {
             return .classify(exitStatus: output.exitStatus)
         } catch ProcessRunError.nonZeroExit(let status) {
             return .classify(exitStatus: status)
+        } catch ProcessRunError.timedOut {
+            return .timedOut
         } catch {
             return .unknown
         }
@@ -360,8 +364,9 @@ public struct DeviceConnectionCheck: DiagnosticCheck {
         switch observation.reason {
         case .reachable:
             switch observation.smb {
-            case .sessionFailed: next = observation.firewallEnabled == true ? .disableLocalFirewall : .reviewDetails
+            case .sessionFailed: next = .limitSMBToVersion2
             case .authRejected: next = .connectAsAccount
+            case .timedOut, .otherExit: next = .retryCheck
             default: next = .reviewDetails
             }
         case .invalidInput, .cancelled: next = .retryCheck

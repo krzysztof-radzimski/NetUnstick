@@ -313,17 +313,16 @@ extension PresentationService {
         case .authRejected:
             return "Sesja SMB działa; serwer odrzuca gościa i wymaga logowania. Użyj „Połącz jako…” z kontem tamtego komputera (konto musi mieć włączone SMB na tamtym Macu)."
         case .sessionFailed:
-            let firewall = evidence.values[.firewallStatus] == "active"
             let filter = evidence.values[.contentFilterStatus] == "active"
-            var text = "Port odpowiada, ale klient SMB tego komputera nie zdołał rozpocząć sesji: blokada jest po stronie tego komputera, nie tamtego."
-            if firewall && filter {
-                text += " Zapora tego komputera działa jako filtr treści na gniazdach; wyłącz ją w Ustawienia systemowe › Sieć › Zapora i powtórz test."
-            } else if filter {
-                text += " Na tym komputerze działa filtr treści innego programu (VPN lub ochrona); wyłącz go i powtórz test."
-            } else {
-                text += " Nie wykryto filtra treści; sprawdź inne oprogramowanie ochronne na tym komputerze."
+            var text = "Port odpowiada, ale sesja SMB nie została wynegocjowana: tamten serwer zamyka połączenie zaraz po negocjacji tego klienta. Najczęstsza przyczyna to nowszy macOS na tym komputerze niż na tamtym (np. 27 → 26): serwer nie przyjmuje negocjacji SMB 3. Obejście: na tym komputerze wpisz do /etc/nsmb.conf sekcję [default] z protocol_vers_map=2 (tylko SMB 2) albo zaktualizuj tamten Mac; potem „Połącz jako…”."
+            if filter {
+                text += " Na tym komputerze działa też filtr treści na gniazdach (zapora lub inny program); w tym przypadku zwykle nie jest przyczyną, ale przy dalszych problemach przetestuj z wyłączonym filtrem."
             }
             return text
+        case .timedOut:
+            return "Klient SMB tego komputera nie odpowiedział w czasie; powtórz test."
+        case .otherExit:
+            return "Klient SMB tego komputera zakończył się nietypowym kodem; powtórz test albo wykonaj w Terminalu „smbutil view -N //nazwa”, aby zobaczyć komunikat."
         case .unknown:
             return "Nie udało się ocenić sesji SMB."
         }

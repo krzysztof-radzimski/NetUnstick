@@ -137,10 +137,13 @@ import NetUnstickNetwork
         let firewall = EvidenceSanitizer.sanitize([.errorCode: .errorCode("reachable"), .smbResult: .errorCode("sessionFailed"),
                                                    .firewallStatus: .status(.active), .contentFilterStatus: .status(.active)])
         let note = try XCTUnwrap(PresentationStore.smbSessionNote(firewall))
-        XCTAssertTrue(note.contains("tego komputera") && note.contains("Zapor"), note)
-        let thirdParty = EvidenceSanitizer.sanitize([.smbResult: .errorCode("sessionFailed"), .firewallStatus: .status(.inactive),
-                                                     .contentFilterStatus: .status(.active)])
-        XCTAssertTrue(try XCTUnwrap(PresentationStore.smbSessionNote(thirdParty)).contains("innego programu"))
+        XCTAssertTrue(note.contains("protocol_vers_map=2") && note.contains("SMB 3"), note)
+        XCTAssertTrue(note.contains("filtr treści"), "an active filter is mentioned only as a secondary note")
+        let plain = EvidenceSanitizer.sanitize([.smbResult: .errorCode("sessionFailed"), .firewallStatus: .status(.inactive),
+                                                .contentFilterStatus: .status(.inactive)])
+        let plainNote = try XCTUnwrap(PresentationStore.smbSessionNote(plain))
+        XCTAssertTrue(plainNote.contains("protocol_vers_map=2") && !plainNote.contains("filtr treści"), plainNote)
+        XCTAssertTrue(try XCTUnwrap(PresentationStore.smbSessionNote(EvidenceSanitizer.sanitize([.smbResult: .errorCode("otherExit")]))).contains("smbutil"))
         let login = EvidenceSanitizer.sanitize([.smbResult: .errorCode("authRejected")])
         XCTAssertTrue(try XCTUnwrap(PresentationStore.smbSessionNote(login)).contains("Połącz jako"))
         XCTAssertNil(PresentationStore.smbSessionNote(SafeEvidence.empty))
@@ -150,7 +153,7 @@ import NetUnstickNetwork
                                          error: OperationError(domain: "device_connection", code: "smbSessionFailed"))
         let presentation = PresentationStore.presentDevice(result)
         XCTAssertTrue(presentation.reason.contains("Urządzenie przyjęło połączenie"), presentation.reason)
-        XCTAssertTrue(presentation.reason.contains("blokada jest po stronie tego komputera"), presentation.reason)
+        XCTAssertTrue(presentation.reason.contains("sesja SMB nie została wynegocjowana"), presentation.reason)
         XCTAssertTrue(presentation.technicalDetail.contains("smbResult: sessionFailed"))
     }
 
