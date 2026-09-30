@@ -2,6 +2,8 @@ import Foundation
 
 public enum EvidenceKey: String, Codable, Sendable, CaseIterable {
     case networkStatus, vpnStatus, checkStatus, interfaceType, count, airplayCount, raopCount, errorCode
+    /// Per-address-family verdicts of a device test; values are closed reason codes, never addresses.
+    case ipv4Result, ipv6Result
 }
 
 public enum PublicStatus: String, Codable, Sendable {
@@ -41,7 +43,7 @@ public struct SafeEvidence: Codable, Sendable, Equatable {
             case .interfaceType:
                 guard InterfaceType(rawValue: value) != nil else { throw DecodingError.dataCorruptedError(in: c, debugDescription: "Invalid interface type") }
                 checked[key] = value
-            case .errorCode:
+            case .errorCode, .ipv4Result, .ipv6Result:
                 guard StableIdentifier.isValid(value) else { throw DecodingError.dataCorruptedError(in: c, debugDescription: "Invalid error code") }
                 checked[key] = value
             default:
@@ -73,7 +75,9 @@ public enum EvidenceSanitizer {
                 safe[key] = String(count)
             case (.interfaceType, .interfaceType(let type)):
                 safe[key] = type.rawValue
-            case (.errorCode, .errorCode(let code)) where StableIdentifier.isValid(code):
+            case (.errorCode, .errorCode(let code)) where StableIdentifier.isValid(code),
+                 (.ipv4Result, .errorCode(let code)) where StableIdentifier.isValid(code),
+                 (.ipv6Result, .errorCode(let code)) where StableIdentifier.isValid(code):
                 safe[key] = code
             default:
                 break

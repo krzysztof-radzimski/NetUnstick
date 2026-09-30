@@ -295,11 +295,40 @@ extension PresentationService {
         if result.after.values[.networkStatus] == "active" {
             reason += " Ruch do tego urządzenia idzie przez interfejs tunelowy."
         }
+        if let families = Self.addressFamilyNote(result.after) { reason += " " + families }
         let evidence = result.after.values.sorted { $0.key.rawValue < $1.key.rawValue }
             .map { "\($0.key.rawValue): \($0.value)" }.joined(separator: " · ")
         return .init(outcome: outcomeTitle(result.outcome), reason: reason,
                      technicalDetail: "\(evidence) \(result.error.map { "\($0.domain)/\($0.code)" } ?? "")",
                      symbol: result.outcome == .success ? "checkmark.circle" : result.outcome == .skipped ? "minus.circle" : "exclamationmark.triangle")
+    }
+    /// Explains a split verdict: the device answers over one address family but not the other.
+    static func addressFamilyNote(_ evidence: SafeEvidence) -> String? {
+        let ipv4 = evidence.values[.ipv4Result].flatMap(DeviceConnectionReason.init(rawValue:))
+        let ipv6 = evidence.values[.ipv6Result].flatMap(DeviceConnectionReason.init(rawValue:))
+        func label(_ reason: DeviceConnectionReason) -> String {
+            switch reason {
+            case .reachable: "osiągalne"
+            case .refused: "odrzucone"
+            case .timedOut: "bez odpowiedzi"
+            case .unreachable: "brak drogi"
+            default: reason.rawValue
+            }
+        }
+        switch (ipv4, ipv6) {
+        case (.some(.reachable), .some(let v6)) where v6 != .reachable:
+            return "Po IPv4 połączenie działa, po IPv6 nie (\(label(v6))): urządzenie rozgłasza adres IPv6, z którego ten komputer nie może skorzystać. Programy wybierające najpierw IPv6, w tym Finder, mogą zgłaszać błąd połączenia. Włącz IPv6 (Automatycznie) na tym komputerze albo na tamtym ustaw IPv6 na „Tylko lokalne łącze”."
+        case (.some(let v4), .some(.reachable)) where v4 != .reachable:
+            return "Po IPv6 połączenie działa, po IPv4 nie (\(label(v4))). Sprawdź adres IPv4 i maskę podsieci obu komputerów."
+        case (.some(let v4), .some(let v6)):
+            return "IPv4: \(label(v4)) · IPv6: \(label(v6))."
+        case (.some, .none):
+            return "Nazwa ma tylko adres IPv4."
+        case (.none, .some):
+            return "Nazwa ma tylko adres IPv6."
+        case (.none, .none):
+            return nil
+        }
     }
     private func verifyHelperNow() async {
         helperHandshake = await service.verifyHelper()

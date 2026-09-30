@@ -1,7 +1,7 @@
 import XCTest
 
 /// Opt-in live harness against the already running production app. Each step is selected
-/// with TEST_RUNNER_NETUNSTICK_LIVE_ACTION=unregister|register|repair|diagnose and drives the
+/// with TEST_RUNNER_NETUNSTICK_LIVE_ACTION=unregister|register|repair|diagnose|device and drives the
 /// real UI, helper registration and launchd daemon on this host. Nothing runs without the variable.
 final class LiveRepairUITests: XCTestCase {
     private var action: String { ProcessInfo.processInfo.environment["NETUNSTICK_LIVE_ACTION"] ?? "" }
@@ -74,6 +74,41 @@ final class LiveRepairUITests: XCTestCase {
         print("NETUNSTICK_LIVE: state: \(state) | result: \(verdict) | next: \(next)")
         XCTAssertEqual(outcome, .completed, "Diagnosis must finish; last text: \(verdict)")
         XCTAssertFalse(verdict.isEmpty)
+    }
+
+    /// Runs the device test in the installed app for NETUNSTICK_DEVICE=host:port; prints outcome texts only.
+    func testLiveDeviceTest() throws {
+        guard action == "device" else { throw XCTSkip("Opt-in live step") }
+        let target = ProcessInfo.processInfo.environment["NETUNSTICK_DEVICE"] ?? ""
+        let parts = target.split(separator: ":", omittingEmptySubsequences: false).map(String.init)
+        guard parts.count == 2 else { return XCTFail("Set NETUNSTICK_DEVICE=host:port") }
+        let app = try attach()
+        app.descendants(matching: .any)["nav.status"].click()
+        let field = app.textFields["device.host"]
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        let dashboardScroll = app.scrollViews.element(boundBy: 1)
+        for _ in 0..<3 where !field.isHittable { dashboardScroll.swipeUp() }
+        field.click()
+        field.typeKey("a", modifierFlags: .command)
+        field.typeText(parts[0])
+        let picker = app.popUpButtons["device.port"]
+        if picker.waitForExistence(timeout: 2), !text(picker).contains(parts[1]) {
+            picker.click()
+            let item = app.menuItems.containing(NSPredicate(format: "title CONTAINS %@", parts[1])).firstMatch
+            XCTAssertTrue(item.waitForExistence(timeout: 3), "Port \(parts[1]) must be offered by the picker")
+            item.click()
+        }
+        let run = app.buttons["device.test"]
+        run.click()
+        _ = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "isEnabled == false"), object: run)], timeout: 2)
+        let finished = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "isEnabled == true"), object: run)], timeout: 30)
+        XCTAssertEqual(finished, .completed, "The device test must finish")
+        let outcomeElement = app.descendants(matching: .any)["device.outcome"]
+        let outcome = text(outcomeElement).isEmpty ? outcomeElement.staticTexts.firstMatch.label : text(outcomeElement)
+        let result = text(app.staticTexts["device.result"])
+        let detail = text(app.staticTexts["device.detail"])
+        print("NETUNSTICK_LIVE: device outcome: \(outcome) | result: \(result) | detail: \(detail)")
+        XCTAssertFalse(detail.isEmpty)
     }
 
     func testLiveStaleTunnelRouteRepair() throws {

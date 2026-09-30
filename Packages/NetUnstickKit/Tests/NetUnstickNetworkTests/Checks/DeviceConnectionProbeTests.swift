@@ -2,7 +2,7 @@ import Foundation
 import Network
 import XCTest
 import NetUnstickCore
-import NetUnstickNetwork
+@testable import NetUnstickNetwork
 
 final class DeviceConnectionProbeTests: XCTestCase {
     private func listen() throws -> (NWListener, UInt16) {
@@ -87,5 +87,73 @@ final class DeviceConnectionProbeTests: XCTestCase {
         let invalid = await DeviceConnectionCheck(host: "", port: 445, probe: Fixed(observation: .init(reason: .reachable))).run(context: .init())
         XCTAssertEqual(invalid.outcome, .skipped)
         XCTAssertEqual(invalid.after.values[.errorCode], "invalidInput")
+    }
+    /// A listener bound to IPv4 loopback only; "localhost" resolves to ::1 and 127.0.0.1, so the
+    /// IPv6 attempt is refused while IPv4 connects. Both verdicts must survive aggregation.
+    func testMixedAddressFamiliesKeepBothVerdicts() async throws {
+        let parameters = NWParameters.tcp
+        parameters.requiredLocalEndpoint = .hostPort(host: "127.0.0.1", port: .any)
+        let listener = try NWListener(using: parameters)
+        listener.newConnectionHandler = { connection in connection.cancel() }
+        let ready = expectation(description: "listener ready")
+        listener.stateUpdateHandler = { state in if case .ready = state { ready.fulfill() } }
+        listener.start(queue: DispatchQueue(label: "NetUnstick.MixedFamilies"))
+        await fulfillment(of: [ready], timeout: 5)
+        defer { listener.cancel() }
+        let port = try XCTUnwrap(listener.port?.rawValue)
+        let localhost = await DeviceNameResolver.resolve("localhost", timeout: 3)
+        let resolved = try XCTUnwrap(localhost)
+        XCTAssertTrue(resolved.contains { $0.family == .ipv4 })
+        XCTAssertTrue(resolved.contains { $0.family == .ipv6 })
+        let missing = await DeviceNameResolver.resolve("no-such-host.invalid", timeout: 4)
+        XCTAssertNil(missing)
+        let observation = await SystemDeviceConnectionProbe().probe(host: "localhost", port: port, timeout: .seconds(3))
+        XCTAssertEqual(observation.reason, .reachable)
+        XCTAssertEqual(observation.ipv4, .reachable)
+        XCTAssertEqual(observation.ipv6, .refused)
+        XCTAssertEqual(observation.interfaceType, .loopback)
+    }
+
+    func testAggregationPrefersAnAnsweringPeerAndCapsAddressesPerFamily() {
+        let mixed = SystemDeviceConnectionProbe.aggregate([
+            AddressAttempt(family: .ipv6, reason: .unreachable, interfaceType: .wifi, viaTunnel: false),
+            AddressAttempt(family: .ipv4, reason: .refused, interfaceType: .wifi, viaTunnel: false)
+        ])
+        XCTAssertEqual(mixed.reason, .refused)
+        XCTAssertEqual(mixed.ipv4, .refused)
+        XCTAssertEqual(mixed.ipv6, .unreachable)
+        let silent = SystemDeviceConnectionProbe.aggregate([
+            AddressAttempt(family: .ipv6, reason: .unreachable, interfaceType: nil, viaTunnel: false),
+            AddressAttempt(family: .ipv4, reason: .timedOut, interfaceType: .ethernet, viaTunnel: true)
+        ])
+        XCTAssertEqual(silent.reason, .timedOut)
+        XCTAssertEqual(silent.interfaceType, .ethernet)
+        XCTAssertTrue(silent.viaTunnel)
+        XCTAssertEqual(silent.ipv4, .timedOut)
+        XCTAssertEqual(silent.ipv6, .unreachable)
+        let many = (0..<6).map { ResolvedAddress(family: .ipv6, literal: "fd00::\($0)") } + [ResolvedAddress(family: .ipv4, literal: "192.0.2.1")]
+        let selected = SystemDeviceConnectionProbe.select(many)
+        XCTAssertEqual(selected.filter { $0.family == .ipv6 }.count, SystemDeviceConnectionProbe.maximumAddressesPerFamily)
+        XCTAssertEqual(selected.filter { $0.family == .ipv4 }.count, 1)
+        XCTAssertEqual(SystemDeviceConnectionProbe.aggregate([]).reason, .failed)
+    }
+
+    func testCheckPublishesPerFamilyCodesWithoutAddresses() async throws {
+        struct Fixed: DeviceConnectionProbing {
+            let observation: DeviceConnectionObservation
+            func probe(host: String, port: UInt16, timeout: Duration) async -> DeviceConnectionObservation { observation }
+        }
+        let split = await DeviceConnectionCheck(host: "nas.example.internal", port: 445,
+            probe: Fixed(observation: .init(reason: .reachable, interfaceType: .wifi, ipv4: .reachable, ipv6: .unreachable))).run(context: .init())
+        XCTAssertEqual(split.outcome, .success)
+        XCTAssertEqual(split.after.values[.ipv4Result], "reachable")
+        XCTAssertEqual(split.after.values[.ipv6Result], "unreachable")
+        let json = String(decoding: try JSONEncoder().encode(split), as: UTF8.self)
+        XCTAssertFalse(json.contains("nas.example"))
+        XCTAssertFalse(json.contains("::"))
+        let single = await DeviceConnectionCheck(host: "nas.example.internal", port: 445,
+            probe: Fixed(observation: .init(reason: .refused, interfaceType: .wifi, ipv4: .refused))).run(context: .init())
+        XCTAssertEqual(single.after.values[.ipv4Result], "refused")
+        XCTAssertNil(single.after.values[.ipv6Result])
     }
 }

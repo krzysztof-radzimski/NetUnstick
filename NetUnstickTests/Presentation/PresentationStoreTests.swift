@@ -123,6 +123,21 @@ import NetUnstickNetwork
         XCTAssertEqual(unknown.state, .unknown)
     }
 
+    func testSplitAddressFamilyVerdictIsExplained() throws {
+        let mixed = EvidenceSanitizer.sanitize([.ipv4Result: .errorCode("reachable"), .ipv6Result: .errorCode("unreachable"),
+                                                .errorCode: .errorCode("reachable"), .networkStatus: .status(.inactive)])
+        let note = try XCTUnwrap(PresentationStore.addressFamilyNote(mixed))
+        XCTAssertTrue(note.contains("IPv6") && note.contains("Finder"), note)
+        XCTAssertEqual(PresentationStore.addressFamilyNote(EvidenceSanitizer.sanitize([.ipv4Result: .errorCode("refused")])), "Nazwa ma tylko adres IPv4.")
+        XCTAssertNil(PresentationStore.addressFamilyNote(SafeEvidence.empty))
+        let now = Date()
+        let result = try OperationResult(operationID: "device_connection", name: "device_connection", kind: .diagnostic,
+                                         startedAt: now, endedAt: now, outcome: .success, after: mixed)
+        let presentation = PresentationStore.presentDevice(result)
+        XCTAssertTrue(presentation.reason.contains("Po IPv4"), presentation.reason)
+        XCTAssertTrue(presentation.technicalDetail.contains("ipv6Result: unreachable"))
+    }
+
     func testDeviceConnectionTestPublishesOutcomeWithoutTheHost() async throws {
         @MainActor final class DeviceService: PresentationService {
             let scenario = "production"
