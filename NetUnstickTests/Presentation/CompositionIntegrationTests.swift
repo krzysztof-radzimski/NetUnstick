@@ -20,6 +20,11 @@ private struct FixtureProbe: NetworkConnectivityProbing {
     func resolveFixedName() async -> ProbeOutcome { dns }
     func probeInternet() async -> ProbeOutcome { .reachable }
 }
+private struct FixtureContentFilter: ContentFilterProbing {
+    func observe() async -> ContentFilterObservation {
+        .init(activeFilters: 0, attachedSockets: 0, firewallEnabled: false, blockAllIncoming: false)
+    }
+}
 private struct FixtureFileSharing: FileSharingProbing {
     let accountEnabled: Bool
     func observe() async -> FileSharingObservation {
@@ -87,7 +92,7 @@ private struct FixtureRepairWait: RepairWaiting {
         let dir = root.appendingPathComponent("DerivedData/IntegrationSessions/\(UUID().uuidString)/sessions.json")
         return try AppEnvironment(collector: FixtureCollector(snapshot: snapshot(vpn, leaseFailure: leaseFailure)), probe: FixtureProbe(dns: dns),
             bonjour: FixtureBonjour(), store: try BoundedSessionStore(fileURL: dir),
-            fileSharing: FixtureFileSharing(accountEnabled: smbAccountEnabled),
+            fileSharing: FixtureFileSharing(accountEnabled: smbAccountEnabled), filters: FixtureContentFilter(),
             repairChecks: checks, repairHelper: helper, repairWait: FixtureRepairWait(),
             dhcpInterfaces: { leaseFailure ? ["en0"] : [] })
     }

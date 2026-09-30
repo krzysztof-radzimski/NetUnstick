@@ -8,6 +8,11 @@ private struct CatalogCollector: NetworkStateCollecting {
     let snapshot: RawNetworkSnapshot
     func collect() async -> RawNetworkSnapshot { snapshot }
 }
+private struct CatalogFilters: ContentFilterProbing {
+    func observe() async -> ContentFilterObservation {
+        .init(activeFilters: 0, attachedSockets: 0, firewallEnabled: false, blockAllIncoming: false)
+    }
+}
 private struct CatalogFileSharing: FileSharingProbing {
     func observe() async -> FileSharingObservation {
         .init(smbListening: true, accountEnabledForSMB: true, sharedFolderCount: 1, guestFolderCount: 0)
@@ -39,7 +44,8 @@ final class RepairCatalogTests: XCTestCase {
     }
     private func plans(_ snap: RawNetworkSnapshot, dhcp: Set<String> = ["en0"]) async -> RepairPlanningResult {
         let engine = DiagnosisEngine(collector: CatalogCollector(snapshot: snap), probe: CatalogProbe(),
-                                     bonjourBrowser: CatalogBrowser(), fileSharing: CatalogFileSharing())
+                                     bonjourBrowser: CatalogBrowser(), fileSharing: CatalogFileSharing(),
+                                     filters: CatalogFilters())
         let report = await engine.diagnose()
         return RepairPlanBuilder().build(report: report, snapshot: snap, dhcpInterfaces: dhcp)
     }

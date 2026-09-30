@@ -34,17 +34,20 @@ public struct DiagnosisEngine: Sendable {
     private let collectionTimeout: Duration
     private let bonjourBrowser: any BonjourBrowsing
     private let fileSharing: any FileSharingProbing
+    private let filters: any ContentFilterProbing
     /// Eight network checks, local multicast, Bonjour discovery and permission, then file sharing readiness.
-    public static let checkCount = NetworkCheckKind.allCases.count + 4
+    public static let checkCount = NetworkCheckKind.allCases.count + 5
     public init(collector: any NetworkStateCollecting = SystemNetworkStateCollector(),
                 probe: any NetworkConnectivityProbing = SystemNetworkConnectivityProbe(),
                 detector: VPNStateDetector = VPNStateDetector(), collectionTimeout: Duration = .seconds(13),
                 bonjourBrowser: any BonjourBrowsing = SystemBonjourBrowser(),
-                fileSharing: any FileSharingProbing = SystemFileSharingProbe()) {
+                fileSharing: any FileSharingProbing = SystemFileSharingProbe(),
+                filters: any ContentFilterProbing = SystemContentFilterProbe()) {
         self.collector = collector; self.probe = probe; self.detector = detector
         self.collectionTimeout = collectionTimeout
         self.bonjourBrowser = bonjourBrowser
         self.fileSharing = fileSharing
+        self.filters = filters
     }
 
     public func diagnose(context: OperationContext = OperationContext(),
@@ -82,6 +85,8 @@ public struct DiagnosisEngine: Sendable {
         }
         // This Mac as a server: other Macs need SMB to accept connections and the account to hold an SMB password.
         if !Task.isCancelled { add(await FileSharingReadinessCheck(probe: fileSharing).run(context: context)) }
+        // This Mac as a client: a socket content filter here can end SMB sessions toward other Macs.
+        if !Task.isCancelled { add(await ContentFilterCheck(probe: filters).run(context: context)) }
         let reasons = results.compactMap { $0.after.values[.errorCode].flatMap(NetworkCheckReason.init(rawValue:)) }
         let candidateReasons = reasons.filter { reason in
             switch reason {

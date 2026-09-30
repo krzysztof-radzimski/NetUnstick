@@ -15,4 +15,18 @@ final class EvidenceFamilyKeysTests: XCTestCase {
         XCTAssertEqual(decoded.values[.ipv6Result], "unreachable")
         XCTAssertEqual(decoded.values[.ipv4Result], "reachable")
     }
+
+    func testSMBAndFilterKeysAreTypedLikeTheOthers() throws {
+        let safe = EvidenceSanitizer.sanitize([.smbResult: .errorCode("sessionFailed"), .firewallStatus: .status(.active),
+                                               .contentFilterStatus: .status(.inactive)])
+        XCTAssertEqual(safe.values[.smbResult], "sessionFailed")
+        XCTAssertEqual(safe.values[.firewallStatus], "active")
+        XCTAssertEqual(safe.values[.contentFilterStatus], "inactive")
+        XCTAssertNil(EvidenceSanitizer.sanitize([.firewallStatus: .errorCode("active")]).values[.firewallStatus])
+        XCTAssertNil(EvidenceSanitizer.sanitize([.smbResult: .errorCode("/usr/bin/smbutil view")]).values[.smbResult])
+        XCTAssertThrowsError(try JSONDecoder().decode(SafeEvidence.self, from: Data(#"{"firewallStatus":"on"}"#.utf8)))
+        let decoded = try JSONDecoder().decode(SafeEvidence.self, from: Data(#"{"smbResult":"authRejected","contentFilterStatus":"active"}"#.utf8))
+        XCTAssertEqual(decoded.values[.smbResult], "authRejected")
+        XCTAssertEqual(decoded.values[.contentFilterStatus], "active")
+    }
 }

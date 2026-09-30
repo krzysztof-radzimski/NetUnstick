@@ -56,7 +56,9 @@ final class DeviceConnectionProbeTests: XCTestCase {
         guard parts.count == 2, let port = DeviceConnectionInput.port(from: parts[1]) else { return XCTFail("Use host:port") }
         let result = await DeviceConnectionCheck(host: parts[0], port: port).run(context: .init())
         print("NETUNSTICK_DEVICE_LIVE: outcome=\(result.outcome.rawValue) code=\(result.after.values[.errorCode] ?? "-") " +
-              "interface=\(result.after.values[.interfaceType] ?? "-") viaTunnel=\(result.after.values[.networkStatus] == "active") next=\(result.nextStep ?? "-")")
+              "interface=\(result.after.values[.interfaceType] ?? "-") viaTunnel=\(result.after.values[.networkStatus] == "active") " +
+              "ipv4=\(result.after.values[.ipv4Result] ?? "-") ipv6=\(result.after.values[.ipv6Result] ?? "-") smb=\(result.after.values[.smbResult] ?? "-") " +
+              "firewall=\(result.after.values[.firewallStatus] ?? "-") filter=\(result.after.values[.contentFilterStatus] ?? "-") next=\(result.nextStep ?? "-")")
     }
 
     func testCheckResultCarriesOnlyCodesNeverTheHost() async throws {
@@ -155,5 +157,81 @@ final class DeviceConnectionProbeTests: XCTestCase {
             probe: Fixed(observation: .init(reason: .refused, interfaceType: .wifi, ipv4: .refused))).run(context: .init())
         XCTAssertEqual(single.after.values[.ipv4Result], "refused")
         XCTAssertNil(single.after.values[.ipv6Result])
+    }
+    func testSMBSessionIsClassifiedByExitStatusAndDrivesVerdict() async throws {
+        XCTAssertEqual(SMBSessionOutcome.classify(exitStatus: 0), .sharesListed)
+        XCTAssertEqual(SMBSessionOutcome.classify(exitStatus: 77), .authRejected)
+        XCTAssertEqual(SMBSessionOutcome.classify(exitStatus: 68), .sessionFailed)
+        XCTAssertEqual(SMBSessionOutcome.classify(exitStatus: 1), .unknown)
+        struct Fixed: DeviceConnectionProbing {
+            let observation: DeviceConnectionObservation
+            func probe(host: String, port: UInt16, timeout: Duration) async -> DeviceConnectionObservation { observation }
+        }
+        // Port answers, the local firewall filter ends the kernel client's session: a failure of this Mac.
+        let blocked = await DeviceConnectionCheck(host: "nas.example.internal", port: 445, probe: Fixed(observation:
+            .init(reason: .reachable, interfaceType: .wifi, ipv4: .reachable, smb: .sessionFailed, firewallEnabled: true, contentFilterActive: true))).run(context: .init())
+        XCTAssertEqual(blocked.outcome, .failure)
+        XCTAssertEqual(blocked.error?.code, "smbSessionFailed")
+        XCTAssertEqual(blocked.after.values[.errorCode], "reachable")
+        XCTAssertEqual(blocked.after.values[.smbResult], "sessionFailed")
+        XCTAssertEqual(blocked.after.values[.firewallStatus], "active")
+        XCTAssertEqual(blocked.after.values[.contentFilterStatus], "active")
+        XCTAssertEqual(blocked.nextStep, NextStep.disableLocalFirewall.rawValue)
+        // Session negotiated, guest rejected: the service works and only a login is missing.
+        let login = await DeviceConnectionCheck(host: "nas.example.internal", port: 445, probe: Fixed(observation:
+            .init(reason: .reachable, interfaceType: .wifi, ipv4: .reachable, smb: .authRejected))).run(context: .init())
+        XCTAssertEqual(login.outcome, .success)
+        XCTAssertEqual(login.after.values[.smbResult], "authRejected")
+        XCTAssertNil(login.after.values[.firewallStatus])
+        XCTAssertEqual(login.nextStep, NextStep.connectAsAccount.rawValue)
+        // Session failed without any filter: still this Mac's problem, but no firewall step.
+        let other = await DeviceConnectionCheck(host: "nas.example.internal", port: 445, probe: Fixed(observation:
+            .init(reason: .reachable, interfaceType: .wifi, ipv4: .reachable, smb: .sessionFailed, firewallEnabled: false, contentFilterActive: false))).run(context: .init())
+        XCTAssertEqual(other.outcome, .failure)
+        XCTAssertEqual(other.nextStep, NextStep.reviewDetails.rawValue)
+        let json = String(decoding: try JSONEncoder().encode(blocked), as: UTF8.self)
+        XCTAssertFalse(json.contains("nas.example"))
+    }
+
+    /// The SMB probe runs only for port 445 and only after the port answered; the local filter is read
+    /// only when the session failed.
+    func testSystemProbeAsksTheSMBClientOnlyForPort445() async throws {
+        actor Calls { var smb = 0; var filters = 0; func smbCalled() { smb += 1 }; func filtersCalled() { filters += 1 } }
+        let calls = Calls()
+        struct SMB: SMBSessionProbing {
+            let calls: Calls; let outcome: SMBSessionOutcome
+            func probe(host: String) async -> SMBSessionOutcome { await calls.smbCalled(); return outcome }
+        }
+        struct Filters: ContentFilterProbing {
+            let calls: Calls
+            func observe() async -> ContentFilterObservation {
+                await calls.filtersCalled()
+                return .init(activeFilters: 1, attachedSockets: 4, firewallEnabled: true, blockAllIncoming: false)
+            }
+        }
+        let (listener, port) = try listen()
+        defer { listener.cancel() }
+        // Any other port: reachable, no SMB probe, no filter read.
+        let plain = await SystemDeviceConnectionProbe(smb: SMB(calls: calls, outcome: .sessionFailed), filters: Filters(calls: calls))
+            .probe(host: "127.0.0.1", port: port, timeout: .seconds(3))
+        XCTAssertEqual(plain.reason, .reachable)
+        XCTAssertNil(plain.smb)
+        let afterPlain = await calls.smb
+        XCTAssertEqual(afterPlain, 0)
+        // Port 445 on loopback answers only where file sharing is on; the probe must then consult the client.
+        let smb = await SystemDeviceConnectionProbe(smb: SMB(calls: calls, outcome: .sessionFailed), filters: Filters(calls: calls))
+            .probe(host: "127.0.0.1", port: 445, timeout: .seconds(3))
+        let smbCalls = await calls.smb
+        let filterCalls = await calls.filters
+        if smb.reason == .reachable {
+            XCTAssertEqual(smb.smb, .sessionFailed)
+            XCTAssertEqual(smb.firewallEnabled, true)
+            XCTAssertEqual(smb.contentFilterActive, true)
+            XCTAssertEqual(smbCalls, 1)
+            XCTAssertEqual(filterCalls, 1)
+        } else {
+            XCTAssertNil(smb.smb)
+            XCTAssertEqual(smbCalls, 0)
+        }
     }
 }

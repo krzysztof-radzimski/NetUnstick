@@ -43,6 +43,7 @@ import NetUnstickRepair
          helper: PrivilegedHelperClient = PrivilegedHelperClient(),
          deviceProbe: any DeviceConnectionProbing = SystemDeviceConnectionProbe(),
          fileSharing: any FileSharingProbing = SystemFileSharingProbe(),
+         filters: any ContentFilterProbing = SystemContentFilterProbe(),
          repairChecks: any RepairCheckRunning = SystemRepairChecks(),
          repairHelper: (any RepairHelperCalling)? = nil,
          repairWait: any RepairWaiting = BoundedRepairWait(),
@@ -51,7 +52,7 @@ import NetUnstickRepair
         self.collector = collector
         self.detector = detector
         self.diagnosis = DiagnosisEngine(collector: collector, probe: probe, detector: detector, bonjourBrowser: bonjour,
-                                         fileSharing: fileSharing)
+                                         fileSharing: fileSharing, filters: filters)
         self.sessionsStore = try store ?? BoundedSessionStore()
         self.helperClient = helper
         self.deviceProbe = deviceProbe

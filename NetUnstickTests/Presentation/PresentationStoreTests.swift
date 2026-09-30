@@ -133,6 +133,27 @@ import NetUnstickNetwork
         XCTAssertEqual(unknown.state, .unknown)
     }
 
+    func testSMBSessionVerdictNamesTheSideThatBlocks() throws {
+        let firewall = EvidenceSanitizer.sanitize([.errorCode: .errorCode("reachable"), .smbResult: .errorCode("sessionFailed"),
+                                                   .firewallStatus: .status(.active), .contentFilterStatus: .status(.active)])
+        let note = try XCTUnwrap(PresentationStore.smbSessionNote(firewall))
+        XCTAssertTrue(note.contains("tego komputera") && note.contains("Zapor"), note)
+        let thirdParty = EvidenceSanitizer.sanitize([.smbResult: .errorCode("sessionFailed"), .firewallStatus: .status(.inactive),
+                                                     .contentFilterStatus: .status(.active)])
+        XCTAssertTrue(try XCTUnwrap(PresentationStore.smbSessionNote(thirdParty)).contains("innego programu"))
+        let login = EvidenceSanitizer.sanitize([.smbResult: .errorCode("authRejected")])
+        XCTAssertTrue(try XCTUnwrap(PresentationStore.smbSessionNote(login)).contains("Połącz jako"))
+        XCTAssertNil(PresentationStore.smbSessionNote(SafeEvidence.empty))
+        let now = Date()
+        let result = try OperationResult(operationID: "device_connection", name: "device_connection", kind: .diagnostic,
+                                         startedAt: now, endedAt: now, outcome: .failure, after: firewall,
+                                         error: OperationError(domain: "device_connection", code: "smbSessionFailed"))
+        let presentation = PresentationStore.presentDevice(result)
+        XCTAssertTrue(presentation.reason.contains("Urządzenie przyjęło połączenie"), presentation.reason)
+        XCTAssertTrue(presentation.reason.contains("blokada jest po stronie tego komputera"), presentation.reason)
+        XCTAssertTrue(presentation.technicalDetail.contains("smbResult: sessionFailed"))
+    }
+
     func testSplitAddressFamilyVerdictIsExplained() throws {
         let mixed = EvidenceSanitizer.sanitize([.ipv4Result: .errorCode("reachable"), .ipv6Result: .errorCode("unreachable"),
                                                 .errorCode: .errorCode("reachable"), .networkStatus: .status(.inactive)])

@@ -296,6 +296,7 @@ extension PresentationService {
             reason += " Ruch do tego urządzenia idzie przez interfejs tunelowy."
         }
         if let families = Self.addressFamilyNote(result.after) { reason += " " + families }
+        if let session = Self.smbSessionNote(result.after) { reason += " " + session }
         let evidence = result.after.values.sorted { $0.key.rawValue < $1.key.rawValue }
             .map { "\($0.key.rawValue): \($0.value)" }.joined(separator: " · ")
         return .init(outcome: outcomeTitle(result.outcome), reason: reason,
@@ -303,6 +304,30 @@ extension PresentationService {
                      symbol: result.outcome == .success ? "checkmark.circle" : result.outcome == .skipped ? "minus.circle" : "exclamationmark.triangle")
     }
     /// Explains a split verdict: the device answers over one address family but not the other.
+    /// Explains what this Mac's own SMB client got once port 445 answered, and where a block sits.
+    static func smbSessionNote(_ evidence: SafeEvidence) -> String? {
+        guard let raw = evidence.values[.smbResult], let smb = SMBSessionOutcome(rawValue: raw) else { return nil }
+        switch smb {
+        case .sharesListed:
+            return "Sesja SMB działa, a serwer przyjmuje gości."
+        case .authRejected:
+            return "Sesja SMB działa; serwer odrzuca gościa i wymaga logowania. Użyj „Połącz jako…” z kontem tamtego komputera (konto musi mieć włączone SMB na tamtym Macu)."
+        case .sessionFailed:
+            let firewall = evidence.values[.firewallStatus] == "active"
+            let filter = evidence.values[.contentFilterStatus] == "active"
+            var text = "Port odpowiada, ale klient SMB tego komputera nie zdołał rozpocząć sesji: blokada jest po stronie tego komputera, nie tamtego."
+            if firewall && filter {
+                text += " Zapora tego komputera działa jako filtr treści na gniazdach; wyłącz ją w Ustawienia systemowe › Sieć › Zapora i powtórz test."
+            } else if filter {
+                text += " Na tym komputerze działa filtr treści innego programu (VPN lub ochrona); wyłącz go i powtórz test."
+            } else {
+                text += " Nie wykryto filtra treści; sprawdź inne oprogramowanie ochronne na tym komputerze."
+            }
+            return text
+        case .unknown:
+            return "Nie udało się ocenić sesji SMB."
+        }
+    }
     static func addressFamilyNote(_ evidence: SafeEvidence) -> String? {
         let ipv4 = evidence.values[.ipv4Result].flatMap(DeviceConnectionReason.init(rawValue:))
         let ipv6 = evidence.values[.ipv6Result].flatMap(DeviceConnectionReason.init(rawValue:))
@@ -466,6 +491,8 @@ extension PresentationService {
         let code = result.after.values[.errorCode] ?? result.error?.code
         let reason: String? = if let code, let network = NetworkCheckReason(rawValue: code) {
             network.message
+        } else if let code, let filter = ContentFilterReason(rawValue: code) {
+            filter.message
         } else if let code, let sharing = FileSharingReason(rawValue: code) {
             sharing.message
         } else if let code, let bonjour = BonjourReason(rawValue: code) {

@@ -191,3 +191,27 @@ Kontrola `file_sharing_readiness` dostała tę samą anonimową sesję jako czwa
 | `Tools/BuildDMG.sh` (build 10) | Pierwsza próba przerwana, bo obraz buildu 9 był zamontowany z otwartym oknem Findera bez otwartych plików; po `hdiutil detach` `Artifacts/Distribution/NetUnstick-0.2.0-10.dmg`, podpis OK, helper znów zmienił cdhash. |
 | Instalacja z DMG do `/Applications` (kopia uruchamiana przez użytkownika, build 9 → 10), usunięcie zdublowanej kopii z `~/Applications`, uruchomienie | Build 10 działa z `/Applications`, podpis poprawny; na MacBooku pozostała jedna kopia. |
 | `TEST_RUNNER_NETUNSTICK_LIVE_ACTION=diagnose TEST_RUNNER_NETUNSTICK_APP_PATH=/Applications/NetUnstick.app xcodebuild … testLiveDiagnosis` | Nagłówek: „Sieć działa; ten Mac nie jest gotowy do udostępniania plików”; wynik: „…ten Mac odrzuca logowanie gościa, a Twoje konto nie ma zapisanego hasła SMB…”; krok z opcjami Udostępniania plików, Gościem i „Połącz jako…”. |
+
+## Dochodzenie na obu komputerach i sonda sesji SMB — 30 września 2026, przedpołudnie
+
+Sterując Mac Studio przez okno Udostępniania ekranu (most pulpitu przekazuje pojedyncze klawisze, ale nie tekst ani modyfikatory, więc skrypty odczytowe zostały zapisane na udziale domowym Mac Studio zamontowanym na MacBooku i uruchamiane krótkim `sh nu.sh`, a wyniki czytane z tego udziału) zebrano dowody rozstrzygające stronę blokady:
+
+| Kierunek | Wynik | Znaczenie |
+| --- | --- | --- |
+| Mac Studio → własny loopback | `smbutil view -N` kod 77 (gość odrzucony) | klient SMB Studio wynegocjował sesję |
+| MacBook → własny loopback i własny adres LAN | kod 77 | serwer SMB MacBooka działa i odrzuca tylko logowanie |
+| Mac Studio → MacBook przez sieć | kod 68 „Socket is not connected”; jądro: TCP do 445 `ESTABLISHED` po 8 ms, klient zamyka sam po 0,15 s z 0 bajtami, bez RST; `(smbfs) SMB_TRAN_FATAL` | negocjacja SMB nigdy nie wychodzi z Mac Studio |
+| Transport Studio↔MacBook | `nc` 445/5900/22 z danymi OK, `ping -D -s 1472` OK, zapis i odczyt 5 MB przez udział Mac Studio w 1,6 s | sieć i TCP sprawne |
+| Filtr treści na gniazdach | Mac Studio: `net.cfil.active_count` 1, 10–11 gniazd; MacBook: 0 | filtr działa tylko na Mac Studio |
+| Konfiguracja filtra na Mac Studio | `com.apple.ALF.ApplicationFirewall` `Enabled` true, `FilterSockets` true, zapora włączona (bez „blokuj wszystkie”, bez trybu ukrycia); wpisy `socketfilterfw … FilterDataProvider` w dzienniku; brak konfiguracji filtra NordVPN, Shield to rozszerzenie Endpoint Security | aktywnym filtrem jest wbudowana zapora macOS |
+| Zapora na MacBooku | wyłączona, `net.cfil.active_count` 0 | dlatego kierunek MacBook → Mac Studio działa |
+
+Wniosek: dwie niezależne przyczyny. Serwer SMB MacBooka odrzuca każde logowanie (konto bez hasła SMB, gość wyłączony), a klient SMB Mac Studio pod włączoną zaporą systemową (filtr treści na gniazdach) kończy sesję przed pierwszym bajtem. Zamykanie aplikacji FortiClient i NordVPN nic nie zmienia: ich rozszerzenia systemowe działają niezależnie od aplikacji, a i tak nie są aktywnym filtrem na Mac Studio. Krok rozstrzygający po stronie użytkownika: wyłączyć zaporę na Mac Studio i powtórzyć test; oczekiwany wynik `smbutil` to kod 77 zamiast 68, a w Finderze okno logowania zamiast „Błędu połączenia”. Pliki testowe usunięto z udziału; żadne ustawienie nie zostało zmienione.
+
+Do NetUnstick dodano kontrolę `content_filter` i sondę sesji SMB w teście urządzenia (opis w README), tak aby aplikacja na Mac Studio sama wskazała: „Port odpowiada, ale klient SMB tego komputera nie zdołał rozpocząć sesji: blokada jest po stronie tego komputera… wyłącz zaporę”.
+
+| Komenda | Wynik |
+| --- | --- |
+| `swift test` (`Packages/NetUnstickKit`) | Network 73 testów (6 pominiętych), Core 13, Repair 29 (1 pominięty); 0 błędów. Nowe: parser liczników `net.cfil` i stanu zapory, tabela decyzji filtra (zapora / inny program / nieznany), wynik kontroli bez awarii, klasyfikacja kodu wyjścia `smbutil` (0/77/68/inne), test urządzenia z sesją SMB (awaria i krok „wyłącz zaporę” przy aktywnym filtrze zapory, sukces i „Połącz jako…” przy odrzuconym gościu), sonda systemowa pyta klienta SMB tylko dla portu 445 i czyta filtr tylko po nieudanej sesji, klucze `smbResult`/`firewallStatus`/`contentFilterStatus` w sanitizerze i dekoderze. |
+| `NETUNSTICK_READ_ONLY_SMOKE=1 swift test --filter 'ContentFilterTests/testLiveHost…\|FileSharingReadinessTests/testLiveHost…'` | MacBook: `active=0 attached=0 firewall=false decision=noFilter`; udostępnianie: `account=true guestLogin=false decision=guestRejected` — użytkownik włączył już konto dla SMB, goście nadal odrzucani. |
+| `xcodebuild … -only-testing:NetUnstickPresentationTests CODE_SIGNING_ALLOWED=NO test` | 16 testów (6 integracji, 10 prezentacji), 0 błędów; nowy test objaśnienia sesji SMB nazywa stronę blokady i krok zapory. |

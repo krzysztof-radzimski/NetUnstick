@@ -31,6 +31,46 @@ public enum AddressFamily: String, Sendable, CaseIterable {
     case ipv4, ipv6
 }
 
+/// Outcome of one anonymous SMB session opened by this Mac's own SMB client (`smbutil view -N`).
+/// Exit 0 lists shares, 77 (EX_NOPERM) means the session was negotiated and the guest login
+/// rejected, 68 (EX_NOHOST) while the port answers means the client never got a session.
+public enum SMBSessionOutcome: String, Sendable, CaseIterable {
+    case sharesListed, authRejected, sessionFailed, unknown
+
+    public static func classify(exitStatus: Int32) -> SMBSessionOutcome {
+        switch exitStatus {
+        case 0: return .sharesListed
+        case 77: return .authRejected
+        case 68: return .sessionFailed
+        default: return .unknown
+        }
+    }
+}
+
+public protocol SMBSessionProbing: Sendable {
+    func probe(host: String) async -> SMBSessionOutcome
+}
+
+/// Runs the system SMB client once, anonymously, with a fixed path and argument list; only the
+/// exit status is read, the share listing is discarded.
+public struct SystemSMBSessionProbe: SMBSessionProbing {
+    public static let executable = "/usr/bin/smbutil"
+    public init() {}
+    public func probe(host: String) async -> SMBSessionOutcome {
+        guard DeviceConnectionInput.isValidHost(host) else { return .unknown }
+        let target = "//" + host.trimmingCharacters(in: .whitespacesAndNewlines)
+        do {
+            let output = try await BoundedProcess.run(executable: Self.executable, arguments: ["view", "-N", target],
+                                                      timeout: 8, outputLimit: 65_536)
+            return .classify(exitStatus: output.exitStatus)
+        } catch ProcessRunError.nonZeroExit(let status) {
+            return .classify(exitStatus: status)
+        } catch {
+            return .unknown
+        }
+    }
+}
+
 /// Ephemeral observation of one probe. The host and its addresses never leave the caller's memory.
 public struct DeviceConnectionObservation: Sendable, Equatable {
     public let reason: DeviceConnectionReason
@@ -39,10 +79,17 @@ public struct DeviceConnectionObservation: Sendable, Equatable {
     /// Verdict per address family; nil when the name resolved to no address of that family.
     public let ipv4: DeviceConnectionReason?
     public let ipv6: DeviceConnectionReason?
+    /// Port 445 only: what this Mac's SMB client got once the port answered.
+    public let smb: SMBSessionOutcome?
+    /// Local filter state, read only when the SMB session failed.
+    public let firewallEnabled: Bool?
+    public let contentFilterActive: Bool?
     public init(reason: DeviceConnectionReason, interfaceType: InterfaceType? = nil, viaTunnel: Bool = false,
-                ipv4: DeviceConnectionReason? = nil, ipv6: DeviceConnectionReason? = nil) {
+                ipv4: DeviceConnectionReason? = nil, ipv6: DeviceConnectionReason? = nil,
+                smb: SMBSessionOutcome? = nil, firewallEnabled: Bool? = nil, contentFilterActive: Bool? = nil) {
         self.reason = reason; self.interfaceType = interfaceType; self.viaTunnel = viaTunnel
         self.ipv4 = ipv4; self.ipv6 = ipv6
+        self.smb = smb; self.firewallEnabled = firewallEnabled; self.contentFilterActive = contentFilterActive
     }
 }
 
@@ -137,7 +184,13 @@ struct AddressAttempt: Sendable {
 public struct SystemDeviceConnectionProbe: DeviceConnectionProbing {
     public static let maximumAddressesPerFamily = 4
     public static let resolutionTimeout: TimeInterval = 3
-    public init() {}
+    public static let smbPort: UInt16 = 445
+    private let smb: any SMBSessionProbing
+    private let filters: any ContentFilterProbing
+    public init(smb: any SMBSessionProbing = SystemSMBSessionProbe(),
+                filters: any ContentFilterProbing = SystemContentFilterProbe()) {
+        self.smb = smb; self.filters = filters
+    }
 
     public func probe(host: String, port: UInt16, timeout: Duration) async -> DeviceConnectionObservation {
         guard DeviceConnectionInput.isValidHost(host), let nwPort = NWEndpoint.Port(rawValue: port) else {
@@ -161,7 +214,21 @@ public struct SystemDeviceConnectionProbe: DeviceConnectionProbing {
             for await attempt in group { collected.append(attempt) }
             return collected
         }
-        return Self.aggregate(attempts)
+        let transport = Self.aggregate(attempts)
+        // The port answering is not the same as an SMB session: a socket content filter on this Mac
+        // can end the kernel client's session before its first byte. Ask the real client once.
+        guard port == Self.smbPort, transport.reason == .reachable, !Task.isCancelled else { return transport }
+        let session = await smb.probe(host: trimmed)
+        var firewall: Bool?
+        var filter: Bool?
+        if session == .sessionFailed {
+            let local = await filters.observe()
+            firewall = local.firewallEnabled
+            filter = local.filterActive
+        }
+        return .init(reason: transport.reason, interfaceType: transport.interfaceType, viaTunnel: transport.viaTunnel,
+                     ipv4: transport.ipv4, ipv6: transport.ipv6, smb: session,
+                     firewallEnabled: firewall, contentFilterActive: filter)
     }
 
     /// Keeps resolution order (system preference) and caps the attempts per family.
@@ -269,9 +336,10 @@ public struct DeviceConnectionCheck: DiagnosticCheck {
         } else {
             observation = await probe.probe(host: host, port: port, timeout: timeout)
         }
+        let sessionFailed = observation.smb == .sessionFailed
         let outcome: OperationOutcome
         switch observation.reason {
-        case .reachable: outcome = .success
+        case .reachable: outcome = sessionFailed ? .failure : .success
         case .cancelled: outcome = .cancelled
         case .timedOut: outcome = .timedOut
         case .invalidInput: outcome = .skipped
@@ -285,16 +353,25 @@ public struct DeviceConnectionCheck: DiagnosticCheck {
         if let type = observation.interfaceType { values[.interfaceType] = .interfaceType(type) }
         if let ipv4 = observation.ipv4 { values[.ipv4Result] = .errorCode(ipv4.rawValue) }
         if let ipv6 = observation.ipv6 { values[.ipv6Result] = .errorCode(ipv6.rawValue) }
+        if let smb = observation.smb { values[.smbResult] = .errorCode(smb.rawValue) }
+        if let firewall = observation.firewallEnabled { values[.firewallStatus] = .status(firewall ? .active : .inactive) }
+        if let filter = observation.contentFilterActive { values[.contentFilterStatus] = .status(filter ? .active : .inactive) }
         let next: NextStep
         switch observation.reason {
-        case .reachable: next = .reviewDetails
+        case .reachable:
+            switch observation.smb {
+            case .sessionFailed: next = observation.firewallEnabled == true ? .disableLocalFirewall : .reviewDetails
+            case .authRejected: next = .connectAsAccount
+            default: next = .reviewDetails
+            }
         case .invalidInput, .cancelled: next = .retryCheck
         case .refused: next = .checkPermissions
         default: next = observation.viaTunnel ? .verifyVPN : .retryCheck
         }
+        let errorCode = sessionFailed ? "smbSessionFailed" : observation.reason.rawValue
         return try! OperationResult(operationID: id, name: name, kind: .diagnostic, startedAt: start,
             endedAt: max(start, context.clock.now()), outcome: outcome, after: EvidenceSanitizer.sanitize(values),
-            error: outcome == .failure || outcome == .timedOut ? try? OperationError(domain: "device_connection", code: observation.reason.rawValue) : nil,
+            error: outcome == .failure || outcome == .timedOut ? try? OperationError(domain: "device_connection", code: errorCode) : nil,
             nextStep: next.rawValue)
     }
 }

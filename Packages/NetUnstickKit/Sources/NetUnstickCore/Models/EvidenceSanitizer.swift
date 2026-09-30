@@ -4,6 +4,8 @@ public enum EvidenceKey: String, Codable, Sendable, CaseIterable {
     case networkStatus, vpnStatus, checkStatus, interfaceType, count, airplayCount, raopCount, errorCode
     /// Per-address-family verdicts of a device test; values are closed reason codes, never addresses.
     case ipv4Result, ipv6Result
+    /// Device test on port 445: outcome of this Mac's own SMB session attempt and the local filter state.
+    case smbResult, firewallStatus, contentFilterStatus
 }
 
 public enum PublicStatus: String, Codable, Sendable {
@@ -43,7 +45,7 @@ public struct SafeEvidence: Codable, Sendable, Equatable {
             case .interfaceType:
                 guard InterfaceType(rawValue: value) != nil else { throw DecodingError.dataCorruptedError(in: c, debugDescription: "Invalid interface type") }
                 checked[key] = value
-            case .errorCode, .ipv4Result, .ipv6Result:
+            case .errorCode, .ipv4Result, .ipv6Result, .smbResult:
                 guard StableIdentifier.isValid(value) else { throw DecodingError.dataCorruptedError(in: c, debugDescription: "Invalid error code") }
                 checked[key] = value
             default:
@@ -65,7 +67,8 @@ public enum EvidenceSanitizer {
         var safe: [EvidenceKey: String] = [:]
         for (key, value) in input {
             switch (key, value) {
-            case (.networkStatus, .status(let status)), (.vpnStatus, .status(let status)), (.checkStatus, .status(let status)):
+            case (.networkStatus, .status(let status)), (.vpnStatus, .status(let status)), (.checkStatus, .status(let status)),
+                 (.firewallStatus, .status(let status)), (.contentFilterStatus, .status(let status)):
                 safe[key] = status.rawValue
             case (.count, .count(let count)) where count >= 0:
                 safe[key] = String(count)
@@ -77,7 +80,8 @@ public enum EvidenceSanitizer {
                 safe[key] = type.rawValue
             case (.errorCode, .errorCode(let code)) where StableIdentifier.isValid(code),
                  (.ipv4Result, .errorCode(let code)) where StableIdentifier.isValid(code),
-                 (.ipv6Result, .errorCode(let code)) where StableIdentifier.isValid(code):
+                 (.ipv6Result, .errorCode(let code)) where StableIdentifier.isValid(code),
+                 (.smbResult, .errorCode(let code)) where StableIdentifier.isValid(code):
                 safe[key] = code
             default:
                 break
@@ -108,6 +112,8 @@ public enum NextStep: String, Codable, Sendable {
     case contactSupport = "Contact your network administrator."
     case restartVPNClient = "Quit and reopen the VPN client so it releases its leftover tunnel interfaces."
     case enableSMBAccount = "Enable your account for SMB in File Sharing options on this Mac, then connect again."
+    case disableLocalFirewall = "Turn off the firewall on this Mac in System Settings › Network › Firewall, then run the test again."
+    case connectAsAccount = "Use “Connect As…” with an account of the other computer."
 }
 
 extension SafeEvidence {
