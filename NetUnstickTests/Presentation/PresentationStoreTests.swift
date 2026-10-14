@@ -65,6 +65,123 @@ import NetUnstickNetwork
     }
 }
 
+/// Real check IDs and outcomes from the host: LAN and internet work, but private
+/// routes outside the LAN still reference a tunnel whose VPN service disconnected.
+@MainActor private final class ResidualRoutesPresentationService: PresentationService {
+    let scenario = "production"
+    let helper = HelperPresentationState.available
+    let vpnServices: VPNServiceStatus
+    private let assessment: VPNAssessment
+    private let before: [OperationResult]
+    private let after: [OperationResult]
+    private let repairOutcome: OperationOutcome
+    private let offersRepair: Bool
+    private let failsFollowUpDiagnosis: Bool
+    private var repaired = false
+    private var recordedSessions: [ActivitySession] = []
+    private(set) var diagnosisCalls = 0
+    private(set) var repairCalls = 0
+    private(set) var repairSessionID: UUID?
+
+    init(vpnServices: VPNServiceStatus = .disconnected,
+         assessment: VPNAssessment = .init(state: .active, reasonCode: .tunnelRoute),
+         before: [OperationResult]? = nil, after: [OperationResult]? = nil,
+         offersRepair: Bool = false, repairOutcome: OperationOutcome = .success,
+         failsFollowUpDiagnosis: Bool = false) {
+        self.vpnServices = vpnServices; self.assessment = assessment
+        self.before = before ?? Self.hostResults()
+        self.after = after ?? Self.hostResults()
+        self.offersRepair = offersRepair; self.repairOutcome = repairOutcome
+        self.failsFollowUpDiagnosis = failsFollowUpDiagnosis
+    }
+
+    static func result(_ id: String, reason: String = NetworkCheckReason.healthy.rawValue,
+                       outcome: OperationOutcome = .success) -> OperationResult {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let needsError = [.failure, .permissionDenied, .timedOut].contains(outcome)
+        return try! OperationResult(operationID: id, name: id, kind: .diagnostic,
+            startedAt: now, endedAt: now.addingTimeInterval(0.1), outcome: outcome,
+            after: EvidenceSanitizer.sanitize([.errorCode: .errorCode(reason)]),
+            error: needsError ? try! OperationError(domain: "network_diagnosis", code: reason) : nil)
+    }
+
+    static func hostResults() -> [OperationResult] {
+        NetworkCheckKind.allCases.map {
+            result($0.id, reason: $0 == .internetPath ? NetworkCheckReason.internetReachable.rawValue :
+                NetworkCheckReason.healthy.rawValue)
+        } + [
+            result("local_multicast_path", reason: BonjourReason.inconclusive.rawValue, outcome: .skipped),
+            result("bonjour_discovery", reason: BonjourReason.servicesFound.rawValue),
+            result("bonjour_permission", reason: BonjourReason.inconclusive.rawValue, outcome: .skipped),
+            result(FileSharingReadinessCheck.checkID, reason: FileSharingReason.guestRejected.rawValue),
+            result(ContentFilterCheck.checkID, reason: ContentFilterReason.noFilter.rawValue)
+        ]
+    }
+
+    func diagnose() async throws -> [OperationResult] {
+        diagnosisCalls += 1
+        if repaired, failsFollowUpDiagnosis {
+            throw DiagnosisFailure.unavailable
+        }
+        let results = repaired ? after : before
+        recordedSessions.append(ActivitySession(startedAt: Date(), appVersion: "test", macOSVersion: "14.0", entries: results))
+        return results
+    }
+    private enum DiagnosisFailure: Error { case unavailable }
+    func repairCandidate() -> RepairCandidatePresentation? {
+        guard offersRepair, !repaired else { return nil }
+        return .init(change: "Usuń pozostałe trasy LAN", reason: "Trasa lokalna prowadzi przez tunel",
+                     resource: "Grupa tras lokalnych", impact: "Przywrócenie fizycznej ścieżki LAN",
+                     permission: "Administrator", verification: "Ponowna kontrola lokalnej trasy",
+                     allowsWhenResidualRoute: true)
+    }
+    func refreshVPN(stabilize: Bool) async -> VPNAssessment { assessment }
+    func loadSessions() async throws -> [ActivitySession] { recordedSessions }
+    func executeRepair(onPhase: @escaping @Sendable (String, OperationOutcome) -> Void) async -> OperationResult? {
+        repairCalls += 1
+        repaired = repairOutcome == .success
+        let now = Date()
+        let result = try! OperationResult(operationID: "repair.routes", name: "removeStaleTunnelRoutes", kind: .repair,
+            startedAt: now, endedAt: now, outcome: repairOutcome,
+            error: repairOutcome == .failure ? try! OperationError(domain: "repair", code: "recheck_failed") : nil,
+            nextStep: "Sprawdź dostęp do urządzenia.")
+        let session = ActivitySession(startedAt: now, appVersion: "test", macOSVersion: "14.0", entries: [result])
+        recordedSessions.append(session)
+        repairSessionID = session.id
+        return result
+    }
+}
+
+/// Intentionally ignores cancellation until the test releases each request. This
+/// reproduces a late callback from a native probe without a long-running process.
+@MainActor private final class ControlledDiagnosisPresentationService: PresentationService {
+    let scenario = "production"
+    let helper = HelperPresentationState.unavailable
+    let vpnServices = VPNServiceStatus.disconnected
+    private(set) var diagnosisCalls = 0
+    private var callbacks: [Int: @Sendable (OperationResult, Int, Int) -> Void] = [:]
+    private var pending: [Int: CheckedContinuation<[OperationResult], Never>] = [:]
+
+    func diagnose() async throws -> [OperationResult] {
+        try await diagnose(onCheck: { _, _, _ in })
+    }
+    func diagnose(onCheck: @escaping @Sendable (OperationResult, Int, Int) -> Void) async throws -> [OperationResult] {
+        diagnosisCalls += 1
+        let call = diagnosisCalls
+        callbacks[call] = onCheck
+        return await withCheckedContinuation { pending[call] = $0 }
+    }
+    func repairCandidate() -> RepairCandidatePresentation? { nil }
+    func refreshVPN(stabilize: Bool) async -> VPNAssessment { .init(state: .inactive, reasonCode: .noVPNSignals) }
+    func emit(call: Int, result: OperationResult) { callbacks[call]?(result, 1, DiagnosisEngine.checkCount) }
+    func complete(call: Int, results: [OperationResult]) { pending.removeValue(forKey: call)?.resume(returning: results) }
+    func completeAll() {
+        let remaining = Array(pending.values)
+        pending.removeAll()
+        remaining.forEach { $0.resume(returning: []) }
+    }
+}
+
 @MainActor final class PresentationStoreTests: XCTestCase {
     private func settle(_ store: PresentationStore) async {
         for _ in 0..<30 {
@@ -105,6 +222,206 @@ import NetUnstickNetwork
         let unknown = PresentationStore(service: MockPresentationService(scenario: "vpn-unknown"))
         await settle(unknown)
         XCTAssertEqual(unknown.state, .unknown)
+    }
+
+    func testHealthyLANAndInternetWithDisconnectedVPNRoutesKeepRepairsBlocked() async {
+        let service = ResidualRoutesPresentationService()
+        let store = PresentationStore(service: service)
+        store.startDiagnosis()
+        await settle(store)
+        XCTAssertEqual(store.state, .residualRoutes)
+        XCTAssertEqual(store.checks.count, DiagnosisEngine.checkCount)
+        XCTAssertEqual(store.vpn, .init(state: .active, reasonCode: .tunnelRoute))
+        XCTAssertFalse(store.vpn.permitsNetworkChange, "Healthy connectivity must not relax the repair gate")
+        XCTAssertNil(store.candidate)
+        XCTAssertFalse(store.lastResultText.contains("niejednoznaczny"))
+        XCTAssertFalse(store.lastResultText.contains("nie pozwala"))
+    }
+
+    func testWorkingChecksCannotConfirmNetworkWithConnectedOrUnknownVPNService() async {
+        for status in [VPNServiceStatus.connected, .unknown] {
+            let store = PresentationStore(service: ResidualRoutesPresentationService(vpnServices: status))
+            store.startDiagnosis()
+            await settle(store)
+            XCTAssertEqual(store.state, .unknown, "service=\(status.rawValue)")
+            XCTAssertFalse(store.vpn.permitsNetworkChange)
+        }
+        for assessment in [VPNAssessment(state: .unknown, reasonCode: .conflictingSignals),
+                           .init(state: .active, reasonCode: .tunnelPath),
+                           .init(state: .active, reasonCode: .tunnelDNS)] {
+            let store = PresentationStore(service: ResidualRoutesPresentationService(assessment: assessment))
+            store.startDiagnosis()
+            await settle(store)
+            XCTAssertEqual(store.state, .unknown, "reason=\(assessment.reasonCode.rawValue)")
+            XCTAssertFalse(store.vpn.permitsNetworkChange)
+        }
+    }
+
+    func testEachBasicCheckMustPassBeforeShowingHealthyConnectivityWithResidualRoutes() async {
+        for kind in NetworkCheckKind.allCases {
+            for outcome in [OperationOutcome.skipped, .cancelled] {
+                let results = ResidualRoutesPresentationService.hostResults().map {
+                    $0.operationID == kind.id ? ResidualRoutesPresentationService.result(kind.id,
+                        reason: NetworkCheckReason.dataIncomplete.rawValue, outcome: outcome) : $0
+                }
+                let store = PresentationStore(service: ResidualRoutesPresentationService(before: results))
+                store.startDiagnosis()
+                await settle(store)
+                XCTAssertEqual(store.state, .unknown, "\(kind.id)=\(outcome.rawValue)")
+            }
+            let missing = ResidualRoutesPresentationService.hostResults().filter { $0.operationID != kind.id }
+            let store = PresentationStore(service: ResidualRoutesPresentationService(before: missing))
+            store.startDiagnosis()
+            await settle(store)
+            XCTAssertEqual(store.state, .unknown, "missing=\(kind.id)")
+        }
+    }
+
+    func testRealLANFailureAfterVPNDisconnectIsShownAsAProblem() async throws {
+        let results = ResidualRoutesPresentationService.hostResults().map {
+            $0.operationID == NetworkCheckKind.localSubnetRoute.id ? ResidualRoutesPresentationService.result($0.operationID,
+                reason: NetworkCheckReason.localRouteViaTunnel.rawValue, outcome: .failure) : $0
+        }
+        let store = PresentationStore(service: ResidualRoutesPresentationService(before: results))
+        store.startDiagnosis()
+        await settle(store)
+        XCTAssertEqual(store.state, .problem)
+        XCTAssertFalse(store.vpn.permitsNetworkChange)
+        let route = try XCTUnwrap(store.checks.first { $0.id == NetworkCheckKind.localSubnetRoute.id })
+        XCTAssertEqual(route.reason, NetworkCheckReason.localRouteViaTunnel.message)
+        XCTAssertTrue(route.technicalDetail.contains(NetworkCheckReason.localRouteViaTunnel.rawValue))
+    }
+
+    func testSharingAndBonjourFailuresPreventHealthyResidualRouteSummary() async {
+        for failure in [ResidualRoutesPresentationService.result(FileSharingReadinessCheck.checkID,
+                            reason: FileSharingReason.noLoginMethod.rawValue, outcome: .failure),
+                        ResidualRoutesPresentationService.result("bonjour_permission",
+                            reason: BonjourReason.permissionDenied.rawValue, outcome: .permissionDenied)] {
+            let results = ResidualRoutesPresentationService.hostResults().map {
+                $0.operationID == failure.operationID ? failure : $0
+            }
+            let store = PresentationStore(service: ResidualRoutesPresentationService(before: results))
+            store.startDiagnosis()
+            await settle(store)
+            XCTAssertNotEqual(store.state, .residualRoutes)
+            XCTAssertNotEqual(store.state, .healthy)
+            XCTAssertFalse(store.vpn.permitsNetworkChange)
+        }
+    }
+
+    func testSuccessfulRepairRefreshesDiagnosisAndKeepsItsSessionSelected() async throws {
+        let before = ResidualRoutesPresentationService.hostResults().map {
+            $0.operationID == NetworkCheckKind.localSubnetRoute.id ? ResidualRoutesPresentationService.result($0.operationID,
+                reason: NetworkCheckReason.localRouteViaTunnel.rawValue, outcome: .failure) : $0
+        }
+        let service = ResidualRoutesPresentationService(before: before, offersRepair: true)
+        let store = PresentationStore(service: service)
+        store.startDiagnosis()
+        await settle(store)
+        XCTAssertEqual(store.state, .problem)
+        XCTAssertNotNil(store.candidate)
+
+        store.confirmRepair()
+        await settle(store)
+        XCTAssertEqual(service.repairCalls, 1)
+        XCTAssertEqual(service.diagnosisCalls, 2, "A successful scoped recheck must refresh the full dashboard")
+        XCTAssertEqual(store.state, .residualRoutes)
+        let route = try XCTUnwrap(store.checks.first { $0.id == NetworkCheckKind.localSubnetRoute.id })
+        XCTAssertNil(route.reason)
+        XCTAssertTrue(route.technicalDetail.contains(NetworkCheckReason.healthy.rawValue))
+        XCTAssertNil(store.candidate)
+        XCTAssertTrue(store.candidates.isEmpty)
+        XCTAssertTrue(store.lastResultText.hasPrefix("Naprawiono"))
+        XCTAssertFalse(store.vpn.permitsNetworkChange)
+        XCTAssertEqual(store.selectedSessionID, service.repairSessionID)
+        let repair = try XCTUnwrap(store.sessions.first { $0.id == service.repairSessionID })
+        XCTAssertEqual(repair.entries.last?.outcome, .success)
+        XCTAssertEqual(repair.entries.last?.kind, .repair)
+        XCTAssertTrue(store.repairPhase.isEmpty)
+    }
+
+    func testFailedRepairDoesNotRerunDiagnosisOrReplaceTheFailure() async {
+        let before = ResidualRoutesPresentationService.hostResults().map {
+            $0.operationID == NetworkCheckKind.localSubnetRoute.id ? ResidualRoutesPresentationService.result($0.operationID,
+                reason: NetworkCheckReason.localRouteViaTunnel.rawValue, outcome: .failure) : $0
+        }
+        let service = ResidualRoutesPresentationService(before: before, offersRepair: true, repairOutcome: .failure)
+        let store = PresentationStore(service: service)
+        store.startDiagnosis()
+        await settle(store)
+        store.confirmRepair()
+        await settle(store)
+        XCTAssertEqual(service.diagnosisCalls, 1)
+        XCTAssertEqual(store.state, .problem)
+        XCTAssertFalse(store.lastResultText.contains("Naprawiono"))
+        XCTAssertTrue(store.lastResultText.contains("recheck_failed"))
+        XCTAssertEqual(store.sessions.last?.entries.last?.outcome, .failure)
+        XCTAssertNil(store.candidate)
+    }
+
+    func testVerifiedRepairWithFailedFullDiagnosisKeepsOverallStateUnknown() async throws {
+        let before = ResidualRoutesPresentationService.hostResults().map {
+            $0.operationID == NetworkCheckKind.localSubnetRoute.id ? ResidualRoutesPresentationService.result($0.operationID,
+                reason: NetworkCheckReason.localRouteViaTunnel.rawValue, outcome: .failure) : $0
+        }
+        let service = ResidualRoutesPresentationService(before: before, offersRepair: true, failsFollowUpDiagnosis: true)
+        let store = PresentationStore(service: service)
+        store.startDiagnosis()
+        await settle(store)
+        store.confirmRepair()
+        await settle(store)
+
+        XCTAssertEqual(service.repairCalls, 1)
+        XCTAssertEqual(service.diagnosisCalls, 2)
+        XCTAssertEqual(store.state, .unknown, "A successful scoped recheck cannot replace the missing overall diagnosis")
+        XCTAssertTrue(store.lastResultText.contains("Naprawiono wskazany problem"))
+        XCTAssertTrue(store.lastResultText.contains("pełnej diagnozy"))
+        XCTAssertTrue(store.nextStep.contains("ponownie"))
+        XCTAssertTrue(store.checks.isEmpty)
+        XCTAssertNil(store.candidate)
+        XCTAssertFalse(store.isRunning)
+        XCTAssertTrue(store.repairPhase.isEmpty)
+        XCTAssertFalse(store.vpn.permitsNetworkChange)
+        XCTAssertEqual(store.selectedSessionID, service.repairSessionID)
+        let repair = try XCTUnwrap(store.sessions.first { $0.id == service.repairSessionID })
+        XCTAssertEqual(repair.entries.last?.outcome, .success, "The separately verified repair remains in the journal")
+    }
+
+    func testCancelledDiagnosisCannotPublishLateProgressOrStopItsReplacement() async throws {
+        let service = ControlledDiagnosisPresentationService()
+        let store = PresentationStore(service: service)
+        defer { service.completeAll(); store.cancel() }
+        store.startDiagnosis()
+        for _ in 0..<30 {
+            if service.diagnosisCalls == 1 { break }
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        guard service.diagnosisCalls == 1 else { return XCTFail("First diagnosis did not reach the controlled probe") }
+        store.cancel()
+        store.startDiagnosis()
+        for _ in 0..<30 {
+            if service.diagnosisCalls == 2 { break }
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        guard service.diagnosisCalls == 2 else { return XCTFail("Replacement diagnosis did not reach the controlled probe") }
+
+        let oldFailure = ResidualRoutesPresentationService.result(NetworkCheckKind.localSubnetRoute.id,
+            reason: NetworkCheckReason.localRouteViaTunnel.rawValue, outcome: .failure)
+        service.emit(call: 1, result: oldFailure)
+        service.complete(call: 1, results: [oldFailure])
+        // Let the stale MainActor callback and completed old task reach their guards.
+        try await Task.sleep(for: .milliseconds(20))
+        XCTAssertTrue(store.isRunning, "The cancelled task must not stop its replacement")
+        XCTAssertEqual(store.state, .investigating)
+        XCTAssertEqual(store.progress, 0)
+        XCTAssertTrue(store.checks.isEmpty, "Late results from the previous generation must be discarded")
+
+        service.complete(call: 2, results: ResidualRoutesPresentationService.hostResults())
+        await settle(store)
+        XCTAssertEqual(store.state, .healthy)
+        XCTAssertFalse(store.isRunning)
+        XCTAssertEqual(store.checks.count, DiagnosisEngine.checkCount)
+        XCTAssertFalse(store.checks.contains { $0.technicalDetail.contains(NetworkCheckReason.localRouteViaTunnel.rawValue) })
     }
 
     func testAccountWithoutSMBPasswordIsAServerSettingNotANetworkFault() async throws {

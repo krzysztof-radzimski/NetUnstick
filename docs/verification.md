@@ -227,3 +227,26 @@ Sonda w aplikacji na Mac Studio (build 11) zwróciła dla portu 445 `smbResult: 
 | `swift test` (`Packages/NetUnstickKit`) po poprawce sondy SMB | Core 13, Network i Repair bez błędów (kod wyjścia 0); nowe przypadki: kody `timedOut`/`otherExit`, krok `limitSMBToVersion2` przy `sessionFailed`. |
 | `xcodebuild … -only-testing:NetUnstickPresentationTests CODE_SIGNING_ALLOWED=NO test` | 16 testów, 0 błędów; komunikat `sessionFailed` mówi o niezgodności wersji SMB i obejściu `protocol_vers_map=2`, a filtr treści jest dopiskiem. |
 | `Tools/BuildDMG.sh` (build 12) | `Artifacts/Distribution/NetUnstick-0.2.0-12.dmg`; helper zmienił cdhash (jednorazowa zgoda po aktualizacji). Zainstalowany do `/Applications` na MacBooku; Mac Studio wymaga ręcznej aktualizacji z tego obrazu. |
+
+## Naprawa tras LAN i odczytowa diagnoza — 14 października 2026
+
+Przez sterownik `abc-desktop` uruchomiono natywną aplikację NetUnstick (`org.netunstick.NetUnstick`), wykonano diagnostykę i obejrzano jej wynik. Skonfigurowane usługi VPN zgłaszały `disconnected`; FortiClient pokazywał „Connect”, a ustawienia VPN macOS „Rozłączono”. Detektor nadal zwracał `active/tunnelRoute`, ponieważ tablica tras zawierała wpisy przez tunel. Spośród 13 kontroli `local_subnet_route` zakończył się `failure/localRouteViaTunnel`.
+
+W ramach polecenia użytkownika zatwierdzono w interfejsie kandydata usuwającego wyłącznie osiem dokładnie wskazanych, nieskopowanych tras tunelowych nakładających się na aktywny LAN. Naprawa zwróciła `success` po porównaniu stanu przed i po oraz pomyślnym ponownym sprawdzeniu `local_subnet_route`. Następnie uruchomiono pełną diagnostykę przyciskiem w aplikacji i niezależny odczytowy `NETUNSTICK_READ_ONLY_SMOKE=1 swift test --filter HostDiagnosisSmokeTests`.
+
+| Sprawdzenie po naprawie | Zaobserwowany wynik |
+| --- | --- |
+| Pełna diagnoza i `HostDiagnosisSmokeTests` | Test `PASS`; silnik diagnozy: `healthy`. Wszystkie osiem podstawowych kontroli sieci: `success`. |
+| Bonjour | `success/servicesFound`. |
+| Multicast i uprawnienie sieci lokalnej | `skipped/inconclusive`; wyniki nierozstrzygające nie potwierdzają problemu sieci. |
+| Udostępnianie plików | `success/guestRejected`; usługa działa, logowanie gościa jest odrzucane. |
+| Filtr treści | `noFilter`. |
+| Pozostałe ślady VPN | Cztery nieskopowane trasy prywatne poza aktywnym LAN (`/32`, `/31`, `/30`, `/29`, z adresem jako bramą); detektor nadal `active/tunnelRoute`. |
+
+Pozostałych czterech tras nie usuwano. Sygnał `active/tunnelRoute` nadal blokuje inne naprawy zmieniające sieć. Nie zmieniano polityk FortiClient/FortiGate, zabezpieczeń ani nie uruchamiano ponownie komputera. Dowody potwierdzają usunięcie konkretnego konfliktu tras LAN i zdrowy wynik wykonanych kontroli; nie dowodzą poprawności dowolnego połączenia zewnętrznego ani wszystkich urządzeń w sieci.
+
+Mylące podsumowanie wynikało z prezentacji: mimo zdrowego wyniku kontroli sygnał VPN nadpisywał nagłówek etykietą nieznanego stanu sieci. Zapis zawiera jedynie kody, wyniki i liczby; pominięto nazwy hostów i kont, adresy, domeny oraz zrzuty ekranu.
+
+Poprawkę prezentacji potwierdzono na tym samym hoście: `xcodebuild … -only-testing:NetUnstickPresentationTests CODE_SIGNING_ALLOWED=NO test` zakończył się `TEST SUCCEEDED` (25 testów, 0 błędów). Testy obejmują sprawną sieć z pozostałymi trasami, rzeczywistą awarię LAN, niepełne kontrole, aktywne/nieznane usługi VPN, odświeżenie po naprawie, zachowanie sesji naprawy, błąd pełnej diagnozy oraz anulowanie ze spóźnionym callbackiem.
+
+Podpisany build Release zakończył się `BUILD SUCCEEDED`; `check-helper-bundle.sh --require-stable-signing` oraz `codesign --verify --deep --strict` przeszły. Zaktualizowano aplikację w `/Applications`, zachowując wcześniejszą kopię zapasową poza repozytorium i to samo wymaganie podpisu. Następnie przez `abc-desktop` uruchomiono tę kopię, kliknięto „Uruchom diagnostykę” i odczytano rzeczywisty obraz oraz drzewo dostępności: nagłówek „Sieć lokalna i internet działają”, osiem podstawowych kontroli „Bez problemu”, brak kandydata do dalszego usuwania tras i osobne wyjaśnienie blokady zmian ze względu na pozostałe trasy tunelowe. Okno pozostawiono otwarte z wynikiem i zwolniono sterowanie pulpitem. Nie odtwarzano ponownie konfliktu w rzeczywistej sieci; automatyczne odświeżenie po naprawie sprawdzono w testach z kontrolowaną granicą systemu.

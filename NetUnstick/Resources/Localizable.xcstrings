@@ -145,6 +145,70 @@
         }
       }
     },
+    "state_residual_routes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local network and internet work"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sieć lokalna i internet działają"
+          }
+        }
+      }
+    },
+    "state_residual_routes_detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local routing, DNS and internet checks passed. Remaining tunnel routes need a separate assessment; network changes stay blocked."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kontrole trasy lokalnej, DNS i internetu przeszły. Pozostałe trasy tunelowe wymagają osobnej oceny; zmiany sieci pozostają zablokowane."
+          }
+        }
+      }
+    },
+    "result_residual_routes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No issue was found with the current local network or internet access. Tunnel routes remain after the VPN service disconnected."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie wykryto problemu w bieżącej sieci lokalnej ani dostępie do internetu. W systemie nadal są trasy tunelowe po rozłączonej usłudze VPN."
+          }
+        }
+      }
+    },
+    "next_residual_routes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can use the network. If a particular device does not respond, test its connection below. Ask your VPN administrator about the remaining routes."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Możesz korzystać z sieci. Jeśli konkretne urządzenie nie odpowiada, sprawdź połączenie poniżej. Pozostałe trasy omów z administratorem VPN."
+          }
+        }
+      }
+    },
     "status": {
       "localizations": {
         "en": {

@@ -8,7 +8,9 @@ enum NetworkPresentationState: String {
     /// client left tunnel devices behind. The network works; ordinary repairs stay blocked.
     /// `serverNotReady`: every network check passed, but this Mac's own file sharing cannot
     /// accept logins from other Macs; that is a settings change, not a network repair.
-    case healthy, problem, investigating, unknown, residual, serverNotReady
+    /// `residualRoutes`: all basic network checks passed, but disconnected VPN services
+    /// left forwarding routes. This observation never relaxes the executor's VPN gate.
+    case healthy, problem, investigating, unknown, residual, residualRoutes, serverNotReady
     var title: String {
         switch self {
         case .healthy: String(localized: "state_healthy")
@@ -16,6 +18,7 @@ enum NetworkPresentationState: String {
         case .investigating: String(localized: "state_investigating")
         case .unknown: String(localized: "state_unknown")
         case .residual: String(localized: "state_residual")
+        case .residualRoutes: String(localized: "state_residual_routes")
         case .serverNotReady: String(localized: "state_sharing")
         }
     }
@@ -26,6 +29,7 @@ enum NetworkPresentationState: String {
         case .investigating: String(localized: "state_investigating_detail")
         case .unknown: String(localized: "state_unknown_detail")
         case .residual: String(localized: "state_residual_detail")
+        case .residualRoutes: String(localized: "state_residual_routes_detail")
         case .serverNotReady: String(localized: "state_sharing_detail")
         }
     }
@@ -35,7 +39,7 @@ enum NetworkPresentationState: String {
         case .problem: "exclamationmark.triangle"
         case .investigating: "waveform.path"
         case .unknown: "questionmark.circle"
-        case .residual: "checkmark.circle.trianglebadge.exclamationmark"
+        case .residual, .residualRoutes: "checkmark.circle.trianglebadge.exclamationmark"
         case .serverNotReady: "person.crop.circle.badge.exclamationmark"
         }
     }
@@ -173,6 +177,7 @@ extension PresentationService {
     @Published var deviceConnection: DeviceConnectionPresentation?
     private let service: any PresentationService
     private var task: Task<Void, Never>?
+    private var operationGeneration = UUID()
     private var watcher: Task<Void, Never>?
     private var candidateValue: RepairCandidatePresentation?
     @Published private(set) var candidates: [RepairCandidatePresentation] = []
@@ -192,9 +197,13 @@ extension PresentationService {
     var vpnStatus: String {
         switch vpn.state {
         case .active:
-            return candidateValue?.allowsWhenResidualRoute == true ?
-                "Wykryto trasy pozostałe po rozłączeniu VPN. Dostępna jest tylko naprawa dokładnie tych tras." :
-                "VPN aktywny. Zmiany sieci są zablokowane."
+            if candidateValue?.allowsWhenResidualRoute == true {
+                return "Wykryto trasy pozostałe po rozłączeniu VPN. Dostępna jest tylko naprawa dokładnie tych tras."
+            }
+            if vpn.reasonCode == .tunnelRoute, vpnServices == .disconnected {
+                return "Usługa VPN zgłasza rozłączenie, ale w systemie pozostały trasy tunelowe. Zmiany sieci są zablokowane."
+            }
+            return "VPN aktywny. Zmiany sieci są zablokowane."
         case .inactive: return "VPN nieaktywny. Możesz uruchomić diagnostykę."
         case .unknown:
             switch vpn.reasonCode {
@@ -363,6 +372,8 @@ extension PresentationService {
     func startDiagnosis() {
         guard !isRunning else { return }
         task?.cancel()
+        let generation = UUID()
+        operationGeneration = generation
         isRunning = true; progress = 0; state = .investigating; checks = []; candidateValue = nil; candidates = []
         repairPhase = ""
         lastResultText = String(localized: "diagnosis_running")
@@ -372,19 +383,22 @@ extension PresentationService {
             do {
                 let results = try await service.diagnose(onCheck: { [weak self] result, done, total in
                     Task { @MainActor [weak self] in
-                        guard let self, self.isRunning else { return }
+                        guard let self, self.isRunning, self.operationGeneration == generation else { return }
                         self.progress = Double(done) / Double(max(total, 1))
                         self.checks.append(Self.present(result))
                     }
                 })
-                guard !Task.isCancelled else { return }
-                progress = 1; isRunning = false
+                guard !Task.isCancelled, operationGeneration == generation else { return }
                 candidates = service.repairCandidates()
                 candidateValue = candidates.first
-                vpn = await service.refreshVPN(stabilize: false)
+                let assessment = await service.refreshVPN(stabilize: false)
+                guard !Task.isCancelled, operationGeneration == generation else { return }
+                vpn = assessment
                 vpnServices = service.vpnServices
                 accept(results)
+                progress = 1; isRunning = false
                 await refreshSessions()
+                guard !Task.isCancelled, operationGeneration == generation else { return }
                 if service.scenario == "production" { selectedSessionID = sessions.last?.id }
                 #if DEBUG
                 if service.scenario != "production", sessions.isEmpty {
@@ -392,10 +406,12 @@ extension PresentationService {
                 }
                 #endif
             } catch is CancellationError {
+                guard operationGeneration == generation else { return }
                 isRunning = false; state = .unknown; lastResultText = String(localized: "cancelled_result")
                 nextStep = String(localized: "start_next")
                 // A new uncancelled task from cancel() refreshes the journal.
             } catch {
+                guard !Task.isCancelled, operationGeneration == generation else { return }
                 isRunning = false; state = .unknown
                 lastResultText = "Nie udało się zapisać lub wykonać diagnozy."
                 nextStep = "Sprawdź uprawnienia do Application Support i spróbuj ponownie."
@@ -404,7 +420,8 @@ extension PresentationService {
     }
     func cancel() {
         guard isRunning else { return }
-        task?.cancel(); isRunning = false; state = .unknown
+        task?.cancel(); operationGeneration = UUID(); isRunning = false; state = .unknown
+        repairPhase = ""
         lastResultText = String(localized: "cancelled_result")
         nextStep = String(localized: "start_next")
         #if DEBUG
@@ -422,20 +439,25 @@ extension PresentationService {
     }
     func confirmRepair() {
         guard !isRunning, candidateValue != nil else { return }
+        let generation = UUID()
+        operationGeneration = generation
         isRunning = true; repairPhase = "Ponowna ocena VPN i warunków"
         task = Task { [weak self] in
             guard let self else { return }
-            vpn = await service.refreshVPN(stabilize: false)
+            let assessment = await service.refreshVPN(stabilize: false)
+            guard !Task.isCancelled, operationGeneration == generation else { return }
+            vpn = assessment
             // The executor repeats this gate and records a structured skipped result.
-            guard let result = await service.executeRepair(onPhase: { [weak self] phase, _ in
+            let repairResult = await service.executeRepair(onPhase: { [weak self] phase, _ in
                 Task { @MainActor [weak self] in
-                    guard let self, self.isRunning else { return }
+                    guard let self, self.isRunning, self.operationGeneration == generation else { return }
                     self.repairPhase = Self.phaseLabel(phase)
                 }
-            }) else {
+            })
+            guard !Task.isCancelled, operationGeneration == generation else { return }
+            guard let result = repairResult else {
                 isRunning = false; repairPhase = ""; return
             }
-            isRunning = false
             // The outcome is carried by the result text below; no raw phase name stays on screen.
             repairPhase = ""
             lastResultText = result.outcome == .success ? "Naprawiono — ponowny check potwierdził poprawę." :
@@ -443,13 +465,70 @@ extension PresentationService {
             nextStep = result.nextStep ?? "Przejrzyj szczegóły operacji."
             candidateValue = nil
             candidates = []
-            if service.scenario == "production" { await refreshSessions() }
+            if service.scenario == "production" {
+                await refreshSessions()
+                guard !Task.isCancelled, operationGeneration == generation else { return }
+                selectedSessionID = sessions.last?.id
+            }
             #if DEBUG
             if service.scenario != "production" {
                 sessions.append(ActivitySession(startedAt: Date(), appVersion: "0.1.0", macOSVersion: "14.0", entries: [result]))
             }
             #endif
+            if result.outcome == .success, !Task.isCancelled {
+                await refreshAfterVerifiedRepair()
+            } else {
+                isRunning = false
+            }
         }
+    }
+
+    /// The targeted repair recheck proves only its own change. Refresh every displayed
+    /// check before presenting the overall network state; retain the repair in the journal.
+    private func refreshAfterVerifiedRepair() async {
+        let generation = UUID()
+        operationGeneration = generation
+        isRunning = true; progress = 0; state = .investigating; checks = []
+        repairPhase = "Sprawdzanie sieci po naprawie"
+        nextStep = String(localized: "wait_or_cancel")
+        do {
+            let results = try await service.diagnose(onCheck: { [weak self] result, done, total in
+                Task { @MainActor [weak self] in
+                    guard let self, self.isRunning, self.operationGeneration == generation else { return }
+                    self.progress = Double(done) / Double(max(total, 1))
+                    self.checks.append(Self.present(result))
+                }
+            })
+            try Task.checkCancellation()
+            guard operationGeneration == generation else { return }
+            let assessment = await service.refreshVPN(stabilize: false)
+            try Task.checkCancellation()
+            guard operationGeneration == generation else { return }
+            vpn = assessment
+            vpnServices = service.vpnServices
+            candidates = service.repairCandidates()
+            candidateValue = candidates.first
+            accept(results)
+            lastResultText = "Naprawiono — ponowny check potwierdził poprawę. " + lastResultText
+            progress = 1
+            if service.scenario == "production" {
+                await refreshSessions()
+                try Task.checkCancellation()
+            }
+        } catch is CancellationError {
+            // cancel() already published the outcome; a new operation may now be running.
+            guard !Task.isCancelled, operationGeneration == generation else { return }
+            state = .unknown
+            lastResultText = "Naprawiono wskazany problem, ale pełna diagnoza po naprawie została anulowana."
+            nextStep = String(localized: "start_next")
+        } catch {
+            guard !Task.isCancelled, operationGeneration == generation else { return }
+            state = .unknown
+            lastResultText = "Naprawiono wskazany problem, ale nie udało się wykonać lub zapisać pełnej diagnozy po naprawie."
+            nextStep = "Uruchom diagnostykę ponownie. Szczegóły naprawy są w aktywności."
+        }
+        guard operationGeneration == generation else { return }
+        isRunning = false; repairPhase = ""
     }
     private func accept(_ results: [OperationResult]) {
         checks = results.map(Self.present)
@@ -460,7 +539,14 @@ extension PresentationService {
         }
         let sharingFailures = failing.filter { $0.operationID == FileSharingReadinessCheck.checkID }
         let networkFailures = failing.count - leftoverTunnels.count - sharingFailures.count
-        let vpnSettled = vpn.state == .inactive || residualTunnelOnly
+        let disconnectedRoutes = vpn.state == .active && vpn.reasonCode == .tunnelRoute && vpnServices == .disconnected
+        // Missing/skipped checks cannot prove that LAN and internet work. Keep the
+        // conservative VPN assessment; this affects presentation, never repair permission.
+        let basicChecksPassed = NetworkCheckKind.allCases.allSatisfy { kind in
+            results.contains { $0.operationID == kind.id && $0.outcome == .success }
+        }
+        let verifiedRemainingRoutes = disconnectedRoutes && basicChecksPassed
+        let vpnSettled = vpn.state == .inactive || residualTunnelOnly || verifiedRemainingRoutes
         if vpnSettled, networkFailures == 0, leftoverTunnels.isEmpty || residualTunnelOnly, !sharingFailures.isEmpty {
             // The network works; only this Mac's own file sharing keeps other Macs from logging in.
             state = .serverNotReady
@@ -471,6 +557,14 @@ extension PresentationService {
             state = .residual
             lastResultText = String(localized: "result_residual")
             nextStep = String(localized: "next_residual")
+        } else if verifiedRemainingRoutes && failing.isEmpty {
+            state = .residualRoutes
+            lastResultText = String(localized: "result_residual_routes")
+            nextStep = String(localized: "next_residual_routes")
+        } else if disconnectedRoutes && networkFailures > 0 {
+            state = .problem
+            lastResultText = String(localized: "result_problem")
+            nextStep = String(localized: "next_problem")
         } else if vpn.state != .inactive {
             state = .unknown
             lastResultText = String(localized: "result_vpn_unknown")
