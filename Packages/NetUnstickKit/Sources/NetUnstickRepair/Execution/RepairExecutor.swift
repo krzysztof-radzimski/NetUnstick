@@ -83,11 +83,12 @@ public struct RepairExecutor: Sendable {
             return true
         }
         func finish(_ outcome: OperationOutcome, _ code: String?, _ before: SafeEvidence = .empty,
-                    _ after: SafeEvidence = .empty, _ next: NextStep = .reviewDetails) async -> OperationResult {
+                    _ after: SafeEvidence = .empty, _ next: NextStep = .reviewDetails,
+                    helperNextStep: String? = nil) async -> OperationResult {
             let result = try! OperationResult(operationID: UUID().uuidString, name: plan.kind.rawValue, kind: .repair,
                 startedAt: start, endedAt: max(start, context.clock.now()), outcome: outcome, before: before,
                 after: after, error: code.flatMap { try? OperationError(domain: "repair", code: $0) },
-                nextStep: next.rawValue)
+                nextStep: helperNextStep ?? next.rawValue)
             do { try await store.append(result, to: session.id) }
             catch {
                 logger.error("Repair session \(session.id.uuidString, privacy: .public) final write failed")
@@ -194,9 +195,10 @@ public struct RepairExecutor: Sendable {
                 if reply.code == .success {
                     return await finish(.failure, "helper_result_mismatch", before, .empty, .contactSupport)
                 }
-                let outcome: OperationOutcome = reply.code == .permissionDenied || reply.code == .approvalRequired ? .permissionDenied :
+                let outcome: OperationOutcome = [.notRegistered, .permissionDenied, .approvalRequired].contains(reply.code) ? .permissionDenied :
                     reply.code == .timedOut ? .timedOut : [.vpnActive, .vpnUnknown, .ambiguousResource].contains(reply.code) ? .skipped : .failure
-                return await finish(outcome, reply.code.rawValue, before, .empty, .contactSupport)
+                return await finish(outcome, reply.code.rawValue, before, .empty, .contactSupport,
+                                    helperNextStep: reply.result.nextStep)
             }
         } else if !(await record("read_only_retry")) {
             return await finish(.failure, "session_write_failed", before)

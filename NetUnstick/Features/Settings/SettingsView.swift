@@ -8,9 +8,12 @@ struct SettingsView: View {
             Section("helper") {
                 Label(store.helper.title, systemImage: store.helper.symbol).accessibilityIdentifier("settings.helper")
                 Text("helper_note").foregroundStyle(.secondary)
+                Text(store.helperSetupGuidance).foregroundStyle(.secondary)
+                if store.helperSetupRunning { ProgressView("Sprawdzanie helpera…").controlSize(.small) }
                 if store.helper != .available {
                     Text("Helper może odnowić DHCP jednego potwierdzonego interfejsu albo usunąć zweryfikowane trasy pozostałe po VPN, które nakładają się na sieć lokalną. Każda zmiana wymaga osobnego potwierdzenia. Diagnostyka działa bez helpera.")
-                    Button("Zarejestruj helper") { store.registerHelper() }.accessibilityIdentifier("helper.register")
+                    Button("Zarejestruj helper") { store.registerHelper() }
+                        .disabled(store.isRunning || store.helperSetupRunning).accessibilityIdentifier("helper.register")
                     Button("Otwórz Elementy logowania") { store.openHelperSettings() }.accessibilityIdentifier("helper.settings")
                 }
                 if store.helper == .available {
@@ -18,10 +21,12 @@ struct SettingsView: View {
                         .accessibilityIdentifier("settings.helperHandshake")
                     Text("Sprawdzenie jest wyłącznie odczytowe. Po aktualizacji aplikacja sama odświeża rejestrację, gdy helper nie odpowiada; wcześniejsza zgoda w Elementach logowania zostaje zachowana.")
                         .foregroundStyle(.secondary)
-                    Button("Sprawdź helper") { store.verifyHelper() }.accessibilityIdentifier("helper.verify")
+                    Button("Sprawdź helper") { store.verifyHelper() }
+                        .disabled(store.isRunning || store.helperSetupRunning).accessibilityIdentifier("helper.verify")
                 }
                 if store.helper != .unavailable {
-                    Button("Wyrejestruj helper") { store.unregisterHelper() }.accessibilityIdentifier("helper.unregister")
+                    Button("Wyrejestruj helper") { store.unregisterHelper() }
+                        .disabled(store.isRunning || store.helperSetupRunning).accessibilityIdentifier("helper.unregister")
                 }
             }
             Section("privacy") { Text("privacy_detail") }

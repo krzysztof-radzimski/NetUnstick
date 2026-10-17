@@ -40,6 +40,50 @@ final class PrivilegedRequestClientTests: XCTestCase {
         let eight = (0..<8).map { PrivilegedRouteTarget(destination: "192.168.44.\($0 * 2)", prefix: 31, interface: "utun4") }
         XCTAssertEqual(PrivilegedRequestClient.timeout(for: .removeStaleTunnelRoutes(routes: eight)), 70)
     }
+
+    func testHelperGuidanceSurvivesStructuredResultsAndJSONRoundTrip() throws {
+        let cases: [(PrivilegedCode, String)] = [
+            (.notRegistered, "Zarejestruj helper jawnym przyciskiem przed naprawą."),
+            (.approvalRequired, "Zatwierdź helper w Elementach logowania."),
+            (.notFound, "Zainstaluj ponownie podpisany pakiet aplikacji."),
+            (.timedOut, "Sprawdź stan VPN i spróbuj później."),
+            (.permissionDenied, "Sprawdź uprawnienia helpera i zgodę systemową."),
+            (.disconnected, "Uruchom ponownie aplikację i sprawdź status helpera.")
+        ]
+        for (code, guidance) in cases {
+            let reply = PrivilegedRequestClient.failure(code)
+            XCTAssertEqual(reply.result.nextStep, guidance, code.rawValue)
+            let encoded = try JSONEncoder().encode(reply)
+            let restored = try JSONDecoder().decode(PrivilegedReply.self, from: encoded)
+            XCTAssertEqual(restored.code, code)
+            XCTAssertEqual(restored.result, reply.result)
+            XCTAssertEqual(restored.result.nextStep, guidance, code.rawValue)
+        }
+    }
+
+    func testUnknownHelperGuidanceStillRedactsSecretsOnCreationAndDecode() throws {
+        let sensitive = "Zarejestruj helper dla vpn.private.corp token=secret-helper-token-123"
+        let sample = PrivilegedRequestClient.failure(.notRegistered)
+        let result = try OperationResult(operationID: "helper_guidance_privacy", name: "privileged_repair",
+            kind: .repair, startedAt: sample.result.startedAt, endedAt: sample.result.endedAt,
+            outcome: .permissionDenied, error: sample.result.error, nextStep: sensitive)
+        XCTAssertEqual(result.nextStep, NextStep.reviewDetails.rawValue)
+        let encoded = try JSONEncoder().encode(result)
+        let text = String(decoding: encoded, as: UTF8.self)
+        XCTAssertFalse(text.contains("vpn.private.corp"))
+        XCTAssertFalse(text.contains("secret-helper-token-123"))
+
+        // Persisted or external data crosses the same boundary as a newly created result.
+        var object = try XCTUnwrap(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        object["nextStep"] = sensitive
+        let untrusted = try JSONSerialization.data(withJSONObject: object)
+        let decoded = try JSONDecoder().decode(OperationResult.self, from: untrusted)
+        XCTAssertEqual(decoded.nextStep, NextStep.reviewDetails.rawValue)
+        let sanitized = try JSONEncoder().encode(decoded)
+        let sanitizedText = String(decoding: sanitized, as: UTF8.self)
+        XCTAssertFalse(sanitizedText.contains("vpn.private.corp"))
+        XCTAssertFalse(sanitizedText.contains("secret-helper-token-123"))
+    }
 }
 private struct ClientSnapshot: NetUnstickNetwork.NetworkStateCollecting {
     func collect() async -> NetUnstickNetwork.RawNetworkSnapshot {

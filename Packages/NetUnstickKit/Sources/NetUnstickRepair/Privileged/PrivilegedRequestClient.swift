@@ -40,18 +40,18 @@ public enum PrivilegedRequestClient {
         let now = Date()
         let outcome: OperationOutcome = code == .timedOut ? .timedOut :
             [.approvalRequired, .notRegistered, .permissionDenied].contains(code) ? .permissionDenied : .failure
-        let next: String
+        let next: NextStep
         switch code {
-        case .approvalRequired: next = "Zatwierdź helper w Elementach logowania."
-        case .notRegistered: next = "Zarejestruj helper jawnym przyciskiem przed naprawą."
-        case .notFound: next = "Zainstaluj ponownie podpisany pakiet aplikacji."
-        case .timedOut: next = "Sprawdź stan VPN i spróbuj później."
-        case .permissionDenied: next = "Sprawdź uprawnienia helpera i zgodę systemową."
-        default: next = "Uruchom ponownie aplikację i sprawdź status helpera."
+        case .approvalRequired: next = .approveHelper
+        case .notRegistered: next = .registerHelper
+        case .notFound: next = .reinstallApp
+        case .timedOut: next = .retryHelper
+        case .permissionDenied: next = .checkHelperPermissions
+        default: next = .restartAppForHelper
         }
         let result = try! OperationResult(operationID: UUID().uuidString, name: "privileged_repair", kind: .repair,
             startedAt: now, endedAt: now, outcome: outcome,
-            error: try! OperationError(domain: "helper", code: code.rawValue), nextStep: next)
+            error: try! OperationError(domain: "helper", code: code.rawValue), nextStep: next.rawValue)
         return PrivilegedReply(code: code, result: result)
     }
 }

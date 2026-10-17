@@ -17,6 +17,31 @@ struct RepairConfirmationView: View {
                 LabeledContent("impact", value: item.impact)
                 LabeledContent("permission", value: item.permission)
                 LabeledContent("verification", value: item.verification)
+                if item.requiresHelper {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label(store.helper.title, systemImage: store.helper.symbol)
+                            .accessibilityIdentifier("repair.helper.status")
+                        Text(store.helperSetupGuidance).foregroundStyle(.secondary)
+                            .accessibilityIdentifier("repair.helper.guidance")
+                        if store.helperSetupRunning {
+                            ProgressView("Sprawdzanie helpera…").controlSize(.small)
+                                .accessibilityIdentifier("repair.helper.progress")
+                        } else if store.helper == .available {
+                            Button("Sprawdź helper") { store.verifyHelper() }
+                                .disabled(store.isRunning)
+                                .accessibilityIdentifier("repair.helper.verify")
+                        }
+                        if store.helper != .available {
+                            if store.helper != .approvalRequired {
+                                Button("Zarejestruj helper") { store.registerHelper() }
+                                    .disabled(store.isRunning || store.helperSetupRunning)
+                                    .accessibilityIdentifier("repair.helper.register")
+                            }
+                            Button("Otwórz Elementy logowania") { store.openHelperSettings() }
+                                .accessibilityIdentifier("repair.helper.settings")
+                        }
+                    }
+                }
             }
             Text(store.candidate?.allowsWhenResidualRoute == true ?
                  "Aplikacja ponownie potwierdzi rozłączenie usług VPN i dokładnie te trasy, usunie każdą z nich osobnym poleceniem, a następnie sprawdzi trasę lokalną." :
@@ -26,8 +51,12 @@ struct RepairConfirmationView: View {
                 Spacer()
                 Button("cancel") { dismiss() }
                     .accessibilityIdentifier("repair.cancel")
-                Button("Potwierdź i wykonaj") { store.confirmRepair(); dismiss() }
+                Button("Potwierdź i wykonaj") {
+                    store.confirmRepair()
+                    if store.isRunning { dismiss() }
+                }
                     .buttonStyle(.borderedProminent)
+                    .disabled(!store.canConfirmRepair)
                     .accessibilityIdentifier("repair.confirm")
             }
         }

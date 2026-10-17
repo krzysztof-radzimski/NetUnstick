@@ -43,13 +43,22 @@ private extension FakeCollector.Index {
 private actor FakeHelper: RepairHelperCalling {
     let code: PrivilegedCode
     let resultOutcome: OperationOutcome
+    let nextStep: NextStep?
     private(set) var calls = 0
-    init(_ code: PrivilegedCode, resultOutcome: OperationOutcome = .success) {
-        self.code = code; self.resultOutcome = resultOutcome
+    init(_ code: PrivilegedCode, resultOutcome: OperationOutcome = .success, nextStep: NextStep? = nil) {
+        self.code = code; self.resultOutcome = resultOutcome; self.nextStep = nextStep
     }
     func perform(_ action: PrivilegedAction) async -> PrivilegedReply {
         calls += 1
-        if code != .success { return PrivilegedRequestClient.failure(code) }
+        if code != .success {
+            let failure = PrivilegedRequestClient.failure(code)
+            guard let nextStep else { return failure }
+            let result = failure.result
+            return .init(code: code, result: try! OperationResult(operationID: result.operationID,
+                name: result.name, kind: result.kind, startedAt: result.startedAt, endedAt: result.endedAt,
+                outcome: result.outcome, before: result.before, after: result.after, error: result.error,
+                nextStep: nextStep.rawValue))
+        }
         let now = Date()
         return .init(code: .success, result: try! OperationResult(operationID: UUID().uuidString,
             name: "fake_helper", kind: .repair, startedAt: now, endedAt: now, outcome: resultOutcome,
@@ -178,6 +187,43 @@ final class RepairHarnessTests: XCTestCase {
                 let calls = await helper.calls
                 XCTAssertEqual(calls, callsExpected, target.kind.rawValue)
             }
+        }
+    }
+
+    func testHelperSetupFailuresKeepActionableGuidanceAndStopBeforeRecheck() async throws {
+        let cases: [(PrivilegedCode, OperationOutcome, NextStep?)] = [
+            (.notRegistered, .permissionDenied, nil),
+            (.approvalRequired, .permissionDenied, nil),
+            (.permissionDenied, .permissionDenied, nil),
+            (.notFound, .failure, nil),
+            (.timedOut, .timedOut, nil),
+            (.disconnected, .failure, nil),
+            // Also exercise a non-default, allowlisted instruction so the test catches
+            // a regression that replaces valid helper guidance with generic support text.
+            (.permissionDenied, .permissionDenied, .checkPermissions)
+        ]
+        let target = RepairPlan(kind: .removeStaleTunnelRoutes, reasonCode: "localRouteViaTunnel",
+            checkID: "local_subnet_route", resource: .tunnelRoutes(Self.staleGroup), summary: plan().summary)
+        for (code, outcome, instruction) in cases {
+            let helper = FakeHelper(code, nextStep: instruction)
+            let nextStep = instruction?.rawValue ?? PrivilegedRequestClient.failure(code).result.nextStep
+            let (store, session) = journal()
+            let executor = RepairExecutor(collector: FakeCollector(snapshots: [residualRouteSnapshot()]),
+                checks: FakeChecks(reasons: ["localRouteViaTunnel", "healthy"]), helper: helper,
+                wait: ImmediateWait(fails: false), dhcpInterfaces: { [] }, store: store, session: session)
+
+            let result = await executor.execute(target, context: .init(clock: FakeClock()))
+
+            XCTAssertEqual(result.outcome, outcome, code.rawValue)
+            XCTAssertEqual(result.error?.code, code.rawValue)
+            XCTAssertEqual(result.nextStep, nextStep, code.rawValue)
+            let calls = await helper.calls
+            XCTAssertEqual(calls, 1, "A helper failure must never be retried automatically")
+            let entries = try await store.sessions().first?.entries ?? []
+            XCTAssertEqual(entries.last, result, "The activity journal must retain the same actionable result")
+            XCTAssertTrue(entries.contains { $0.name == "helper_request" })
+            XCTAssertFalse(entries.contains { ["settle", "after_snapshot", "recheck"].contains($0.name) },
+                           "An unperformed repair must not be verified or shown as successful")
         }
     }
 

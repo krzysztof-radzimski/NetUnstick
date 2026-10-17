@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Builds the Release app with the persistent local identity and packs it into a signed,
+# Builds the Release app with Developer ID and packs it into a signed,
 # Finder-styled installer image: background with instructions, 128 pt icons, the app on
 # the left, the Applications shortcut on the right, and the app icon as the volume icon.
 # Usage: Tools/BuildDMG.sh [--skip-build]
@@ -7,7 +7,8 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-identity='NetUnstick Local Code Signing'
+identity="${NETUNSTICK_SIGN_IDENTITY:-D6CDD9E6748C6D2AE7D9FAF9D48D5CCAC992630E}"
+team='UGL4ZTH3C6'
 derived='Artifacts/ReleaseDerivedData'
 out='Artifacts/Distribution'
 volume_name='NetUnstick'
@@ -15,8 +16,14 @@ volume_name='NetUnstick'
 window_x=200; window_y=120; window_width=660; window_height=430
 app_x=165; app_y=175; applications_x=495; applications_y=175; icon_size=128
 
-if ! /usr/bin/security find-identity -v -p codesigning | /usr/bin/grep -Fq "\"$identity\""; then
-    print -u2 "Brak tożsamości '$identity'. Uruchom Tools/CreateLocalSigningIdentity.sh."
+if [[ ! "$identity" =~ '^[[:xdigit:]]{40}$' ]]; then
+    print -u2 'NETUNSTICK_SIGN_IDENTITY musi zawierać pełny SHA-1 certyfikatu Developer ID Application.'
+    exit 1
+fi
+identity="$(print -r -- "$identity" | /usr/bin/tr '[:lower:]' '[:upper:]')"
+identity_name="$(/usr/bin/security find-identity -v -p codesigning | /usr/bin/awk -v hash="$identity" '$2 == hash {sub(/^[^"]*"/, ""); sub(/"$/, ""); print}')"
+if [[ "$identity_name" != 'Developer ID Application: '*' ('$team')' ]]; then
+    print -u2 "Brak tożsamości Developer ID Application zespołu $team o SHA-1 $identity. Sprawdź: security find-identity -v -p codesigning."
     exit 1
 fi
 if [[ -d "/Volumes/$volume_name" ]]; then
@@ -27,12 +34,14 @@ fi
 if [[ "${1:-}" != '--skip-build' ]]; then
     xcodebuild -project NetUnstick.xcodeproj -scheme NetUnstick -configuration Release \
         -destination 'platform=macOS,arch=arm64' -derivedDataPath "$derived" \
-        CODE_SIGNING_ALLOWED=YES ONLY_ACTIVE_ARCH=YES build 2>&1 | /usr/bin/grep -E 'error:|BUILD SUCCEEDED|BUILD FAILED'
+        CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY="$identity" DEVELOPMENT_TEAM="$team" \
+        ONLY_ACTIVE_ARCH=YES build 2>&1 | /usr/bin/grep -E 'error:|BUILD SUCCEEDED|BUILD FAILED'
 fi
 
 app="$derived/Build/Products/Release/NetUnstick.app"
 test -d "$app"
-NetUnstick/TestSupport/check-helper-bundle.sh "$app" --require-stable-signing
+NetUnstick/TestSupport/check-helper-bundle.sh "$app" --require-developer-id
+/usr/bin/codesign --verify --strict "-R=certificate leaf = H\"$identity\"" "$app"
 version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$app/Contents/Info.plist")"
 build="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$app/Contents/Info.plist")"
 
@@ -111,16 +120,17 @@ done
 dmg="$out/NetUnstick-$version-$build.dmg"
 /bin/rm -f "$dmg"
 /usr/bin/hdiutil convert "$rw" -format UDZO -imagekey zlib-level=9 -o "$dmg" >/dev/null
-/usr/bin/codesign --sign "$identity" "$dmg"
+/usr/bin/codesign --sign "$identity" --timestamp "$dmg"
 /usr/bin/codesign --verify --strict "$dmg"
+/usr/bin/codesign --verify --strict "-R=certificate leaf = H\"$identity\"" "$dmg"
+/usr/bin/codesign -dvvv "$dmg" 2>&1 | /usr/bin/grep -q '^Timestamp='
 
 # 4. Verify the payload from the mounted image exactly as a user receives it.
 verify="$work/verify"
 /bin/mkdir -p "$verify"
 /usr/bin/hdiutil attach -nobrowse -readonly -mountpoint "$verify" "$dmg" >/dev/null
 mount="$verify"
-/usr/bin/codesign --verify --deep --strict "$verify/NetUnstick.app"
-/usr/bin/codesign --verify --strict "$verify/NetUnstick.app/Contents/MacOS/NetUnstickHelper"
+NetUnstick/TestSupport/check-helper-bundle.sh "$verify/NetUnstick.app" --require-developer-id
 [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$verify/NetUnstick.app/Contents/Info.plist")" == "$version" ]]
 test -L "$verify/Applications"
 test -f "$verify/.DS_Store"
@@ -132,14 +142,14 @@ mount=''
 /usr/bin/shasum -a 256 "$dmg"
 print "DMG: $dmg"
 
-# Login Items approval for the daemon is tied to the helper binary while the identity has no
-# Team ID: an update that changes the helper asks the user once more, an app-only update does not.
+# Keep the helper digest as release evidence. Developer ID carries a stable Team ID;
+# the system still controls whether a migration or update requires approval.
 helper_cdhash="$(/usr/bin/codesign -dvvv "$app/Contents/MacOS/NetUnstickHelper" 2>&1 | /usr/bin/sed -n 's/^CDHash=//p')"
 record="$out/helper-cdhash.txt"
 if [[ -f "$record" && "$(/bin/cat "$record")" != "$helper_cdhash" ]]; then
-    print "UWAGA: binarka helpera zmieniła się od poprzedniego wydania ($(/bin/cat "$record") -> $helper_cdhash); po aktualizacji macOS poprosi raz o zatwierdzenie helpera w Elementach logowania."
+    print "Binarka helpera zmieniła się od poprzedniego wydania ($(/bin/cat "$record") -> $helper_cdhash). Tożsamość Developer ID zespołu: $team; o zatwierdzeniu elementu tła decyduje macOS."
 elif [[ -f "$record" ]]; then
-    print "Helper bez zmian od poprzedniego wydania ($helper_cdhash); aktualizacja nie wymaga nowej zgody."
+    print "Helper bez zmian od poprzedniego wydania ($helper_cdhash)."
 else
     print "Zapisano cdhash helpera ($helper_cdhash) jako punkt odniesienia dla kolejnych wydań."
 fi

@@ -182,12 +182,87 @@ import NetUnstickNetwork
     }
 }
 
+/// Stan helpera zmienia się wyłącznie po jawnej rejestracji; fixture nie wykonuje
+/// żadnej operacji uprzywilejowanej ani automatycznej naprawy.
+@MainActor private final class HelperRequirementPresentationService: PresentationService {
+    let scenario = "production"
+    var helper: HelperPresentationState
+    let vpnServices = VPNServiceStatus.disconnected
+    private let requiresHelper: Bool
+    private let registrationResult: HelperPresentationState
+    var verificationResult: HelperHandshakePresentation
+    private var pauseVerificationAfterRegistration: Bool
+    private var pendingVerification: CheckedContinuation<HelperHandshakePresentation, Never>?
+    private var repaired = false
+    private(set) var registerCalls = 0
+    private(set) var repairCalls = 0
+    private(set) var verifyCalls = 0
+    var verificationWaiting: Bool { pendingVerification != nil }
+
+    init(helper: HelperPresentationState, requiresHelper: Bool = true,
+         registrationResult: HelperPresentationState = .available,
+         verificationResult: HelperHandshakePresentation = .responding(version: 2),
+         pauseVerificationAfterRegistration: Bool = false) {
+        self.helper = helper
+        self.requiresHelper = requiresHelper
+        self.registrationResult = registrationResult
+        self.verificationResult = verificationResult
+        self.pauseVerificationAfterRegistration = pauseVerificationAfterRegistration
+    }
+
+    func diagnose() async throws -> [OperationResult] {
+        if repaired { return ResidualRoutesPresentationService.hostResults() }
+        return [ResidualRoutesPresentationService.result(NetworkCheckKind.physicalLink.id,
+            reason: NetworkCheckReason.noAddressLease.rawValue, outcome: .failure)]
+    }
+    func repairCandidate() -> RepairCandidatePresentation? {
+        guard !repaired else { return nil }
+        return .init(change: "Wybrana naprawa", reason: "Brak adresacji fizycznego interfejsu",
+                     resource: "Jeden interfejs", impact: "Jawna operacja użytkownika",
+                     permission: "Opis uprawnień nie steruje walidacją", verification: "Ponowny check",
+                     requiresHelper: requiresHelper)
+    }
+    func refreshVPN(stabilize: Bool) async -> VPNAssessment { .init(state: .inactive, reasonCode: .noVPNSignals) }
+    func registerHelper() -> HelperPresentationState {
+        registerCalls += 1
+        helper = registrationResult
+        return helper
+    }
+    func verifyHelper() async -> HelperHandshakePresentation {
+        verifyCalls += 1
+        if registerCalls > 0, pauseVerificationAfterRegistration {
+            return await withCheckedContinuation { pendingVerification = $0 }
+        }
+        return verificationResult
+    }
+    func completeVerification() {
+        pauseVerificationAfterRegistration = false
+        let continuation = pendingVerification
+        pendingVerification = nil
+        continuation?.resume(returning: verificationResult)
+    }
+    func executeRepair(onPhase: @escaping @Sendable (String, OperationOutcome) -> Void) async -> OperationResult? {
+        repairCalls += 1
+        repaired = true
+        let now = Date()
+        return try! OperationResult(operationID: "repair.helper_requirement", name: "fixtureRepair", kind: .repair,
+            startedAt: now, endedAt: now, outcome: .success)
+    }
+}
+
 @MainActor final class PresentationStoreTests: XCTestCase {
     private func settle(_ store: PresentationStore) async {
         for _ in 0..<30 {
             if !store.isRunning { return }
             try? await Task.sleep(for: .milliseconds(100))
         }
+    }
+    private func settleHelper(_ store: PresentationStore) async {
+        for _ in 0..<30 {
+            if !store.helperSetupRunning { return }
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+        XCTAssertFalse(store.helperSetupRunning, "Przygotowanie helpera nie zakończyło się w czasie fixture")
     }
 
     func testMockDiagnosisDisplaysStructuredOutcomes() async throws {
@@ -207,6 +282,165 @@ import NetUnstickNetwork
             XCTAssertNil(store.candidate)
             XCTAssertNotEqual(store.vpn.state, .inactive)
         }
+    }
+
+    func testPrivilegedRepairPreflightPreservesCandidateUntilHelperIsAvailable() async throws {
+        for status in [HelperPresentationState.unavailable, .approvalRequired, .denied] {
+            let service = HelperRequirementPresentationService(helper: status)
+            let store = PresentationStore(service: service)
+            store.startDiagnosis()
+            await settle(store)
+            await settleHelper(store)
+            let candidate = try XCTUnwrap(store.candidate)
+            XCTAssertTrue(candidate.requiresHelper)
+            XCTAssertFalse(store.canConfirmRepair, "helper=\(status.rawValue)")
+
+            store.confirmRepair()
+            await settle(store)
+
+            XCTAssertEqual(service.repairCalls, 0, "Brak helpera ma zatrzymać żądanie przed executorem")
+            XCTAssertEqual(service.registerCalls, 0, "Próba naprawy nie rejestruje helpera automatycznie")
+            XCTAssertEqual(store.helper, status)
+            XCTAssertEqual(store.candidate?.change, candidate.change)
+            XCTAssertEqual(store.candidates.count, 1, "Kandydat musi zostać dostępny po rozwiązaniu problemu uprawnień")
+            XCTAssertFalse(store.canConfirmRepair)
+            XCTAssertFalse(store.isRunning)
+            let explanation = (store.lastResultText + " " + store.nextStep).lowercased()
+            XCTAssertTrue(explanation.contains("helper"), explanation)
+            XCTAssertTrue(["rejestr", "zatwierd", "zgod"].contains(where: explanation.contains), explanation)
+            XCTAssertFalse(store.lastResultText.contains("Naprawiono"))
+        }
+    }
+
+    func testExplicitHelperRegistrationUnlocksRepairWithoutStartingIt() async throws {
+        let service = HelperRequirementPresentationService(helper: .unavailable)
+        let store = PresentationStore(service: service)
+        store.startDiagnosis()
+        await settle(store)
+        await settleHelper(store)
+        let candidate = try XCTUnwrap(store.candidate)
+        XCTAssertFalse(store.canConfirmRepair)
+
+        store.registerHelper()
+
+        XCTAssertEqual(service.registerCalls, 1)
+        XCTAssertEqual(store.helper, .available)
+        XCTAssertTrue(store.helperSetupRunning, "Rejestracja nie dowodzi jeszcze odpowiedzi helpera")
+        XCTAssertFalse(store.canConfirmRepair)
+        await settleHelper(store)
+        XCTAssertEqual(store.helperHandshake, .responding(version: 2))
+        XCTAssertTrue(store.canConfirmRepair)
+        XCTAssertEqual(store.candidate?.change, candidate.change)
+        XCTAssertEqual(service.repairCalls, 0, "Rejestracja helpera nie jest potwierdzeniem naprawy")
+        XCTAssertFalse(store.isRunning)
+
+        store.confirmRepair()
+        await settle(store)
+        XCTAssertEqual(service.repairCalls, 1, "Dopiero osobne potwierdzenie wykonuje naprawę")
+        XCTAssertEqual(service.registerCalls, 1)
+    }
+
+    func testRegisteredHelperStillAwaitingSystemApprovalKeepsRepairBlocked() async throws {
+        let service = HelperRequirementPresentationService(helper: .unavailable, registrationResult: .approvalRequired)
+        let store = PresentationStore(service: service)
+        store.startDiagnosis()
+        await settle(store)
+        await settleHelper(store)
+        let candidate = try XCTUnwrap(store.candidate)
+
+        store.registerHelper()
+        await settleHelper(store)
+
+        XCTAssertEqual(service.registerCalls, 1)
+        XCTAssertEqual(store.helper, .approvalRequired)
+        XCTAssertFalse(store.canConfirmRepair)
+        XCTAssertEqual(store.candidate?.change, candidate.change)
+        XCTAssertEqual(service.repairCalls, 0)
+        store.confirmRepair()
+        await settle(store)
+        XCTAssertEqual(service.repairCalls, 0)
+        XCTAssertNotNil(store.candidate)
+    }
+
+    func testReadOnlyRepairDoesNotRequireHelperOrImplicitRegistration() async throws {
+        let service = HelperRequirementPresentationService(helper: .unavailable, requiresHelper: false)
+        let store = PresentationStore(service: service)
+        store.startDiagnosis()
+        await settle(store)
+        await settleHelper(store)
+        let candidate = try XCTUnwrap(store.candidate)
+        XCTAssertFalse(candidate.requiresHelper)
+        XCTAssertTrue(store.canConfirmRepair)
+
+        store.confirmRepair()
+        await settle(store)
+
+        XCTAssertEqual(service.repairCalls, 1)
+        XCTAssertEqual(service.registerCalls, 0)
+        XCTAssertEqual(store.helper, .unavailable)
+        XCTAssertTrue(store.lastResultText.contains("Naprawiono"))
+    }
+
+    func testFailedHelperHandshakeBlocksRepairDespiteEnabledRegistration() async throws {
+        let service = HelperRequirementPresentationService(helper: .available,
+            verificationResult: .failed(code: "launch_constraint_violation"))
+        let store = PresentationStore(service: service)
+        store.startDiagnosis()
+        await settle(store)
+        await settleHelper(store)
+        let candidate = try XCTUnwrap(store.candidate)
+
+        store.verifyHelper()
+        await settleHelper(store)
+
+        XCTAssertEqual(store.helper, .available, "Sam status rejestracji może wyglądać poprawnie po zmianie podpisu")
+        XCTAssertEqual(store.helperHandshake, .failed(code: "launch_constraint_violation"))
+        XCTAssertFalse(store.canConfirmRepair)
+        store.confirmRepair()
+        await settle(store)
+        XCTAssertEqual(service.repairCalls, 0)
+        XCTAssertEqual(service.registerCalls, 0)
+        XCTAssertEqual(store.candidate?.change, candidate.change)
+        XCTAssertFalse(store.isRunning)
+
+        service.verificationResult = .responding(version: 2)
+        store.verifyHelper()
+        await settleHelper(store)
+        XCTAssertTrue(store.canConfirmRepair)
+        XCTAssertEqual(service.repairCalls, 0, "Udany handshake również nie potwierdza naprawy za użytkownika")
+    }
+
+    func testHelperPreparationBlocksRepairUntilVerifiedResponseArrives() async throws {
+        let service = HelperRequirementPresentationService(helper: .unavailable, pauseVerificationAfterRegistration: true)
+        let store = PresentationStore(service: service)
+        defer { service.completeVerification() }
+        store.startDiagnosis()
+        await settle(store)
+        await settleHelper(store)
+        let candidate = try XCTUnwrap(store.candidate)
+
+        store.registerHelper()
+
+        XCTAssertTrue(store.helperSetupRunning)
+        XCTAssertEqual(store.helper, .available)
+        XCTAssertFalse(store.canConfirmRepair)
+        for _ in 0..<30 {
+            if service.verificationWaiting { break }
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        XCTAssertTrue(service.verificationWaiting)
+        store.confirmRepair()
+        XCTAssertEqual(service.repairCalls, 0, "Dostępna rejestracja bez odpowiedzi procesu nie wystarcza do naprawy")
+        XCTAssertTrue(store.helperSetupRunning)
+        XCTAssertEqual(store.candidate?.change, candidate.change)
+
+        service.completeVerification()
+        await settleHelper(store)
+
+        XCTAssertEqual(store.helperHandshake, .responding(version: 2))
+        XCTAssertFalse(store.helperSetupRunning)
+        XCTAssertTrue(store.canConfirmRepair)
+        XCTAssertEqual(service.repairCalls, 0)
     }
 
     func testLeftoverTunnelAfterConfirmedDisconnectIsNotAnUnknownNetwork() async throws {

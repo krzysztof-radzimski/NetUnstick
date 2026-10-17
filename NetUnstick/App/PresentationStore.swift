@@ -102,11 +102,13 @@ struct RepairCandidatePresentation {
     let permission: String
     let verification: String
     var allowsWhenResidualRoute = false
+    var requiresHelper = false
 }
 
 @MainActor protocol PresentationService {
     var scenario: String { get }
     var helper: HelperPresentationState { get }
+    var helperRegistrationIssue: String? { get }
     /// Aggregate status of the configured VPN services from the latest observation.
     var vpnServices: VPNServiceStatus { get }
     func diagnose() async throws -> [OperationResult]
@@ -128,6 +130,7 @@ struct RepairCandidatePresentation {
 }
 
 extension PresentationService {
+    var helperRegistrationIssue: String? { nil }
     var vpnServices: VPNServiceStatus { .unknown }
     func repairCandidates() -> [RepairCandidatePresentation] { repairCandidate().map { [$0] } ?? [] }
     func selectRepairCandidate(_ index: Int) {}
@@ -171,6 +174,7 @@ extension PresentationService {
     @Published var selectedSessionID: UUID?
     @Published var helperState: HelperPresentationState = .unavailable
     @Published var helperHandshake: HelperHandshakePresentation = .notRun
+    @Published private(set) var helperSetupRunning = false
     @Published var deviceHost = ""
     @Published var devicePort = "445"
     @Published var deviceTestRunning = false
@@ -184,6 +188,30 @@ extension PresentationService {
     var helper: HelperPresentationState { helperState }
     var candidate: RepairCandidatePresentation? {
         vpn.state == .inactive || candidateValue?.allowsWhenResidualRoute == true ? candidateValue : nil
+    }
+    var canConfirmRepair: Bool {
+        guard !isRunning, let candidate else { return false }
+        if !candidate.requiresHelper { return true }
+        guard helperState == .available, !helperSetupRunning else { return false }
+        if case .failed = helperHandshake { return false }
+        return true
+    }
+    var helperSetupGuidance: String {
+        if helperSetupRunning { return "Sprawdzam odpowiedź helpera i w razie potrzeby odświeżam jego rejestrację. Poczekaj na potwierdzenie gotowości." }
+        if let issue = service.helperRegistrationIssue { return issue }
+        if helperState == .available, case .failed = helperHandshake {
+            return "Helper jest zarejestrowany, ale nie potwierdził gotowości. Kliknij „Sprawdź helper”, aby ponowić weryfikację rejestracji. Naprawa sieci pozostaje zablokowana."
+        }
+        switch helperState {
+        case .unavailable:
+            return "Ta naprawa wymaga helpera z uprawnieniami administratora. Kliknij „Zarejestruj helper”, zatwierdź go w macOS, a potem potwierdź naprawę. Rejestracja nie zmienia ustawień sieci."
+        case .approvalRequired:
+            return "macOS czeka na zatwierdzenie helpera. Otwórz Elementy logowania i zezwól NetUnstick na działanie w tle. Następnie wróć tutaj i potwierdź naprawę."
+        case .denied:
+            return "Helper jest niedostępny. Sprawdź zgodę administratora i instalację kompletnego, podpisanego pakietu NetUnstick."
+        case .available:
+            return "Helper jest zarejestrowany. Zmiana sieci nastąpi dopiero po kliknięciu „Potwierdź i wykonaj”."
+        }
     }
     func selectCandidate(_ index: Int) {
         guard candidates.indices.contains(index) else { return }
@@ -278,9 +306,28 @@ extension PresentationService {
         }
     }
     func selectSession(_ id: UUID) { selectedSessionID = id }
-    func registerHelper() { helperState = service.registerHelper() }
-    func unregisterHelper() { helperState = service.unregisterHelper() }
-    func verifyHelper() { Task { await verifyHelperNow() } }
+    func registerHelper() {
+        guard !isRunning, !helperSetupRunning else { return }
+        helperState = service.registerHelper()
+        helperHandshake = .notRun
+        if helperState == .available { verifyHelper() }
+        nextStep = helperSetupGuidance
+    }
+    func unregisterHelper() {
+        guard !isRunning, !helperSetupRunning else { return }
+        helperState = service.unregisterHelper()
+        helperHandshake = .notRun
+    }
+    func verifyHelper() {
+        guard !isRunning, !helperSetupRunning else { return }
+        helperSetupRunning = true
+        Task { [weak self] in
+            guard let self else { return }
+            await verifyHelperNow()
+            helperSetupRunning = false
+            if !isRunning { nextStep = helperSetupGuidance }
+        }
+    }
     func testDeviceConnection() {
         guard !deviceTestRunning else { return }
         guard let port = DeviceConnectionInput.port(from: devicePort), DeviceConnectionInput.isValidHost(deviceHost) else {
@@ -364,6 +411,8 @@ extension PresentationService {
         }
     }
     private func verifyHelperNow() async {
+        helperSetupRunning = true
+        defer { helperSetupRunning = false }
         helperHandshake = await service.verifyHelper()
         helperState = service.helper
     }
@@ -438,7 +487,13 @@ extension PresentationService {
         }
     }
     func confirmRepair() {
-        guard !isRunning, candidateValue != nil else { return }
+        guard !isRunning, let selectedCandidate = candidate else { return }
+        helperState = service.helper
+        guard !selectedCandidate.requiresHelper || canConfirmRepair else {
+            lastResultText = "Naprawa czeka na przygotowanie helpera."
+            nextStep = helperSetupGuidance
+            return
+        }
         let generation = UUID()
         operationGeneration = generation
         isRunning = true; repairPhase = "Ponowna ocena VPN i warunków"

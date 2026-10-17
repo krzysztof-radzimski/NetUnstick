@@ -25,6 +25,7 @@ import NetUnstickRepair
     private(set) var vpn: VPNAssessment = .init(state: .unknown, reasonCode: .stabilizationPending)
     private(set) var vpnServices: VPNServiceStatus = .unknown
     private(set) var helperHandshake: HelperHandshakePresentation = .notRun
+    var helperRegistrationIssue: String? { helperClient.lastRegistrationError }
 
     var helper: HelperPresentationState {
         switch helperClient.status {
@@ -109,7 +110,8 @@ import NetUnstickRepair
                      resource: plan.summary.resource, impact: plan.summary.possibleImpact,
                      permission: plan.summary.requiresAdministrator ? "Wymaga zatwierdzonego helpera" : "Bez uprawnień administratora",
                      verification: plan.summary.verification,
-                     allowsWhenResidualRoute: plan.kind == .removeStaleTunnelRoutes)
+                     allowsWhenResidualRoute: plan.kind == .removeStaleTunnelRoutes,
+                     requiresHelper: plan.summary.requiresAdministrator)
     }
 
     func executeRepair(onPhase: @escaping @Sendable (String, OperationOutcome) -> Void) async -> OperationResult? {

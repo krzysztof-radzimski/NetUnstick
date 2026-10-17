@@ -43,6 +43,84 @@ private final class XPCCompletionGate {
     }
 }
 
+enum HelperRegistrationRefreshError: Error {
+    case timedOut
+}
+
+/// A completion callback confirms that ServiceManagement has reaped the old job.
+/// Merely observing .notRegistered does not provide that ordering guarantee.
+enum HelperRegistrationRefresh {
+    static func perform(
+        unregister: (@escaping (Error?) -> Void) -> Void,
+        register: () -> HelperRegistrationStatus,
+        timeout: Duration = .seconds(5)
+    ) async throws -> HelperRegistrationStatus {
+        let gate = HelperUnregistrationGate()
+        try await withTaskCancellationHandler {
+            try Task.checkCancellation()
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                guard gate.install(continuation) else { return }
+                let timer = Task {
+                    do { try await Task.sleep(for: timeout) }
+                    catch { return }
+                    gate.finish(.failure(HelperRegistrationRefreshError.timedOut))
+                }
+                gate.installTimeout(timer)
+                unregister { error in
+                    if let error { gate.finish(.failure(error)) }
+                    else { gate.finish(.success(())) }
+                }
+            }
+        } onCancel: {
+            gate.finish(.failure(CancellationError()))
+        }
+        try Task.checkCancellation()
+        return register()
+    }
+}
+
+/// Callback, deadline and cancellation may race; only the first completion wins.
+private final class HelperUnregistrationGate: @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<Void, Error>?
+    private var result: Result<Void, Error>?
+    private var timer: Task<Void, Never>?
+
+    func install(_ continuation: CheckedContinuation<Void, Error>) -> Bool {
+        lock.lock()
+        if let result {
+            lock.unlock()
+            continuation.resume(with: result)
+            return false
+        }
+        self.continuation = continuation
+        lock.unlock()
+        return true
+    }
+    func installTimeout(_ timer: Task<Void, Never>) {
+        lock.lock()
+        if result != nil {
+            lock.unlock()
+            timer.cancel()
+            return
+        }
+        self.timer = timer
+        lock.unlock()
+    }
+    func finish(_ result: Result<Void, Error>) {
+        lock.lock()
+        guard self.result == nil else { lock.unlock(); return }
+        self.result = result
+        let continuation = self.continuation
+        self.continuation = nil
+        let timer = self.timer
+        self.timer = nil
+        lock.unlock()
+        timer?.cancel()
+        continuation?.resume(with: result)
+    }
+}
+
 public final class PrivilegedHelperClient {
     private let transport: PrivilegedRequestTransport
     /// A fresh handle for every query, so an approval granted in System Settings is seen without relaunching.
@@ -88,16 +166,24 @@ public final class PrivilegedHelperClient {
         }
         return status
     }
-    /// Fallback after an update: remove the stale job, wait until the system reports it gone,
-    /// then register again. Removing and re-adding too quickly was observed to create a new
-    /// Login Items record that waits for approval, so the removal must settle first.
+    /// Fallback after an update: wait for ServiceManagement to reap the stale job before
+    /// registering its replacement. Timeout, cancellation or an error stop the migration.
     public func refreshRegistrationAfterUpdate() async -> HelperRegistrationStatus {
-        _ = unregisterForUpdate()
-        let deadline = Date().addingTimeInterval(5)
-        while status != .notRegistered && Date() < deadline {
-            try? await Task.sleep(for: .milliseconds(200))
+        lastRegistrationError = nil
+        let registrationService = service
+        do {
+            return try await HelperRegistrationRefresh.perform(
+                unregister: { registrationService.unregister(completionHandler: $0) },
+                register: { self.registerForSelectedRepair() }
+            )
+        } catch is CancellationError {
+            lastRegistrationError = "Odświeżanie helpera anulowano. Sprawdź jego stan przed ponowną rejestracją."
+        } catch HelperRegistrationRefreshError.timedOut {
+            lastRegistrationError = "System nie potwierdził wyrejestrowania helpera w ciągu 5 sekund. Sprawdź jego stan i spróbuj ponownie."
+        } catch {
+            lastRegistrationError = "Wyrejestrowanie helpera nie powiodło się. Sprawdź Elementy logowania przed ponowną rejestracją."
         }
-        return registerForSelectedRepair()
+        return status
     }
     /// Invoke only from an explicit user control, e.g. after updating the bundle so launchd
     /// stops the old daemon instance; the next registration may need approval again.
