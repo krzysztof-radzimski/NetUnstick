@@ -1,55 +1,11 @@
+import NetUnstickStoreNetwork
 import Foundation
 import Darwin
 import Network
 import NetUnstickCore
 
 /// Closed reason codes. User-facing copy is kept beside each stable code.
-public enum NetworkCheckReason: String, Sendable, CaseIterable {
-    case healthy, dataIncomplete, environmentLimited, cancelled, timedOut
-    case noPhysicalLink, noAddressLease, noGateway, noDefaultRoute, duplicateDefaultRoute, residualDefaultRoute
-    case localRouteMissing, localRouteViaTunnel, resolverMissing, residualScopedDNS, resolverOrder, residualSearchDomain
-    case dnsNXDomain, dnsTimeout, dnsServerUnavailable, dnsNoPath, dnsFailure
-    case localPathUnavailable, internetUnavailable, internetReachable, activeProxy, activePAC
-    case orphanedTunnel, routingConflict, expectedInterfaceMissing, unstableAfterDisconnect
-    case routeViaInactiveTunnel
 
-    public var message: String {
-        switch self {
-        case .healthy: return "Nie wykryto problemu w tym sprawdzeniu."
-        case .dataIncomplete: return "Brakuje danych, aby ocenić ten obszar."
-        case .environmentLimited: return "Warunki sieciowe ograniczają to sprawdzenie."
-        case .cancelled: return "Sprawdzenie zostało anulowane."
-        case .timedOut: return "Sprawdzenie przekroczyło limit czasu."
-        case .noPhysicalLink: return "Nie ma aktywnego fizycznego połączenia."
-        case .noAddressLease: return "Interfejs nie ma użytecznej adresacji."
-        case .noGateway: return "Nie znaleziono bramy na fizycznym połączeniu."
-        case .noDefaultRoute: return "Nie znaleziono trasy domyślnej."
-        case .duplicateDefaultRoute: return "Wykryto konkurujące trasy domyślne."
-        case .residualDefaultRoute: return "Trasa domyślna wskazuje interfejs tunelowy."
-        case .localRouteMissing: return "Nie można potwierdzić trasy do lokalnej podsieci."
-        case .localRouteViaTunnel: return "Ruch do lokalnej podsieci może trafiać do tunelu."
-        case .resolverMissing: return "Nie znaleziono dostępnego serwera DNS."
-        case .residualScopedDNS: return "Resolver powiązany z tunelem może nadal działać."
-        case .resolverOrder: return "Kolejność resolverów może kierować zapytania do tunelu."
-        case .residualSearchDomain: return "Domena wyszukiwania może pochodzić z tunelu."
-        case .dnsNXDomain: return "Serwer DNS zgłosił brak tej nazwy."
-        case .dnsTimeout: return "Odpowiedź DNS nie nadeszła na czas."
-        case .dnsServerUnavailable: return "Serwer DNS jest niedostępny."
-        case .dnsNoPath: return "Brak ścieżki sieciowej do zapytania DNS."
-        case .dnsFailure: return "Rozwiązanie nazwy nie powiodło się."
-        case .localPathUnavailable: return "Lokalne połączenie nie jest dostępne."
-        case .internetUnavailable: return "Nie potwierdzono ścieżki internetowej."
-        case .internetReachable: return "Ścieżka internetowa jest dostępna."
-        case .activeProxy: return "Aktywny proxy może wpływać na łączność po VPN."
-        case .activePAC: return "Aktywna konfiguracja PAC może wpływać na łączność po VPN."
-        case .orphanedTunnel: return "Pozostał interfejs tunelowy bez aktywnego połączenia."
-        case .routingConflict: return "Ta sama sieć ma trasy przez różne interfejsy; ruch może wychodzić niewłaściwą drogą."
-        case .routeViaInactiveTunnel: return "Trasa wskazuje nieaktywny interfejs tunelowy."
-        case .expectedInterfaceMissing: return "Brakuje interfejsu używanego przez trasę."
-        case .unstableAfterDisconnect: return "Stan sieci nadal się zmienia po rozłączeniu."
-        }
-    }
-}
 
 public enum ProbeOutcome: Sendable { case reachable, nxdomain, timeout, serverUnavailable, noPath, failed }
 public protocol NetworkConnectivityProbing: Sendable {
@@ -109,28 +65,7 @@ private final class ProbeCompletion: @unchecked Sendable {
     }
 }
 
-public enum NetworkCheckKind: String, Sendable, CaseIterable {
-    case physicalLink, defaultRoute, localSubnetRoute, resolverConfiguration
-    case unicastDNSResolution, internetPath, proxyConfiguration, interfaceConsistency
-    public var id: String {
-        switch self {
-        case .physicalLink: return "physical_link"
-        case .defaultRoute: return "default_route"
-        case .localSubnetRoute: return "local_subnet_route"
-        case .resolverConfiguration: return "resolver_configuration"
-        case .unicastDNSResolution: return "unicast_dns_resolution"
-        case .internetPath: return "internet_path"
-        case .proxyConfiguration: return "proxy_configuration"
-        case .interfaceConsistency: return "interface_consistency"
-        }
-    }
-    public var timeout: Duration {
-        switch self {
-        case .unicastDNSResolution, .internetPath: return .seconds(3)
-        default: return .seconds(1)
-        }
-    }
-}
+
 
 public struct SnapshotDiagnosticCheck: DiagnosticCheck {
     public let kind: NetworkCheckKind

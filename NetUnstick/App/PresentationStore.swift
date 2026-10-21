@@ -1,7 +1,11 @@
 import Foundation
 import SwiftUI
 import NetUnstickCore
+#if APP_STORE
+import NetUnstickStoreNetwork
+#else
 import NetUnstickNetwork
+#endif
 
 enum NetworkPresentationState: String {
     /// `residual`: the checks pass and the VPN service reports disconnected, but the VPN
@@ -13,24 +17,24 @@ enum NetworkPresentationState: String {
     case healthy, problem, investigating, unknown, residual, residualRoutes, serverNotReady
     var title: String {
         switch self {
-        case .healthy: String(localized: "state_healthy")
-        case .problem: String(localized: "state_problem")
-        case .investigating: String(localized: "state_investigating")
-        case .unknown: String(localized: "state_unknown")
-        case .residual: String(localized: "state_residual")
-        case .residualRoutes: String(localized: "state_residual_routes")
-        case .serverNotReady: String(localized: "state_sharing")
+        case .healthy: L10n.text("state_healthy")
+        case .problem: L10n.text("state_problem")
+        case .investigating: L10n.text("state_investigating")
+        case .unknown: L10n.text("state_unknown")
+        case .residual: L10n.text("state_residual")
+        case .residualRoutes: L10n.text("state_residual_routes")
+        case .serverNotReady: L10n.text("state_sharing")
         }
     }
     var explanation: String {
         switch self {
-        case .healthy: String(localized: "state_healthy_detail")
-        case .problem: String(localized: "state_problem_detail")
-        case .investigating: String(localized: "state_investigating_detail")
-        case .unknown: String(localized: "state_unknown_detail")
-        case .residual: String(localized: "state_residual_detail")
-        case .residualRoutes: String(localized: "state_residual_routes_detail")
-        case .serverNotReady: String(localized: "state_sharing_detail")
+        case .healthy: L10n.text("state_healthy_detail")
+        case .problem: L10n.text("state_problem_detail")
+        case .investigating: L10n.text("state_investigating_detail")
+        case .unknown: L10n.text("state_unknown_detail")
+        case .residual: L10n.text("state_residual_detail")
+        case .residualRoutes: L10n.text("state_residual_routes_detail")
+        case .serverNotReady: L10n.text("state_sharing_detail")
         }
     }
     var symbol: String {
@@ -49,10 +53,10 @@ enum HelperPresentationState: String {
     case available, approvalRequired, denied, unavailable
     var title: String {
         switch self {
-        case .available: String(localized: "helper_available")
-        case .approvalRequired: String(localized: "helper_approvalRequired")
-        case .denied: String(localized: "helper_denied")
-        case .unavailable: String(localized: "helper_unavailable")
+        case .available: L10n.text("helper_available")
+        case .approvalRequired: L10n.text("helper_approvalRequired")
+        case .denied: L10n.text("helper_denied")
+        case .unavailable: L10n.text("helper_unavailable")
         }
     }
     var symbol: String { switch self { case .available: "checkmark.circle"; case .approvalRequired: "hand.raised"; case .denied: "xmark.circle"; case .unavailable: "questionmark.circle" } }
@@ -63,9 +67,9 @@ enum HelperHandshakePresentation: Equatable {
     case notRun, responding(version: Int), failed(code: String)
     var text: String {
         switch self {
-        case .notRun: "Helper nie był jeszcze sprawdzany."
-        case .responding(let version): "Helper odpowiada (protokół w wersji \(version))."
-        case .failed(let code): "Helper nie odpowiada: \(code)."
+        case .notRun: L10n.text("helper_unchecked")
+        case .responding(let version): L10n.format("helper_protocol", version)
+        case .failed(let code): L10n.format("helper_error", code)
         }
     }
     var symbol: String {
@@ -107,6 +111,7 @@ struct RepairCandidatePresentation {
 
 @MainActor protocol PresentationService {
     var scenario: String { get }
+    var supportsRepairs: Bool { get }
     var helper: HelperPresentationState { get }
     var helperRegistrationIssue: String? { get }
     /// Aggregate status of the configured VPN services from the latest observation.
@@ -120,6 +125,7 @@ struct RepairCandidatePresentation {
     func recordCancellation() async
     func refreshVPN(stabilize: Bool) async -> VPNAssessment
     func loadSessions() async throws -> [ActivitySession]
+    func clearHistory() async throws
     func preview(_ session: ActivitySession) -> String
     func registerHelper() -> HelperPresentationState
     func unregisterHelper() -> HelperPresentationState
@@ -130,6 +136,7 @@ struct RepairCandidatePresentation {
 }
 
 extension PresentationService {
+    var supportsRepairs: Bool { true }
     var helperRegistrationIssue: String? { nil }
     var vpnServices: VPNServiceStatus { .unknown }
     func repairCandidates() -> [RepairCandidatePresentation] { repairCandidate().map { [$0] } ?? [] }
@@ -150,6 +157,7 @@ extension PresentationService {
         }
     }
     func loadSessions() async throws -> [ActivitySession] { [] }
+    func clearHistory() async throws {}
     func preview(_ session: ActivitySession) -> String { ReportRenderer().preview(session: session).body }
     func registerHelper() -> HelperPresentationState { helper }
     func unregisterHelper() -> HelperPresentationState { helper }
@@ -164,8 +172,8 @@ extension PresentationService {
     @Published var sessions: [ActivitySession] = []
     @Published var progress = 0.0
     @Published var isRunning = false
-    @Published var lastResultText = String(localized: "no_result")
-    @Published var nextStep = String(localized: "start_next")
+    @Published var lastResultText = L10n.text("no_result")
+    @Published var nextStep = L10n.text("start_next")
     @Published var filter = "all"
     @Published var vpn: VPNAssessment = .init(state: .unknown, reasonCode: .stabilizationPending)
     @Published var vpnServices: VPNServiceStatus = .unknown
@@ -175,6 +183,7 @@ extension PresentationService {
     @Published var helperState: HelperPresentationState = .unavailable
     @Published var helperHandshake: HelperHandshakePresentation = .notRun
     @Published private(set) var helperSetupRunning = false
+    @Published private(set) var historyClearRunning = false
     @Published var deviceHost = ""
     @Published var devicePort = "445"
     @Published var deviceTestRunning = false
@@ -186,31 +195,33 @@ extension PresentationService {
     private var candidateValue: RepairCandidatePresentation?
     @Published private(set) var candidates: [RepairCandidatePresentation] = []
     var helper: HelperPresentationState { helperState }
+    var supportsRepairs: Bool { service.supportsRepairs }
+    private var isPersistentService: Bool { ["production", "app-store"].contains(service.scenario) }
     var candidate: RepairCandidatePresentation? {
         vpn.state == .inactive || candidateValue?.allowsWhenResidualRoute == true ? candidateValue : nil
     }
     var canConfirmRepair: Bool {
-        guard !isRunning, let candidate else { return false }
+        guard supportsRepairs, !isRunning, !historyClearRunning, let candidate else { return false }
         if !candidate.requiresHelper { return true }
         guard helperState == .available, !helperSetupRunning else { return false }
         if case .failed = helperHandshake { return false }
         return true
     }
     var helperSetupGuidance: String {
-        if helperSetupRunning { return "Sprawdzam odpowiedź helpera i w razie potrzeby odświeżam jego rejestrację. Poczekaj na potwierdzenie gotowości." }
+        if helperSetupRunning { return L10n.text("helper_preparing") }
         if let issue = service.helperRegistrationIssue { return issue }
         if helperState == .available, case .failed = helperHandshake {
-            return "Helper jest zarejestrowany, ale nie potwierdził gotowości. Kliknij „Sprawdź helper”, aby ponowić weryfikację rejestracji. Naprawa sieci pozostaje zablokowana."
+            return L10n.text("helper_not_responding")
         }
         switch helperState {
         case .unavailable:
-            return "Ta naprawa wymaga helpera z uprawnieniami administratora. Kliknij „Zarejestruj helper”, zatwierdź go w macOS, a potem potwierdź naprawę. Rejestracja nie zmienia ustawień sieci."
+            return L10n.text("helper_setup_required")
         case .approvalRequired:
-            return "macOS czeka na zatwierdzenie helpera. Otwórz Elementy logowania i zezwól NetUnstick na działanie w tle. Następnie wróć tutaj i potwierdź naprawę."
+            return L10n.text("helper_approve_guidance")
         case .denied:
-            return "Helper jest niedostępny. Sprawdź zgodę administratora i instalację kompletnego, podpisanego pakietu NetUnstick."
+            return L10n.text("helper_unavailable_guidance")
         case .available:
-            return "Helper jest zarejestrowany. Zmiana sieci nastąpi dopiero po kliknięciu „Potwierdź i wykonaj”."
+            return L10n.text("helper_ready_guidance")
         }
     }
     func selectCandidate(_ index: Int) {
@@ -223,30 +234,31 @@ extension PresentationService {
         vpn.state == .unknown && vpn.reasonCode == .residualTunnel && vpnServices == .disconnected
     }
     var vpnStatus: String {
+        if !supportsRepairs { return L10n.text("store_diagnostic_scope") }
         switch vpn.state {
         case .active:
             if candidateValue?.allowsWhenResidualRoute == true {
-                return "Wykryto trasy pozostałe po rozłączeniu VPN. Dostępna jest tylko naprawa dokładnie tych tras."
+                return L10n.text("vpn_stale_repair")
             }
             if vpn.reasonCode == .tunnelRoute, vpnServices == .disconnected {
-                return "Usługa VPN zgłasza rozłączenie, ale w systemie pozostały trasy tunelowe. Zmiany sieci są zablokowane."
+                return L10n.text("vpn_leftover_routes")
             }
-            return "VPN aktywny. Zmiany sieci są zablokowane."
-        case .inactive: return "VPN nieaktywny. Możesz uruchomić diagnostykę."
+            return L10n.text("vpn_active_guidance")
+        case .inactive: return L10n.text("vpn_inactive_guidance")
         case .unknown:
             switch vpn.reasonCode {
             case .residualTunnel where vpnServices == .disconnected:
-                return "Usługa VPN zgłasza rozłączenie, ale klient VPN zostawił nieaktywne interfejsy tunelowe. Zwykłe zmiany sieci są zablokowane."
+                return L10n.text("vpn_leftover_interfaces")
             case .residualTunnel:
-                return "Pozostał interfejs tunelowy, a stan usługi VPN jest nieznany. Zmiany sieci są zablokowane."
+                return L10n.text("vpn_unknown_interface")
             case .pathTransition:
-                return "Sieć właśnie się zmienia. Zmiany sieci są zablokowane do ponownej oceny."
+                return L10n.text("vpn_changing")
             case .partialReadFailure, .incompleteSnapshot:
-                return "Nie udało się w pełni odczytać stanu sieci. Zmiany sieci są zablokowane do ponownej oceny."
+                return L10n.text("vpn_incomplete")
             case .conflictingSignals:
-                return "Trasa lub resolver wskazuje nieobecny tunel. Zmiany sieci są zablokowane do ponownej oceny."
+                return L10n.text("vpn_missing_tunnel")
             default:
-                return "Stan VPN niepewny. Zmiany sieci są zablokowane do ponownej oceny."
+                return L10n.text("vpn_uncertain")
             }
         }
     }
@@ -267,9 +279,10 @@ extension PresentationService {
     init(service: any PresentationService) {
         self.service = service
         self.helperState = service.helper
-        if service.scenario == "production" {
+        if isPersistentService {
             watcher = Task { [weak self] in
                 await self?.refreshSessions()
+                guard self?.supportsRepairs == true else { return }
                 await self?.verifyHelperNow()
                 while !Task.isCancelled {
                     await self?.observeVPN()
@@ -278,7 +291,7 @@ extension PresentationService {
             }
         }
         #if DEBUG
-        if service.scenario != "production" && service.scenario != "unavailable" {
+        if !isPersistentService && service.scenario != "unavailable" {
             if service.scenario == "operation-progress" { startDiagnosis() }
             else if service.scenario != "default" { startDiagnosis() }
         }
@@ -293,7 +306,7 @@ extension PresentationService {
         vpnServices = service.vpnServices
         if previous == .active && assessment.state == .inactive {
             disconnectBanner = true
-            nextStep = "VPN został rozłączony. Uruchom diagnostykę, aby sprawdzić połączenie."
+            nextStep = L10n.text("vpn_disconnected_next")
         }
         helperState = service.helper
     }
@@ -302,24 +315,32 @@ extension PresentationService {
             sessions = try await service.loadSessions()
             if selectedSessionID == nil { selectedSessionID = sessions.last?.id }
         } catch {
-            nextStep = "Nie można odczytać historii. Sprawdź uprawnienia do Application Support."
+            nextStep = L10n.text("history_unavailable")
         }
     }
     func selectSession(_ id: UUID) { selectedSessionID = id }
+    func clearHistory() async throws {
+        guard !isRunning, !deviceTestRunning, !historyClearRunning else { return }
+        historyClearRunning = true
+        defer { historyClearRunning = false }
+        try await service.clearHistory()
+        sessions = []; selectedSessionID = nil
+        candidates = []; candidateValue = nil
+    }
     func registerHelper() {
-        guard !isRunning, !helperSetupRunning else { return }
+        guard supportsRepairs, !isRunning, !helperSetupRunning else { return }
         helperState = service.registerHelper()
         helperHandshake = .notRun
         if helperState == .available { verifyHelper() }
         nextStep = helperSetupGuidance
     }
     func unregisterHelper() {
-        guard !isRunning, !helperSetupRunning else { return }
+        guard supportsRepairs, !isRunning, !helperSetupRunning else { return }
         helperState = service.unregisterHelper()
         helperHandshake = .notRun
     }
     func verifyHelper() {
-        guard !isRunning, !helperSetupRunning else { return }
+        guard supportsRepairs, !isRunning, !helperSetupRunning else { return }
         helperSetupRunning = true
         Task { [weak self] in
             guard let self else { return }
@@ -329,7 +350,7 @@ extension PresentationService {
         }
     }
     func testDeviceConnection() {
-        guard !deviceTestRunning else { return }
+        guard !deviceTestRunning, !historyClearRunning else { return }
         guard let port = DeviceConnectionInput.port(from: devicePort), DeviceConnectionInput.isValidHost(deviceHost) else {
             deviceConnection = .init(outcome: Self.outcomeTitle(.skipped), reason: DeviceConnectionReason.invalidInput.message,
                                      technicalDetail: "errorCode: invalidInput", symbol: "minus.circle")
@@ -342,14 +363,15 @@ extension PresentationService {
             deviceTestRunning = false
             guard let result else { deviceConnection = nil; return }
             deviceConnection = Self.presentDevice(result)
-            if service.scenario == "production" { await refreshSessions() }
+            if isPersistentService { await refreshSessions() }
         }
     }
     static func presentDevice(_ result: OperationResult) -> DeviceConnectionPresentation {
         let code = result.after.values[.errorCode] ?? result.error?.code ?? ""
-        var reason = DeviceConnectionReason(rawValue: code)?.message ?? "Nie można ocenić wyniku."
+        var reason = code == "permissionDenied" ? L10n.text("bonjour_permissionDenied") :
+            DeviceConnectionReason(rawValue: code)?.message ?? L10n.text("device_unknown_result")
         if result.after.values[.networkStatus] == "active" {
-            reason += " Ruch do tego urządzenia idzie przez interfejs tunelowy."
+            reason += " " + L10n.text("device_via_tunnel")
         }
         if let families = Self.addressFamilyNote(result.after) { reason += " " + families }
         if let session = Self.smbSessionNote(result.after) { reason += " " + session }
@@ -365,22 +387,22 @@ extension PresentationService {
         guard let raw = evidence.values[.smbResult], let smb = SMBSessionOutcome(rawValue: raw) else { return nil }
         switch smb {
         case .sharesListed:
-            return "Sesja SMB działa, a serwer przyjmuje gości."
+            return L10n.text("smb_guest_accepted")
         case .authRejected:
-            return "Sesja SMB działa; serwer odrzuca gościa i wymaga logowania. Użyj „Połącz jako…” z kontem tamtego komputera (konto musi mieć włączone SMB na tamtym Macu)."
+            return L10n.text("smb_login_required")
         case .sessionFailed:
             let filter = evidence.values[.contentFilterStatus] == "active"
-            var text = "Port odpowiada, ale sesja SMB nie została wynegocjowana: tamten serwer zamyka połączenie zaraz po negocjacji tego klienta. Najczęstsza przyczyna to nowszy macOS na tym komputerze niż na tamtym (np. 27 → 26): serwer nie przyjmuje negocjacji SMB 3. Obejście: na tym komputerze wpisz do /etc/nsmb.conf sekcję [default] z protocol_vers_map=2 (tylko SMB 2) albo zaktualizuj tamten Mac; potem „Połącz jako…”."
+            var text = L10n.text("smb_session_failed")
             if filter {
-                text += " Na tym komputerze działa też filtr treści na gniazdach (zapora lub inny program); w tym przypadku zwykle nie jest przyczyną, ale przy dalszych problemach przetestuj z wyłączonym filtrem."
+                text += " " + L10n.text("smb_filter_present")
             }
             return text
         case .timedOut:
-            return "Klient SMB tego komputera nie odpowiedział w czasie; powtórz test."
+            return L10n.text("smb_timeout")
         case .otherExit:
-            return "Klient SMB tego komputera zakończył się nietypowym kodem; powtórz test albo wykonaj w Terminalu „smbutil view -N //nazwa”, aby zobaczyć komunikat."
+            return L10n.text("smb_other_exit")
         case .unknown:
-            return "Nie udało się ocenić sesji SMB."
+            return L10n.text("smb_unknown")
         }
     }
     static func addressFamilyNote(_ evidence: SafeEvidence) -> String? {
@@ -388,24 +410,24 @@ extension PresentationService {
         let ipv6 = evidence.values[.ipv6Result].flatMap(DeviceConnectionReason.init(rawValue:))
         func label(_ reason: DeviceConnectionReason) -> String {
             switch reason {
-            case .reachable: "osiągalne"
-            case .refused: "odrzucone"
-            case .timedOut: "bez odpowiedzi"
-            case .unreachable: "brak drogi"
+            case .reachable: L10n.text("address_reachable")
+            case .refused: L10n.text("address_refused")
+            case .timedOut: L10n.text("address_timeout")
+            case .unreachable: L10n.text("address_unreachable")
             default: reason.rawValue
             }
         }
         switch (ipv4, ipv6) {
         case (.some(.reachable), .some(let v6)) where v6 != .reachable:
-            return "Po IPv4 połączenie działa, po IPv6 nie (\(label(v6))): urządzenie rozgłasza adres IPv6, z którego ten komputer nie może skorzystać. Programy wybierające najpierw IPv6, w tym Finder, mogą zgłaszać błąd połączenia. Włącz IPv6 (Automatycznie) na tym komputerze albo na tamtym ustaw IPv6 na „Tylko lokalne łącze”."
+            return L10n.format("address_ipv4_works", label(v6))
         case (.some(let v4), .some(.reachable)) where v4 != .reachable:
-            return "Po IPv6 połączenie działa, po IPv4 nie (\(label(v4))). Sprawdź adres IPv4 i maskę podsieci obu komputerów."
+            return L10n.format("address_ipv6_works", label(v4))
         case (.some(let v4), .some(let v6)):
-            return "IPv4: \(label(v4)) · IPv6: \(label(v6))."
+            return L10n.format("address_summary", label(v4), label(v6))
         case (.some, .none):
-            return "Nazwa ma tylko adres IPv4."
+            return L10n.text("address_ipv4_only")
         case (.none, .some):
-            return "Nazwa ma tylko adres IPv6."
+            return L10n.text("address_ipv6_only")
         case (.none, .none):
             return nil
         }
@@ -419,14 +441,14 @@ extension PresentationService {
     func openHelperSettings() { service.openHelperSettings() }
 
     func startDiagnosis() {
-        guard !isRunning else { return }
+        guard !isRunning, !historyClearRunning else { return }
         task?.cancel()
         let generation = UUID()
         operationGeneration = generation
         isRunning = true; progress = 0; state = .investigating; checks = []; candidateValue = nil; candidates = []
         repairPhase = ""
-        lastResultText = String(localized: "diagnosis_running")
-        nextStep = String(localized: "wait_or_cancel")
+        lastResultText = L10n.text("diagnosis_running")
+        nextStep = L10n.text("wait_or_cancel")
         task = Task { [weak self] in
             guard let self else { return }
             do {
@@ -438,7 +460,7 @@ extension PresentationService {
                     }
                 })
                 guard !Task.isCancelled, operationGeneration == generation else { return }
-                candidates = service.repairCandidates()
+                candidates = supportsRepairs ? service.repairCandidates() : []
                 candidateValue = candidates.first
                 let assessment = await service.refreshVPN(stabilize: false)
                 guard !Task.isCancelled, operationGeneration == generation else { return }
@@ -448,22 +470,22 @@ extension PresentationService {
                 progress = 1; isRunning = false
                 await refreshSessions()
                 guard !Task.isCancelled, operationGeneration == generation else { return }
-                if service.scenario == "production" { selectedSessionID = sessions.last?.id }
+                if isPersistentService { selectedSessionID = sessions.last?.id }
                 #if DEBUG
-                if service.scenario != "production", sessions.isEmpty {
+                if !isPersistentService, sessions.isEmpty {
                     sessions = [ActivitySession(startedAt: Date(), appVersion: "0.1.0", macOSVersion: "14.0", entries: results)]
                 }
                 #endif
             } catch is CancellationError {
                 guard operationGeneration == generation else { return }
-                isRunning = false; state = .unknown; lastResultText = String(localized: "cancelled_result")
-                nextStep = String(localized: "start_next")
+                isRunning = false; state = .unknown; lastResultText = L10n.text("cancelled_result")
+                nextStep = L10n.text("start_next")
                 // A new uncancelled task from cancel() refreshes the journal.
             } catch {
                 guard !Task.isCancelled, operationGeneration == generation else { return }
                 isRunning = false; state = .unknown
-                lastResultText = "Nie udało się zapisać lub wykonać diagnozy."
-                nextStep = "Sprawdź uprawnienia do Application Support i spróbuj ponownie."
+                lastResultText = L10n.text("diagnosis_failed")
+                nextStep = L10n.text("support_permissions")
             }
         }
     }
@@ -471,10 +493,10 @@ extension PresentationService {
         guard isRunning else { return }
         task?.cancel(); operationGeneration = UUID(); isRunning = false; state = .unknown
         repairPhase = ""
-        lastResultText = String(localized: "cancelled_result")
-        nextStep = String(localized: "start_next")
+        lastResultText = L10n.text("cancelled_result")
+        nextStep = L10n.text("start_next")
         #if DEBUG
-        if service.scenario != "production" {
+        if !isPersistentService {
             let now = Date()
             if let result = try? OperationResult(operationID: "fake.cancelled", name: "diagnosis_cancelled",
                 kind: .diagnostic, startedAt: now, endedAt: now, outcome: .cancelled) {
@@ -482,21 +504,21 @@ extension PresentationService {
             }
         }
         #endif
-        if service.scenario == "production" {
+        if isPersistentService {
             Task { await service.recordCancellation(); await refreshSessions() }
         }
     }
     func confirmRepair() {
-        guard !isRunning, let selectedCandidate = candidate else { return }
+        guard supportsRepairs, !isRunning, !historyClearRunning, let selectedCandidate = candidate else { return }
         helperState = service.helper
         guard !selectedCandidate.requiresHelper || canConfirmRepair else {
-            lastResultText = "Naprawa czeka na przygotowanie helpera."
+            lastResultText = L10n.text("repair_waiting_helper")
             nextStep = helperSetupGuidance
             return
         }
         let generation = UUID()
         operationGeneration = generation
-        isRunning = true; repairPhase = "Ponowna ocena VPN i warunków"
+        isRunning = true; repairPhase = L10n.text("repair_reassessing")
         task = Task { [weak self] in
             guard let self else { return }
             let assessment = await service.refreshVPN(stabilize: false)
@@ -515,18 +537,18 @@ extension PresentationService {
             }
             // The outcome is carried by the result text below; no raw phase name stays on screen.
             repairPhase = ""
-            lastResultText = result.outcome == .success ? "Naprawiono — ponowny check potwierdził poprawę." :
-                "Naprawa: \(Self.outcomeTitle(result.outcome)); \(result.error?.code ?? "bez kodu")"
-            nextStep = result.nextStep ?? "Przejrzyj szczegóły operacji."
+            lastResultText = result.outcome == .success ? L10n.text("repair_verified") :
+                L10n.format("repair_outcome", Self.outcomeTitle(result.outcome), result.error?.code ?? L10n.text("no_error_code"))
+            nextStep = result.nextStep.map(L10n.nextStep) ?? L10n.text("review_details")
             candidateValue = nil
             candidates = []
-            if service.scenario == "production" {
+            if isPersistentService {
                 await refreshSessions()
                 guard !Task.isCancelled, operationGeneration == generation else { return }
                 selectedSessionID = sessions.last?.id
             }
             #if DEBUG
-            if service.scenario != "production" {
+            if !isPersistentService {
                 sessions.append(ActivitySession(startedAt: Date(), appVersion: "0.1.0", macOSVersion: "14.0", entries: [result]))
             }
             #endif
@@ -544,8 +566,8 @@ extension PresentationService {
         let generation = UUID()
         operationGeneration = generation
         isRunning = true; progress = 0; state = .investigating; checks = []
-        repairPhase = "Sprawdzanie sieci po naprawie"
-        nextStep = String(localized: "wait_or_cancel")
+        repairPhase = L10n.text("repair_checking")
+        nextStep = L10n.text("wait_or_cancel")
         do {
             let results = try await service.diagnose(onCheck: { [weak self] result, done, total in
                 Task { @MainActor [weak self] in
@@ -561,12 +583,12 @@ extension PresentationService {
             guard operationGeneration == generation else { return }
             vpn = assessment
             vpnServices = service.vpnServices
-            candidates = service.repairCandidates()
+            candidates = supportsRepairs ? service.repairCandidates() : []
             candidateValue = candidates.first
             accept(results)
-            lastResultText = "Naprawiono — ponowny check potwierdził poprawę. " + lastResultText
+            lastResultText = L10n.text("repair_verified") + " " + lastResultText
             progress = 1
-            if service.scenario == "production" {
+            if isPersistentService {
                 await refreshSessions()
                 try Task.checkCancellation()
             }
@@ -574,13 +596,13 @@ extension PresentationService {
             // cancel() already published the outcome; a new operation may now be running.
             guard !Task.isCancelled, operationGeneration == generation else { return }
             state = .unknown
-            lastResultText = "Naprawiono wskazany problem, ale pełna diagnoza po naprawie została anulowana."
-            nextStep = String(localized: "start_next")
+            lastResultText = L10n.text("repair_followup_cancelled")
+            nextStep = L10n.text("start_next")
         } catch {
             guard !Task.isCancelled, operationGeneration == generation else { return }
             state = .unknown
-            lastResultText = "Naprawiono wskazany problem, ale nie udało się wykonać lub zapisać pełnej diagnozy po naprawie."
-            nextStep = "Uruchom diagnostykę ponownie. Szczegóły naprawy są w aktywności."
+            lastResultText = L10n.text("repair_followup_failed")
+            nextStep = L10n.text("repair_check_again")
         }
         guard operationGeneration == generation else { return }
         isRunning = false; repairPhase = ""
@@ -588,11 +610,20 @@ extension PresentationService {
     private func accept(_ results: [OperationResult]) {
         checks = results.map(Self.present)
         let failing = results.filter { $0.outcome == .failure || $0.outcome == .permissionDenied || $0.outcome == .timedOut }
+        if !supportsRepairs {
+            // A sandboxed observation cannot establish the machine's routing or VPN state.
+            let required = ["physical_link", "unicast_dns_resolution", "internet_path"]
+            let passed = required.allSatisfy { id in results.contains { $0.operationID == id && $0.outcome == .success } }
+            state = failing.isEmpty ? (passed ? .healthy : .unknown) : .problem
+            lastResultText = L10n.text(passed && failing.isEmpty ? "store_result_connected" : "store_result_incomplete")
+            nextStep = L10n.text("store_next_step")
+            return
+        }
         // Leftover tunnel devices after a confirmed disconnect are a nuisance, not an unknown network.
         let leftoverTunnels = failing.filter {
             $0.operationID == "interface_consistency" && $0.after.values[.errorCode] == NetworkCheckReason.orphanedTunnel.rawValue
         }
-        let sharingFailures = failing.filter { $0.operationID == FileSharingReadinessCheck.checkID }
+        let sharingFailures = failing.filter { $0.operationID == "file_sharing_readiness" }
         let networkFailures = failing.count - leftoverTunnels.count - sharingFailures.count
         let disconnectedRoutes = vpn.state == .active && vpn.reasonCode == .tunnelRoute && vpnServices == .disconnected
         // Missing/skipped checks cannot prove that LAN and internet work. Keep the
@@ -606,33 +637,33 @@ extension PresentationService {
             // The network works; only this Mac's own file sharing keeps other Macs from logging in.
             state = .serverNotReady
             let noLogin = sharingFailures.contains { $0.after.values[.errorCode] == FileSharingReason.noLoginMethod.rawValue }
-            lastResultText = String(localized: noLogin ? "result_sharing_nologin" : "result_sharing")
-            nextStep = String(localized: noLogin ? "next_sharing_nologin" : "next_sharing")
+            lastResultText = L10n.text(noLogin ? "result_sharing_nologin" : "result_sharing")
+            nextStep = L10n.text(noLogin ? "next_sharing_nologin" : "next_sharing")
         } else if residualTunnelOnly && networkFailures == 0 && sharingFailures.isEmpty {
             state = .residual
-            lastResultText = String(localized: "result_residual")
-            nextStep = String(localized: "next_residual")
+            lastResultText = L10n.text("result_residual")
+            nextStep = L10n.text("next_residual")
         } else if verifiedRemainingRoutes && failing.isEmpty {
             state = .residualRoutes
-            lastResultText = String(localized: "result_residual_routes")
-            nextStep = String(localized: "next_residual_routes")
+            lastResultText = L10n.text("result_residual_routes")
+            nextStep = L10n.text("next_residual_routes")
         } else if disconnectedRoutes && networkFailures > 0 {
             state = .problem
-            lastResultText = String(localized: "result_problem")
-            nextStep = String(localized: "next_problem")
+            lastResultText = L10n.text("result_problem")
+            nextStep = L10n.text("next_problem")
         } else if vpn.state != .inactive {
             state = .unknown
-            lastResultText = String(localized: "result_vpn_unknown")
-            nextStep = String(localized: "next_vpn_unknown")
+            lastResultText = L10n.text("result_vpn_unknown")
+            nextStep = L10n.text("next_vpn_unknown")
         } else {
             state = failing.isEmpty ? .healthy : .problem
-            lastResultText = failing.isEmpty ? String(localized: "result_healthy") : String(localized: "result_problem")
-            nextStep = failing.isEmpty ? String(localized: "next_healthy") : String(localized: "next_problem")
+            lastResultText = failing.isEmpty ? L10n.text("result_healthy") : L10n.text("result_problem")
+            nextStep = failing.isEmpty ? L10n.text("next_healthy") : L10n.text("next_problem")
         }
         if results.contains(where: { $0.outcome == .permissionDenied }) {
-            lastResultText = String(localized: "result_permission"); nextStep = String(localized: "next_permission")
+            lastResultText = L10n.text("result_permission"); nextStep = L10n.text("next_permission")
         } else if results.contains(where: { $0.outcome == .timedOut }) {
-            lastResultText = String(localized: "result_timeout"); nextStep = String(localized: "next_timeout")
+            lastResultText = L10n.text("result_timeout"); nextStep = L10n.text("next_timeout")
         }
     }
     private static func present(_ result: OperationResult) -> CheckPresentation {
@@ -645,48 +676,55 @@ extension PresentationService {
             sharing.message
         } else if let code, let bonjour = BonjourReason(rawValue: code) {
             switch bonjour {
-            case .noServices: "Nie znaleziono odbiornika; może go nie być w tej sieci."
-            case .permissionDenied: "System odmówił dostępu do sieci lokalnej. Sprawdź zgodę aplikacji."
-            case .timedOut: "Odkrywanie lokalne nie zakończyło się na czas. Spróbuj ponownie."
-            case .browserFailed: "Odkrywanie lokalne nie powiodło się. Spróbuj ponownie."
-            case .noPhysicalInterface, .noLocalPath: "Brak potwierdzonej ścieżki lokalnej. Sprawdź połączenie."
-            case .cancelled: "Sprawdzenie zostało anulowane."
-            case .inconclusive: "Nie można potwierdzić działania odkrywania lokalnego."
+            case .noServices: L10n.text("bonjour_noServices")
+            case .permissionDenied: L10n.text("bonjour_permissionDenied")
+            case .timedOut: L10n.text("bonjour_timedOut")
+            case .browserFailed: L10n.text("bonjour_browserFailed")
+            case .noPhysicalInterface, .noLocalPath: L10n.text("bonjour_noLocalPath")
+            case .cancelled: L10n.text("bonjour_cancelled")
+            case .inconclusive: L10n.text("bonjour_inconclusive")
             case .servicesFound: nil
             }
         } else { nil }
         let evidence = result.after.values.sorted { $0.key.rawValue < $1.key.rawValue }
             .map { "\($0.key.rawValue): \($0.value)" }.joined(separator: " · ")
-        return .init(id: result.operationID, title: result.name.replacingOccurrences(of: "_", with: " "),
+        return .init(id: result.operationID, title: operationTitle(result.name),
                      outcome: outcomeTitle(result.outcome),
                      reason: result.outcome == .success ? nil : reason,
                      technicalDetail: "\(evidence) \(result.error.map { "\($0.domain)/\($0.code)" } ?? "")",
                      symbol: result.outcome == .success ? "checkmark.circle" : result.outcome == .skipped ? "minus.circle" : "exclamationmark.triangle")
     }
+    static func operationTitle(_ stableName: String) -> String {
+        #if APP_STORE
+        // NWPath observes this sandbox's path; it does not inspect physical interfaces.
+        if stableName == "physical_link" { return L10n.text("check_network") }
+        #endif
+        return L10n.operationTitle(stableName)
+    }
     /// Plain-language labels for the executor's phase names shown while a repair runs.
     static func phaseLabel(_ phase: String) -> String {
         switch phase {
-        case "revalidate": "Ponowna walidacja diagnozy"
-        case "fresh_vpn": "Świeża ocena VPN"
-        case "vpn_gate": "Blokada VPN"
-        case "before_snapshot": "Migawka stanu przed zmianą"
-        case "helper_request": "Żądanie do helpera"
-        case "read_only_retry": "Ponowienie sprawdzenia bez zmian"
-        case "settle": "Oczekiwanie na ustabilizowanie"
-        case "after_snapshot": "Migawka stanu po zmianie"
-        case "recheck": "Ponowne sprawdzenie"
-        case "result": "Wynik"
+        case "revalidate": L10n.text("phase_revalidate")
+        case "fresh_vpn": L10n.text("phase_fresh_vpn")
+        case "vpn_gate": L10n.text("phase_vpn_gate")
+        case "before_snapshot": L10n.text("phase_before_snapshot")
+        case "helper_request": L10n.text("phase_helper_request")
+        case "read_only_retry": L10n.text("phase_read_only_retry")
+        case "settle": L10n.text("phase_settle")
+        case "after_snapshot": L10n.text("phase_after_snapshot")
+        case "recheck": L10n.text("phase_recheck")
+        case "result": L10n.text("phase_result")
         default: phase
         }
     }
     static func outcomeTitle(_ outcome: OperationOutcome) -> String {
         switch outcome {
-        case .success: String(localized: "check_ok")
-        case .failure: String(localized: "check_problem")
-        case .skipped: String(localized: "check_skipped")
-        case .cancelled: String(localized: "check_cancelled")
-        case .permissionDenied: String(localized: "check_permission")
-        case .timedOut: String(localized: "check_timeout")
+        case .success: L10n.text("check_ok")
+        case .failure: L10n.text("check_problem")
+        case .skipped: L10n.text("check_skipped")
+        case .cancelled: L10n.text("check_cancelled")
+        case .permissionDenied: L10n.text("check_permission")
+        case .timedOut: L10n.text("check_timeout")
         }
     }
 }

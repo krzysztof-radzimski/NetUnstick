@@ -1,40 +1,13 @@
+import NetUnstickStoreNetwork
 import Foundation
 
 /// A network-changing action is permitted only after an `inactive` assessment.
-public enum VPNState: String, Codable, Sendable {
-    case active, inactive, unknown
 
-    public var permitsNetworkChange: Bool { self == .inactive }
-}
 
 /// Closed reason codes; none contains an interface name, address, or domain.
-public enum VPNReasonCode: String, Codable, Sendable {
-    case tunnelRoute
-    case tunnelDNS
-    case tunnelPath
-    case dynamicStoreTunnel
-    case noVPNSignals
-    case incompleteSnapshot
-    case partialReadFailure
-    case pathTransition
-    case conflictingSignals
-    case residualTunnel
-    case stabilizationPending
-    case stabilizationTimedOut
-    case stabilizationCancelled
-}
 
-public struct VPNAssessment: Codable, Sendable, Equatable {
-    public let state: VPNState
-    public let reasonCode: VPNReasonCode
 
-    public init(state: VPNState, reasonCode: VPNReasonCode) {
-        self.state = state
-        self.reasonCode = reasonCode
-    }
 
-    public var permitsNetworkChange: Bool { state.permitsNetworkChange }
-}
 
 public struct VPNStateDetector: Sendable {
     public init() {}

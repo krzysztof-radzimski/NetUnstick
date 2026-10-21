@@ -1,3 +1,4 @@
+import NetUnstickStoreNetwork
 import Foundation
 import Network
 import CryptoKit
@@ -39,9 +40,7 @@ public struct RawNetworkSnapshot: @unchecked Sendable, CustomStringConvertible, 
 }
 
 /// Only the aggregate connection state is kept; service names and IDs are never logged.
-public enum VPNServiceStatus: String, Sendable {
-    case disconnected, connected, unknown
-}
+
 
 public protocol NetworkStateCollecting: Sendable {
     func collect() async -> RawNetworkSnapshot

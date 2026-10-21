@@ -272,3 +272,31 @@ Poprawiony panel potwierdzenia pokazuje rejestrację i zgodę macOS oraz blokuje
 Końcowy build z poprawionym oczekiwaniem na wyrejestrowanie zainstalowano w `/Applications/NetUnstick.app` i ponownie uruchomiono przez `abc-desktop`. Ustawienia potwierdziły odpowiedź helpera w protokole 2. Nowa pełna diagnostyka po uruchomieniu znów pokazała „Sieć lokalna i internet działają”, osiem podstawowych kontroli „Bez problemu” oraz brak kandydata do naprawy. Odkrywanie multicast i ustalenie uprawnienia Bonjour pozostały nierozstrzygające; zachowano osobną informację o pozostałych trasach VPN. Okno pozostawiono otwarte z wynikiem i zwolniono pulpit.
 
 Zapis zawiera wyłącznie zredagowane kody i liczniki. Nie utrwalono nazw urządzeń, adresów sieciowych, domen, kont, sekretów ani prywatnych zrzutów ekranu.
+
+## Dwa wydania, lokalizacja i przygotowanie publikacji — 21 października 2026
+
+Na hoście macOS arm64 zbudowano wersję **0.3.0 (13)** w dwóch wariantach: pełny `NetUnstick` z podpisem Developer ID oraz osobny, sandboxowany `NetUnstickAppStore`. Wydanie sklepowe korzysta z publicznych API do odczytowej diagnozy i testu TCP; nie zawiera helpera, LaunchDaemona, procesów systemowych ani napraw. Wspólne modele i Bonjour wydzielono do `NetUnstickStoreNetwork`, aby binarka sklepowa nie linkowała wykonawcy poleceń pełnego wydania. Zakresy i pozostałe wymagania opisuje [przygotowanie do sklepu](app-store-readiness.md).
+
+| Weryfikacja | Wynik |
+| --- | --- |
+| `swift test` w `Packages/NetUnstickKit` | Core 23, Network 73, Repair 32: łącznie 128 testów, 7 środowiskowych pominiętych, 0 błędów. Obejmuje lokalizację wszystkich 24 języków, redakcję raportów, usuwanie historii, decyzje diagnozy i granice napraw. |
+| `xcodebuild … -scheme NetUnstick -only-testing:NetUnstickPresentationTests CODE_SIGNING_ALLOWED=NO test` | 37 testów, 0 błędów. Obejmuje serializację usuwania historii z aktywnymi operacjami, zachowanie stanu przy błędzie zapisu i neutralne wskazówki przy nieudanej sesji SMB. |
+| `xcodebuild … -scheme NetUnstickAppStore test` | 11 testów, 0 błędów. Obejmuje sondy, odmowę dostępu Bonjour oraz blokadę wszystkich ścieżek napraw w prezentacji wydania tylko do odczytu. |
+| Release obu schematów, `platform=macOS,arch=arm64` | Oba `BUILD SUCCEEDED`. Pełna aplikacja i helper przeszły `check-helper-bundle.sh --require-developer-id`; sklepowa przeszła `Tools/CheckAppStoreBundle.py`. |
+| Gotowa binarka sklepowa | Sandbox i wymagane uprawnienia obecne, brak helpera i LaunchDaemona, brak importów `NSTask`, `posix_spawn`, `SMAppService` oraz ścieżek używanych poleceń systemowych. Lokalny podpis ad hoc służy wyłącznie próbom sandboxa. |
+| `python3 Tools/Localization.py` | 378 kluczy w każdym z 24 języków UE; kompletność zasobów i zgodność placeholderów potwierdzone. Nie zastępuje redakcji językowej tłumaczeń. |
+| `python3 Tools/CheckStoreMetadata.py` | Limity opisów i słów kluczowych poprawne; brak publicznych URL jest jawnie raportowany. `--submission` zgodnie z oczekiwaniem odrzuca materiały do czasu ich uzupełnienia. |
+| Pozostałe kontrole lokalne | Składnia skryptów Python i zsh, pliki plist oraz `git diff --check` poprawne. |
+
+Łącznie zestawy obejmują **176 testów, 7 pominiętych i 0 błędów**. Końcowe kosmetyczne zmiany szerokości listy pomocy i panelu potwierdzenia objęto ponownymi buildami Release oraz oględzinami natywnymi. Nie powtarzano historycznych testów napraw na rzeczywistej sieci ani pełnej macierzy XCUITest z września.
+
+Przez `abc-desktop` uruchomiono oba zainstalowane wydania w `/Applications`; obejrzano rzeczywiste obrazy okien i drzewa dostępności oraz wykonano kliknięcia i skróty klawiaturowe. Sterownik działał, uprawnienia Dostępność i Nagrywanie ekranu były dostępne. Testy wizualne obejmowały:
+
+- Zwinięty, uproszczony ekran główny oraz postęp i rozwijane wyniki diagnozy.
+- Sklepową diagnozę ścieżki sieci, DNS, internetu i Bonjour; pierwsze trzy kontrole zakończyły się sukcesem, brak wykrytych usług Bonjour pozostał wynikiem nierozstrzygającym. Nie prezentowano globalnego stanu VPN ani propozycji napraw.
+- Ustawienia sklepowe bez zarządzania helperem, otwarcie polityki prywatności i pomocy offline oraz skrót menu Pomoc `Cmd+Shift+/`.
+- Otwarcie i anulowanie potwierdzenia usuwania historii w panelu ustawień. Nie usuwano rzeczywistej historii użytkownika. Błędy, anulowanie i poprawne usunięcie pliku sprawdzono w testach automatycznych. Oddzielny arkusz SwiftUI był niejednoznacznie mapowany przez most pulpitu, dlatego finalny panel pozostaje w oknie aplikacji.
+- Rzeczywistą niemiecką lokalizację ekranu i pomocy, uruchomioną przez tymczasową preferencję językową wyłącznie wydania sklepowego. Wcześniejszą preferencję przywrócono po teście; języka systemu nie zmieniano. Długie nazwy tematów mają dostępne pełne etykiety i podpowiedzi w rozszerzalnym panelu bocznym.
+- Pełną diagnozę Developer ID: 13 kontroli, nagłówek „Sieć lokalna i internet działają”, osiem podstawowych kontroli bez problemu i osobna informacja o blokadzie zmian ze względu na pozostałe ślady VPN. Nie wykonywano napraw ani zmian konfiguracji sieci. Okno pozostawiono otwarte z wynikiem, szczegóły zwinięto i zwolniono pulpit.
+
+Oba końcowe produkty zainstalowano lokalnie. Nie przeprowadzono nowej notaryzacji Developer ID, podpisu Apple Distribution z profilem, walidacji w Organizerze, wysyłki do App Store Connect ani publikacji. Przed wysłaniem pozostają publiczne strony prywatności i wsparcia, dane i decyzje właściciela w App Store Connect, zrzuty sklepowe oraz redakcja tłumaczeń. Przygotowane strony HTML są lokalnymi materiałami, nie działającymi publicznymi adresami.

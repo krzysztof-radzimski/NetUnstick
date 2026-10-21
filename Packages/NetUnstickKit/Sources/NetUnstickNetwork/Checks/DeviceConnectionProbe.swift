@@ -1,53 +1,20 @@
+import NetUnstickStoreNetwork
 import Foundation
 import Darwin
 import Network
 import NetUnstickCore
 
 /// Closed outcome codes of a direct connection test to a device chosen by the user.
-public enum DeviceConnectionReason: String, Sendable, CaseIterable {
-    case reachable, refused, timedOut, unreachable, nameUnresolved, invalidInput, failed, cancelled
 
-    public var message: String {
-        switch self {
-        case .reachable: return "Urządzenie przyjęło połączenie na tym porcie; sieć między komputerami działa, a usługa nasłuchuje."
-        case .refused: return "Sieć między komputerami działa: urządzenie odpowiada, ale odrzuca połączenie na tym porcie, bo usługa jest wyłączona albo używa innego portu."
-        case .timedOut: return "Brak odpowiedzi w wyznaczonym czasie; pakiety nie docierają albo odpowiedzi wracają inną drogą, np. przez tunel lub router bez zawracania ruchu."
-        case .unreachable: return "Ten komputer nie ma drogi do żadnego adresu tego urządzenia albo urządzenie nie odpowiada na tym łączu."
-        case .nameUnresolved: return "Nie udało się rozwiązać nazwy urządzenia."
-        case .invalidInput: return "Podaj nazwę lub adres urządzenia oraz port z zakresu 1–65535."
-        case .failed: return "Połączenie nie powiodło się z innego powodu."
-        case .cancelled: return "Test został anulowany."
-        }
-    }
 
-    /// Order used to pick one verdict from several attempts: a peer that answers outranks silence.
-    static let priority: [DeviceConnectionReason] = [.reachable, .refused, .timedOut, .unreachable, .failed, .cancelled]
-    static func best(_ reasons: [DeviceConnectionReason]) -> DeviceConnectionReason? {
-        priority.first { reasons.contains($0) } ?? reasons.first
-    }
-}
 
-public enum AddressFamily: String, Sendable, CaseIterable {
-    case ipv4, ipv6
-}
 
 /// Outcome of one anonymous SMB session opened by this Mac's own SMB client (`smbutil view -N`).
 /// Exit 0 lists shares, 77 (EX_NOPERM) means the session was negotiated and the guest login
 /// rejected, 68 (EX_NOHOST) while the port answers means the client never got a session: the
 /// server closed the connection right after the negotiate. Seen between a macOS 27.0 client and a
 /// macOS 26.6 server; limiting the client to SMB 2 (`protocol_vers_map=2` in nsmb.conf) fixed it.
-public enum SMBSessionOutcome: String, Sendable, CaseIterable {
-    case sharesListed, authRejected, sessionFailed, timedOut, otherExit, unknown
 
-    public static func classify(exitStatus: Int32) -> SMBSessionOutcome {
-        switch exitStatus {
-        case 0: return .sharesListed
-        case 77: return .authRejected
-        case 68: return .sessionFailed
-        default: return .otherExit
-        }
-    }
-}
 
 public protocol SMBSessionProbing: Sendable {
     func probe(host: String) async -> SMBSessionOutcome
@@ -101,20 +68,7 @@ public protocol DeviceConnectionProbing: Sendable {
     func probe(host: String, port: UInt16, timeout: Duration) async -> DeviceConnectionObservation
 }
 
-public enum DeviceConnectionInput {
-    /// Host names, Bonjour names and literal addresses only; no spaces, quotes or shell characters.
-    public static func isValidHost(_ host: String) -> Bool {
-        let trimmed = host.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty, trimmed.count <= 253 else { return false }
-        return trimmed.unicodeScalars.allSatisfy { scalar in
-            CharacterSet.alphanumerics.contains(scalar) || scalar == "." || scalar == "-" || scalar == ":" || scalar == "%" || scalar == "_"
-        }
-    }
-    public static func port(from text: String) -> UInt16? {
-        guard let value = Int(text.trimmingCharacters(in: .whitespaces)), (1...65535).contains(value) else { return nil }
-        return UInt16(value)
-    }
-}
+
 
 /// One resolved address; kept in memory only for the duration of the probe.
 public struct ResolvedAddress: Sendable, Hashable {
@@ -364,7 +318,9 @@ public struct DeviceConnectionCheck: DiagnosticCheck {
         switch observation.reason {
         case .reachable:
             switch observation.smb {
-            case .sessionFailed: next = .limitSMBToVersion2
+            // A failed negotiation does not identify a server version or justify
+            // changing the client's protocol policy.
+            case .sessionFailed: next = .contactSupport
             case .authRejected: next = .connectAsAccount
             case .timedOut, .otherExit: next = .retryCheck
             default: next = .reviewDetails

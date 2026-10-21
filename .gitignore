@@ -22,3 +22,5 @@ xcuserdata/
 *.log
 Artifacts/ReleaseDerivedData/
 Artifacts/Distribution/
+Artifacts/StoreReadinessRelease/
+Artifacts/StoreReadinessTests/

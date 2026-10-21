@@ -168,7 +168,7 @@ final class DeviceConnectionProbeTests: XCTestCase {
             let observation: DeviceConnectionObservation
             func probe(host: String, port: UInt16, timeout: Duration) async -> DeviceConnectionObservation { observation }
         }
-        // Port answers but the server drops the SMB 3 negotiate of this newer client: the step is the SMB 2 workaround.
+        // A responding port and failed negotiation do not prove a version-specific cause.
         let blocked = await DeviceConnectionCheck(host: "nas.example.internal", port: 445, probe: Fixed(observation:
             .init(reason: .reachable, interfaceType: .wifi, ipv4: .reachable, smb: .sessionFailed, firewallEnabled: true, contentFilterActive: true))).run(context: .init())
         XCTAssertEqual(blocked.outcome, .failure)
@@ -177,7 +177,7 @@ final class DeviceConnectionProbeTests: XCTestCase {
         XCTAssertEqual(blocked.after.values[.smbResult], "sessionFailed")
         XCTAssertEqual(blocked.after.values[.firewallStatus], "active")
         XCTAssertEqual(blocked.after.values[.contentFilterStatus], "active")
-        XCTAssertEqual(blocked.nextStep, NextStep.limitSMBToVersion2.rawValue)
+        XCTAssertEqual(blocked.nextStep, NextStep.contactSupport.rawValue)
         // Session negotiated, guest rejected: the service works and only a login is missing.
         let login = await DeviceConnectionCheck(host: "nas.example.internal", port: 445, probe: Fixed(observation:
             .init(reason: .reachable, interfaceType: .wifi, ipv4: .reachable, smb: .authRejected))).run(context: .init())
@@ -189,7 +189,7 @@ final class DeviceConnectionProbeTests: XCTestCase {
         let other = await DeviceConnectionCheck(host: "nas.example.internal", port: 445, probe: Fixed(observation:
             .init(reason: .reachable, interfaceType: .wifi, ipv4: .reachable, smb: .sessionFailed, firewallEnabled: false, contentFilterActive: false))).run(context: .init())
         XCTAssertEqual(other.outcome, .failure)
-        XCTAssertEqual(other.nextStep, NextStep.limitSMBToVersion2.rawValue)
+        XCTAssertEqual(other.nextStep, NextStep.contactSupport.rawValue)
         // A client that timed out or exited oddly is not a verdict about the server.
         let slow = await DeviceConnectionCheck(host: "nas.example.internal", port: 445, probe: Fixed(observation:
             .init(reason: .reachable, interfaceType: .wifi, ipv4: .reachable, smb: .timedOut))).run(context: .init())

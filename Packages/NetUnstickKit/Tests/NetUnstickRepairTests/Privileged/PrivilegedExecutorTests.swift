@@ -1,4 +1,5 @@
 import XCTest
+import NetUnstickCore
 import NetUnstickRepair
 import NetUnstickNetwork
 
@@ -28,9 +29,12 @@ final class PrivilegedExecutorTests: XCTestCase {
         let rejected = await PrivilegedRepairExecutor(collector: FixtureCollector(vpn: false),
             dhcp: FixtureDHCP(), runner: FixtureRunner(error: nil)).perform(request)
         XCTAssertEqual(rejected.code, .invalidRequest)
+        XCTAssertEqual(rejected.result.nextStep, NextStep.contactSupport.rawValue)
         let blocked = await PrivilegedRepairExecutor(collector: FixtureCollector(vpn: true),
             dhcp: FixtureDHCP(), runner: FixtureRunner(error: nil)).perform(request)
         XCTAssertEqual(blocked.code, .vpnActive)
+        XCTAssertEqual(blocked.result.nextStep, NextStep.contactSupport.rawValue)
+        XCTAssertEqual(PrivilegedRepairExecutor.rejectMalformedRequest().result.nextStep, NextStep.reinstallApp.rawValue)
     }
 }
 
@@ -165,6 +169,7 @@ extension PrivilegedExecutorTests {
         let success = await PrivilegedRepairExecutor(collector: RouteSequenceCollector(removed: true),
             dhcp: FixtureDHCP(), runner: FixtureRunner(error: nil)).perform(action)
         XCTAssertEqual(success.code, .success)
+        XCTAssertEqual(success.result.nextStep, NextStep.retryCheck.rawValue)
         let unresolved = await PrivilegedRepairExecutor(collector: RouteSequenceCollector(removed: false),
             dhcp: FixtureDHCP(), runner: FixtureRunner(error: nil)).perform(action)
         XCTAssertEqual(unresolved.code, .nonZeroExit)

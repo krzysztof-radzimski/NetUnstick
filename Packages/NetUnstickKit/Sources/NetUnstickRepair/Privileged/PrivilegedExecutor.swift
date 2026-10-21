@@ -101,7 +101,7 @@ public struct PrivilegedRepairExecutor: Sendable {
         let result = try! OperationResult(operationID: UUID().uuidString, name: "privileged_repair", kind: .repair,
             startedAt: now, endedAt: now, outcome: .failure,
             error: try! OperationError(domain: "helper", code: PrivilegedCode.invalidRequest.rawValue),
-            nextStep: "Zaktualizuj aplikację i spróbuj ponownie.")
+            nextStep: NextStep.reinstallApp.rawValue)
         return PrivilegedReply(code: .invalidRequest, result: result)
     }
     /// Answers the read-only handshake without observing or changing anything. A reply proves
@@ -195,12 +195,11 @@ public struct PrivilegedRepairExecutor: Sendable {
         let outcome: OperationOutcome = code == .success ? .success :
             code == .timedOut ? .timedOut : code == .permissionDenied ? .permissionDenied :
             [.vpnActive, .vpnUnknown, .ambiguousResource].contains(code) ? .skipped : .failure
-        let next = code == .success ? "Uruchom ponownie powiązane sprawdzenie przed uznaniem naprawy." :
-            "Sprawdź stan VPN i konfigurację sieci; jeśli problem trwa, skontaktuj się z administratorem."
+        let next: NextStep = code == .success ? .retryCheck : .contactSupport
         let result = try! OperationResult(operationID: UUID().uuidString, name: "privileged_repair", kind: .repair,
                                           startedAt: started, endedAt: Date(), outcome: outcome, before: before, after: after,
                                           error: code == .success || outcome == .skipped ? nil : try! OperationError(domain: "helper", code: code.rawValue),
-                                          nextStep: next)
+                                          nextStep: next.rawValue)
         return PrivilegedReply(code: code, result: result)
     }
 }

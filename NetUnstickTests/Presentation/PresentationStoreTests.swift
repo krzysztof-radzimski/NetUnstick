@@ -684,17 +684,19 @@ import NetUnstickNetwork
         XCTAssertEqual(unknown.state, .unknown)
     }
 
-    func testSMBSessionVerdictNamesTheSideThatBlocks() throws {
+    func testSMBSessionFailureDoesNotPresumeACauseOrRecommendDisablingProtection() throws {
         let firewall = EvidenceSanitizer.sanitize([.errorCode: .errorCode("reachable"), .smbResult: .errorCode("sessionFailed"),
                                                    .firewallStatus: .status(.active), .contentFilterStatus: .status(.active)])
         let note = try XCTUnwrap(PresentationStore.smbSessionNote(firewall))
-        XCTAssertTrue(note.contains("protocol_vers_map=2") && note.contains("SMB 3"), note)
-        XCTAssertTrue(note.contains("filtr treści"), "an active filter is mentioned only as a secondary note")
+        XCTAssertTrue(note.contains("SMB") && note.contains("macOS"), note)
+        XCTAssertTrue(note.contains(L10n.text("smb_filter_present")), "An active filter is only an observation")
+        XCTAssertFalse(note.contains("protocol_vers_map"), "A failed negotiation does not prove a version-specific cause")
         let plain = EvidenceSanitizer.sanitize([.smbResult: .errorCode("sessionFailed"), .firewallStatus: .status(.inactive),
                                                 .contentFilterStatus: .status(.inactive)])
         let plainNote = try XCTUnwrap(PresentationStore.smbSessionNote(plain))
-        XCTAssertTrue(plainNote.contains("protocol_vers_map=2") && !plainNote.contains("filtr treści"), plainNote)
-        XCTAssertTrue(try XCTUnwrap(PresentationStore.smbSessionNote(EvidenceSanitizer.sanitize([.smbResult: .errorCode("otherExit")]))).contains("smbutil"))
+        XCTAssertEqual(plainNote, L10n.text("smb_session_failed"))
+        XCTAssertFalse(plainNote.contains(L10n.text("smb_filter_present")))
+        XCTAssertEqual(PresentationStore.smbSessionNote(EvidenceSanitizer.sanitize([.smbResult: .errorCode("otherExit")])), L10n.text("smb_other_exit"))
         let login = EvidenceSanitizer.sanitize([.smbResult: .errorCode("authRejected")])
         XCTAssertTrue(try XCTUnwrap(PresentationStore.smbSessionNote(login)).contains("Połącz jako"))
         XCTAssertNil(PresentationStore.smbSessionNote(SafeEvidence.empty))
@@ -704,7 +706,7 @@ import NetUnstickNetwork
                                          error: OperationError(domain: "device_connection", code: "smbSessionFailed"))
         let presentation = PresentationStore.presentDevice(result)
         XCTAssertTrue(presentation.reason.contains("Urządzenie przyjęło połączenie"), presentation.reason)
-        XCTAssertTrue(presentation.reason.contains("sesja SMB nie została wynegocjowana"), presentation.reason)
+        XCTAssertTrue(presentation.reason.contains(plainNote), presentation.reason)
         XCTAssertTrue(presentation.technicalDetail.contains("smbResult: sessionFailed"))
     }
 
@@ -712,14 +714,14 @@ import NetUnstickNetwork
         let mixed = EvidenceSanitizer.sanitize([.ipv4Result: .errorCode("reachable"), .ipv6Result: .errorCode("unreachable"),
                                                 .errorCode: .errorCode("reachable"), .networkStatus: .status(.inactive)])
         let note = try XCTUnwrap(PresentationStore.addressFamilyNote(mixed))
-        XCTAssertTrue(note.contains("IPv6") && note.contains("Finder"), note)
+        XCTAssertTrue(note.contains("IPv4") && note.contains("IPv6") && note.contains(L10n.text("address_unreachable")), note)
         XCTAssertEqual(PresentationStore.addressFamilyNote(EvidenceSanitizer.sanitize([.ipv4Result: .errorCode("refused")])), "Nazwa ma tylko adres IPv4.")
         XCTAssertNil(PresentationStore.addressFamilyNote(SafeEvidence.empty))
         let now = Date()
         let result = try OperationResult(operationID: "device_connection", name: "device_connection", kind: .diagnostic,
                                          startedAt: now, endedAt: now, outcome: .success, after: mixed)
         let presentation = PresentationStore.presentDevice(result)
-        XCTAssertTrue(presentation.reason.contains("Po IPv4"), presentation.reason)
+        XCTAssertTrue(presentation.reason.contains(note), presentation.reason)
         XCTAssertTrue(presentation.technicalDetail.contains("ipv6Result: unreachable"))
     }
 

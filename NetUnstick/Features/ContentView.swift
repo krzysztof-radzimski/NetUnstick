@@ -1,4 +1,5 @@
 import SwiftUI
+import NetUnstickCore
 import UniformTypeIdentifiers
 
 struct ContentView: View {
@@ -15,9 +16,9 @@ struct ContentView: View {
     var body: some View {
         NavigationSplitView {
             List(selection: $section) {
-                Label("status", systemImage: "waveform.path").tag("status").accessibilityIdentifier("nav.status")
-                Label("activity", systemImage: "clock.arrow.circlepath").tag("activity").accessibilityIdentifier("nav.activity")
-                Label("settings", systemImage: "gearshape").tag("settings").accessibilityIdentifier("nav.settings")
+                Label(L10n.text("status"), systemImage: "waveform.path").tag("status").accessibilityIdentifier("nav.status")
+                Label(L10n.text("activity"), systemImage: "clock.arrow.circlepath").tag("activity").accessibilityIdentifier("nav.activity")
+                Label(L10n.text("settings"), systemImage: "gearshape").tag("settings").accessibilityIdentifier("nav.settings")
             }.navigationTitle("NetUnstick").frame(minWidth: 180)
         } detail: {
             Group {
@@ -42,9 +43,9 @@ struct ContentView: View {
                 if !(ns.domain == NSCocoaErrorDomain && ns.code == NSUserCancelledError) { exportError = true }
             }
         }
-        .alert("export_failed", isPresented: $exportError) {
-            Button("ok", role: .cancel) { }
-        } message: { Text("export_failed_detail") }
+        .alert(L10n.text("export_failed"), isPresented: $exportError) {
+            Button(L10n.text("ok"), role: .cancel) { }
+        } message: { Text(L10n.text("export_failed_detail")) }
         .background {
             Button("") { store.startDiagnosis() }.keyboardShortcut("d", modifiers: .command).hidden()
             Button("") { store.cancel() }.keyboardShortcut(.escape, modifiers: []).hidden()

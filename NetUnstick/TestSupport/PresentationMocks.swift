@@ -27,7 +27,7 @@ import NetUnstickNetwork
     }
     func repairCandidate() -> RepairCandidatePresentation? {
         guard ["dns-residue", "route-blocked", "repair-success", "repair-failure"].contains(scenario) else { return nil }
-        return RepairCandidatePresentation(change: String(localized: "candidate_change"), reason: String(localized: "candidate_reason"), resource: String(localized: "candidate_resource"), impact: String(localized: "candidate_impact"), permission: String(localized: "candidate_permission"), verification: String(localized: "candidate_verification"))
+        return RepairCandidatePresentation(change: L10n.text("candidate_change"), reason: L10n.text("candidate_reason"), resource: L10n.text("candidate_resource"), impact: L10n.text("candidate_impact"), permission: L10n.text("candidate_permission"), verification: L10n.text("candidate_verification"))
     }
     func diagnose() async throws -> [OperationResult] {
         try await Task.sleep(for: scenario == "operation-progress" ? .seconds(8) : .milliseconds(450))

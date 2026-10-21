@@ -1,3 +1,4 @@
+import NetUnstickStoreNetwork
 import Foundation
 import NetUnstickCore
 
@@ -5,26 +6,7 @@ import NetUnstickCore
 /// Since macOS 15 the built-in firewall is itself a Network Extension content filter attached
 /// to sockets; such a filter can end sessions of kernel clients (SMB, AFP) toward other Macs
 /// even though the TCP port answers, which shows up as "Socket is not connected".
-public enum ContentFilterReason: String, Sendable, CaseIterable {
-    case noFilter, firewallFilterActive, thirdPartyFilterActive, filterActive, dataIncomplete, cancelled
 
-    public var message: String {
-        switch self {
-        case .noFilter:
-            return "Na tym komputerze nie działa żaden filtr treści na gniazdach; połączenia wychodzące nie są przechwytywane."
-        case .firewallFilterActive:
-            return "Zapora tego komputera działa jako filtr treści na gniazdach (tak działa zapora macOS od wersji 15). Jeśli sesje SMB lub AFP do innych komputerów urywają się mimo działającego portu, wykonaj test urządzenia na porcie 445 albo spróbuj z wyłączoną zaporą."
-        case .thirdPartyFilterActive:
-            return "Na tym komputerze działa filtr treści na gniazdach innego programu (VPN lub ochrona), choć zapora systemowa jest wyłączona; może on przerywać sesje SMB do innych komputerów."
-        case .filterActive:
-            return "Na tym komputerze działa filtr treści na gniazdach; nie udało się ustalić, czy to zapora systemowa."
-        case .dataIncomplete:
-            return "Nie udało się odczytać stanu filtrów treści."
-        case .cancelled:
-            return "Sprawdzenie zostało anulowane."
-        }
-    }
-}
 
 /// Ephemeral observation: counts and flags only, never process or product names.
 public struct ContentFilterObservation: Sendable, Equatable {

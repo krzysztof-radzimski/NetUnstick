@@ -1,0 +1,30 @@
+{
+  "name": "NetUnstick",
+  "bundleId": "org.netunstick.NetUnstick.AppStore",
+  "version": "0.3.0",
+  "build": "13",
+  "copyright": "2026 Krzysztof Radzimski",
+  "supportURL": null,
+  "privacyPolicyURL": null,
+  "appPrivacy": {
+    "dataCollected": false,
+    "tracking": false,
+    "basis": "No developer or partner telemetry, accounts, analytics or automatic uploads. Local diagnostics are not collected by the developer. DNS/connectivity endpoint operators see ordinary connection metadata. Optional user-shared reports are separate from app transmission."
+  },
+  "reviewNotes": "macOS utility with a sandboxed, read-only App Store composition. No account or review credentials are needed. Run diagnostics to check NWPath, resolution of example.com, a TCP connection to 1.1.1.1:443 and local AirPlay Bonjour discovery. A missing receiver is inconclusive, not a failure. The device section attempts a bounded TCP connection to a host and port chosen by the reviewer; it does not negotiate SMB or log in. No helper, root escalation, process launch or automated repair is included in this build. Global VPN state, routing tables, DNS configuration, file-sharing settings and content-filter settings are outside this edition. Activity stores sanitized results locally; preview then explicitly save a UTF-8 report. Help and Privacy policy are available offline from the Help menu and Settings. Delete history is in Settings and requires confirmation. Local Network permission may be requested by macOS; denial is handled without claiming a successful check.",
+  "publicationState": "prepared-locally-not-submitted",
+  "requiredBeforeSubmission": [
+    "Publish a reachable privacy policy and support page and replace both null URLs.",
+    "Confirm publisher contact details and EU DSA trader status in App Store Connect.",
+    "Create the App Store app record for this exact bundle ID and distribution profile.",
+    "Archive with an Apple Distribution / Mac App Store certificate and validate in Xcode Organizer.",
+    "Attach current screenshots from the sandboxed App Store build in the selected languages.",
+    "Review age rating, export compliance, pricing, territories and privacy answers for this build.",
+    "Perform a native-language editorial review of translations."
+  ],
+  "subtitle": "Network checks, clear results",
+  "promotionalText": "Check your connection, test a device and inspect a private local report. Read-only diagnostics for your Mac, with no account or telemetry.",
+  "description": "NetUnstick helps you understand a connection problem without changing your network settings.\n\n• Check the network path, DNS resolution and an internet TCP connection.\n• Look for local Bonjour AirPlay services.\n• Test a device by name or address and service port.\n• Expand a check to see its reason and technical details.\n• Review local history and preview a sanitized report before saving it.\n• Read the built-in help and privacy policy offline.\n\nThe Mac App Store edition is sandboxed and read-only. It does not inspect global VPN state, system routing tables or managed network configuration, install a privileged helper, renew DHCP or remove routes. Device tests verify TCP connectivity only; they do not authenticate or establish an SMB session.\n\nA passed check confirms only its tested scope. A missing Bonjour receiver or unavailable internet endpoint can be inconclusive. No account, advertising, analytics or background report upload is included. You control local history deletion and report export.",
+  "keywords": "network,DNS,connection,diagnostics,Bonjour,TCP,internet,local,privacy,troubleshooting",
+  "locale": "en-US"
+}

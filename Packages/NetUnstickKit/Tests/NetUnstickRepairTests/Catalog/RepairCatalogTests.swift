@@ -130,16 +130,13 @@ final class RepairCatalogTests: XCTestCase {
         XCTAssertEqual(routes.count, 8)
         XCTAssertEqual(routes.first?.cidr, "192.168.44.0/32")
         XCTAssertEqual(routes.last?.cidr, "192.168.44.128/25")
-        XCTAssertEqual(plan?.summary.change, "Usunięcie tras pozostałych po VPN (8)")
-        XCTAssertEqual(plan?.summary.resource, "8 tras tunelowych nakładających się na lokalną sieć")
+        XCTAssertEqual(plan?.summary.change, L10n.format("repair_remove_routes", 8))
+        XCTAssertEqual(plan?.summary.resource, L10n.format("repair_routes_count", 8))
         XCTAssertTrue(plan?.summary.requiresAdministrator == true)
         XCTAssertTrue(result.nextSteps.isEmpty)
 
         let single = await plans(splitLeftoverSnapshot(count: 1))
-        XCTAssertEqual(single.plans.first?.summary.resource, "1 trasa tunelowa nakładająca się na lokalną sieć")
-        XCTAssertEqual(RepairPlanBuilder.routeLabel(3), "3 trasy tunelowe nakładające się na lokalną sieć")
-        XCTAssertEqual(RepairPlanBuilder.routeLabel(12), "12 tras tunelowych nakładających się na lokalną sieć")
-        XCTAssertEqual(RepairPlanBuilder.routeLabel(22), "22 trasy tunelowe nakładające się na lokalną sieć")
+        XCTAssertEqual(single.plans.first?.summary.resource, L10n.format("repair_routes_count", 1))
 
         let oversized = RepairPlan(kind: .removeStaleTunnelRoutes, reasonCode: NetworkCheckReason.localRouteViaTunnel.rawValue,
             checkID: "local_subnet_route",

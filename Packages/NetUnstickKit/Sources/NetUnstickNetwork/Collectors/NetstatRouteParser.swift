@@ -1,3 +1,4 @@
+import NetUnstickStoreNetwork
 import Foundation
 
 /// Parses the fixed, read-only output of macOS netstat. The result stays inside the raw snapshot.

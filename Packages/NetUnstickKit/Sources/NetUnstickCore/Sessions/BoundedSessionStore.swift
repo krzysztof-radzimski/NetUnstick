@@ -85,6 +85,19 @@ public actor BoundedSessionStore {
         return storedSessions
     }
 
+    /// Explicitly requested deletion removes only this store's file, including an
+    /// unreadable or unsupported session format. Existing exported reports are separate.
+    public func removeAll() throws {
+        try Task.checkCancellation()
+        if fileManager.fileExists(atPath: fileURL.path) {
+            do { try fileManager.removeItem(at: fileURL) }
+            catch { throw Self.map(error) }
+        }
+        storedSessions = []
+        loadWarning = nil
+        loaded = true
+    }
+
     public func startSession(_ session: ActivitySession) throws {
         try Task.checkCancellation()
         try loadIfNeeded()

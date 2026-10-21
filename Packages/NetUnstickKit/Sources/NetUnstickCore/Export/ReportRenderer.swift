@@ -26,7 +26,11 @@ public struct ReportRenderer: Sendable {
                       "Duration: \(String(format: "%.3f", locale: Locale(identifier: "en_US_POSIX"), result.duration)) s",
                       "Outcome: \(result.outcome.rawValue)"]
             if let error = result.error { lines.append("Error: \(error.domain)/\(error.code)") }
-            if let nextStep = result.nextStep { lines.append("Next step: \(nextStep)") }
+            if let nextStep = result.nextStep {
+                // Keep the technical export format in English while presenting current,
+                // safe guidance. Historical allowlist values remain stable on disk.
+                lines.append("Next step: \(L10n.nextStep(nextStep, locale: Locale(identifier: "en")))")
+            }
             lines.append("Before: \(format(result.before))")
             lines.append("After: \(format(result.after))")
         }

@@ -126,41 +126,37 @@ public struct RepairPlanBuilder {
         let label: String
         var routeCount = 0
         switch resource {
-        case .check: label = "Powiązane sprawdzenie"
-        case .resolverCache: label = "Cache resolvera i mDNS"
-        case .physicalInterface: label = "Jedyny wybrany interfejs fizyczny"
+        case .check: label = L10n.text("repair_resource_check")
+        case .resolverCache: label = L10n.text("repair_resource_resolver")
+        case .physicalInterface: label = L10n.text("repair_resource_interface")
         case .tunnelRoutes(let routes):
             routeCount = routes.count
             label = Self.routeLabel(routes.count)
         }
         let change: String
         switch kind {
-        case .retryCheck: change = "Ponowienie sprawdzenia bez zmiany systemu"
-        case .refreshResolverCache: change = "Odświeżenie cache resolvera i mDNS"
-        case .renewDHCP: change = "Odnowienie dzierżawy DHCP"
-        case .removeStaleTunnelRoutes: change = "Usunięcie tras pozostałych po VPN (\(routeCount))"
+        case .retryCheck: change = L10n.text("repair_retry")
+        case .refreshResolverCache: change = L10n.text("repair_refresh_cache")
+        case .renewDHCP: change = L10n.text("repair_renew_dhcp")
+        case .removeStaleTunnelRoutes: change = L10n.format("repair_remove_routes", routeCount)
         }
         let impact: String
         switch kind {
-        case .retryCheck: impact = "Brak zmian sieci"
+        case .retryCheck: impact = L10n.text("repair_no_change")
         case .removeStaleTunnelRoutes:
-            impact = "Ruch do objętych fragmentów sieci lokalnej wróci na fizyczny interfejs; połączenia przez dawny tunel mogą się przerwać"
-        default: impact = "Krótkie zakłócenie łączności"
+            impact = L10n.text("repair_route_impact")
+        default: impact = L10n.text("repair_short_interruption")
         }
         return .init(kind: kind, reasonCode: code, checkID: check, resource: resource,
-                     summary: .init(change: change, resource: label, purpose: "Weryfikacja: \(check)",
+                     summary: .init(change: change, resource: label, purpose: L10n.format("repair_purpose", L10n.operationTitle(check)),
                                     requiresAdministrator: kind != .retryCheck,
                                     possibleImpact: impact,
-                                    verification: "Nowy snapshot i ponowienie: \(check)"))
+                                    verification: L10n.format("repair_verification", L10n.operationTitle(check))))
     }
 
-    /// Polish plural forms for the confirmation summary; no interface name or address is included.
+    /// A count label avoids embedding any address, interface name, or language-specific
+    /// plural decision in the repair plan. All words come from the shared resource bundle.
     static func routeLabel(_ count: Int) -> String {
-        let tens = count % 100, ones = count % 10
-        if count == 1 { return "1 trasa tunelowa nakładająca się na lokalną sieć" }
-        if (2...4).contains(ones) && !(12...14).contains(tens) {
-            return "\(count) trasy tunelowe nakładające się na lokalną sieć"
-        }
-        return "\(count) tras tunelowych nakładających się na lokalną sieć"
+        L10n.format("repair_routes_count", count)
     }
 }

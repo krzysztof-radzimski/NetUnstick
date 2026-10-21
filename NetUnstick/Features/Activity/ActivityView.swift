@@ -6,16 +6,16 @@ struct ActivityView: View {
     let showReport: () -> Void
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("activity").font(.largeTitle.bold())
-            Picker("filter", selection: $store.filter) {
-                Text("all").tag("all"); Text("success").tag("success"); Text("problems").tag("problems")
+            Text(L10n.text("activity")).font(.largeTitle.bold())
+            Picker(L10n.text("filter"), selection: $store.filter) {
+                Text(L10n.text("all")).tag("all"); Text(L10n.text("success")).tag("success"); Text(L10n.text("problems")).tag("problems")
             }.pickerStyle(.segmented).accessibilityIdentifier("activity.filter")
             if store.filteredSessions.isEmpty {
-                ContentUnavailableView("no_activity", systemImage: "clock", description: Text("no_activity_detail"))
+                ContentUnavailableView(L10n.text("no_activity"), systemImage: "clock", description: Text(L10n.text("no_activity_detail")))
             } else {
                 List(store.filteredSessions, id: \.id) { session in
                     Section(session.startedAt.formatted(date: .abbreviated, time: .shortened)) {
-                        Button("Wybierz sesję") { store.selectSession(session.id) }
+                        Button(L10n.text("select_session")) { store.selectSession(session.id) }
                             .accessibilityIdentifier("session.\(session.id.uuidString)")
                         ForEach(session.entries, id: \.operationID) { entry in
                             DisclosureGroup {
@@ -25,15 +25,15 @@ struct ActivityView: View {
                                     Text("\(key.rawValue): \(entry.after.values[key] ?? "")").font(.caption.monospaced())
                                 }
                             } label: {
-                                HStack { Text(entry.name); Spacer(); Text(PresentationStore.outcomeTitle(entry.outcome)).foregroundStyle(.secondary) }
+                                HStack { Text(PresentationStore.operationTitle(entry.name)); Spacer(); Text(PresentationStore.outcomeTitle(entry.outcome)).foregroundStyle(.secondary) }
                             }
                         }
                     }
                 }
             }
-            Button("preview_report") { showReport() }
+            Button(L10n.text("preview_report")) { showReport() }
                 .disabled(store.sessions.isEmpty).accessibilityIdentifier("report.preview.open")
-        }.padding(28).navigationTitle("activity")
+        }.padding(28).navigationTitle(L10n.text("activity"))
     }
 
 }

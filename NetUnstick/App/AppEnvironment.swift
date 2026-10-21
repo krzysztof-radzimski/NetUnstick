@@ -106,9 +106,9 @@ import NetUnstickRepair
     func selectRepairCandidate(_ index: Int) { if plans.indices.contains(index) { selectedPlanIndex = index } }
     private func present(_ plan: RepairPlan) -> RepairCandidatePresentation {
         return .init(change: plan.summary.change,
-                     reason: "\(plan.summary.purpose) (\(plan.reasonCode))",
+                     reason: plan.summary.purpose,
                      resource: plan.summary.resource, impact: plan.summary.possibleImpact,
-                     permission: plan.summary.requiresAdministrator ? "Wymaga zatwierdzonego helpera" : "Bez uprawnień administratora",
+                     permission: plan.summary.requiresAdministrator ? L10n.text("repair_permission_required") : L10n.text("repair_permission_none"),
                      verification: plan.summary.verification,
                      allowsWhenResidualRoute: plan.kind == .removeStaleTunnelRoutes,
                      requiresHelper: plan.summary.requiresAdministrator)
@@ -155,6 +155,11 @@ import NetUnstickRepair
     }
 
     func loadSessions() async throws -> [ActivitySession] { try await sessionsStore.sessions() }
+    func clearHistory() async throws {
+        try await sessionsStore.removeAll()
+        currentSession = nil
+        plans = []
+    }
     func recordCancellation() async {
         let session: ActivitySession
         if let currentSession { session = currentSession }

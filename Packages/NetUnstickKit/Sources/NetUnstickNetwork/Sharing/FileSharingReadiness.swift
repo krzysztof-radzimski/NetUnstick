@@ -1,31 +1,9 @@
+import NetUnstickStoreNetwork
 import Foundation
 import NetUnstickCore
 
 /// Closed outcome codes for the read-only check of this Mac as a file server for other Macs.
-public enum FileSharingReason: String, Sendable, CaseIterable {
-    case healthy, guestRejected, sharingOff, accountNotEnabledForSMB, noLoginMethod, noSharedFolders, dataIncomplete, cancelled
 
-    public var message: String {
-        switch self {
-        case .healthy:
-            return "Udostępnianie plików przyjmuje połączenia, a Twoje konto może logować się przez SMB."
-        case .guestRejected:
-            return "Twoje konto może logować się przez SMB, ale serwer odrzuca gości; Finder na drugim komputerze pokaże „Błąd połączenia” do czasu użycia „Połącz jako…” z tym kontem."
-        case .noLoginMethod:
-            return "Udostępnianie działa, ale serwer odrzuca logowanie gościa, a Twoje konto nie ma zapisanego hasła SMB; żaden komputer nie zaloguje się do folderów tego Maca."
-        case .sharingOff:
-            return "Udostępnianie plików na tym Macu jest wyłączone; inne komputery nie połączą się z jego dyskami."
-        case .accountNotEnabledForSMB:
-            return "Udostępnianie działa, ale Twoje konto nie ma zapisanego hasła SMB; logowanie tym kontem z innego Maca jest odrzucane, a bez logowania widać tylko folder dla gości."
-        case .noSharedFolders:
-            return "Udostępnianie działa, ale żaden folder nie jest udostępniony przez SMB; zalogowani użytkownicy zobaczą tylko swoje katalogi domowe."
-        case .dataIncomplete:
-            return "Nie udało się odczytać stanu udostępniania plików."
-        case .cancelled:
-            return "Sprawdzenie zostało anulowane."
-        }
-    }
-}
 
 /// Ephemeral observation. Folder names, paths and account data never leave the probe.
 public struct FileSharingObservation: Sendable, Equatable {

@@ -1,0 +1,1543 @@
+{
+  "sourceLanguage": "en",
+  "languages": [
+    "bg",
+    "cs",
+    "da",
+    "de",
+    "el",
+    "en",
+    "es",
+    "et",
+    "fi",
+    "fr",
+    "ga",
+    "hr",
+    "hu",
+    "it",
+    "lt",
+    "lv",
+    "mt",
+    "nl",
+    "pl",
+    "pt",
+    "ro",
+    "sk",
+    "sl",
+    "sv"
+  ],
+  "strings": {
+    "device_test": {
+      "en": "Connection test to a device",
+      "pl": "Test połączenia z urządzeniem"
+    },
+    "device_test_hint": {
+      "en": "Read-only TCP connect to a name or address on your network. The name and port stay here; the activity log keeps only the outcome and interface type.",
+      "pl": "Odczytowe połączenie TCP z nazwą lub adresem w Twojej sieci. Nazwa i port zostają tutaj; dziennik aktywności zapisuje tylko wynik i typ interfejsu."
+    },
+    "device_host": {
+      "en": "Name or address, e.g. Mac-Studio.local",
+      "pl": "Nazwa lub adres, np. Mac-Studio.local"
+    },
+    "device_port": {
+      "en": "Port",
+      "pl": "Port"
+    },
+    "device_test_run": {
+      "en": "Test connection",
+      "pl": "Sprawdź połączenie"
+    },
+    "state_residual": {
+      "en": "Network works, VPN leftovers remain",
+      "pl": "Sieć działa, pozostały ślady VPN"
+    },
+    "state_residual_detail": {
+      "en": "The checks passed. The VPN client left inactive tunnel devices behind; ordinary network repairs stay blocked until they disappear.",
+      "pl": "Kontrole przeszły. Klient VPN zostawił nieaktywne interfejsy tunelowe; zwykłe naprawy sieci pozostają zablokowane, dopóki nie znikną."
+    },
+    "result_residual": {
+      "en": "The checks passed; the VPN client left inactive tunnel devices without routes.",
+      "pl": "Kontrole przeszły; klient VPN zostawił nieaktywne interfejsy tunelowe bez tras."
+    },
+    "next_residual": {
+      "en": "The local network works. To remove the leftover devices, quit and reopen the VPN client or restart the Mac; the app does not terminate other processes.",
+      "pl": "Sieć lokalna działa. Aby usunąć pozostałe interfejsy, zamknij i uruchom ponownie klienta VPN albo komputer; aplikacja nie kończy cudzych procesów."
+    },
+    "state_residual_routes": {
+      "en": "Local network and internet work",
+      "pl": "Sieć lokalna i internet działają"
+    },
+    "state_residual_routes_detail": {
+      "en": "Local routing, DNS and internet checks passed. Remaining tunnel routes need a separate assessment; network changes stay blocked.",
+      "pl": "Kontrole trasy lokalnej, DNS i internetu przeszły. Pozostałe trasy tunelowe wymagają osobnej oceny; zmiany sieci pozostają zablokowane."
+    },
+    "result_residual_routes": {
+      "en": "No issue was found with the current local network or internet access. Tunnel routes remain after the VPN service disconnected.",
+      "pl": "Nie wykryto problemu w bieżącej sieci lokalnej ani dostępie do internetu. W systemie nadal są trasy tunelowe po rozłączonej usłudze VPN."
+    },
+    "next_residual_routes": {
+      "en": "You can use the network. If a particular device does not respond, test its connection below. Ask your VPN administrator about the remaining routes.",
+      "pl": "Możesz korzystać z sieci. Jeśli konkretne urządzenie nie odpowiada, sprawdź połączenie poniżej. Pozostałe trasy omów z administratorem VPN."
+    },
+    "status": {
+      "en": "Status",
+      "pl": "Stan"
+    },
+    "activity": {
+      "en": "Activity",
+      "pl": "Aktywność"
+    },
+    "settings": {
+      "en": "Settings",
+      "pl": "Ustawienia"
+    },
+    "demo_notice": {
+      "en": "Preview mode · simulated results. No network changes are made.",
+      "pl": "Tryb demonstracyjny · wyniki symulowane. Sieć nie jest zmieniana."
+    },
+    "run_diagnosis": {
+      "en": "Run diagnostics",
+      "pl": "Uruchom diagnostykę"
+    },
+    "diagnosis_hint": {
+      "en": "Starts read-only network checks.",
+      "pl": "Uruchamia kontrole sieci tylko do odczytu."
+    },
+    "cancel": {
+      "en": "Cancel",
+      "pl": "Anuluj"
+    },
+    "diagnosis_running": {
+      "en": "Diagnostics in progress…",
+      "pl": "Trwa diagnostyka…"
+    },
+    "last_result": {
+      "en": "Latest result",
+      "pl": "Ostatni wynik"
+    },
+    "no_result": {
+      "en": "No diagnosis yet.",
+      "pl": "Brak wyników diagnostyki."
+    },
+    "start_next": {
+      "en": "Run diagnostics to see suggested next steps.",
+      "pl": "Uruchom diagnostykę, aby zobaczyć następny krok."
+    },
+    "checks": {
+      "en": "Independent checks",
+      "pl": "Niezależne kontrole"
+    },
+    "no_checks": {
+      "en": "No checks yet",
+      "pl": "Nie ma jeszcze kontroli"
+    },
+    "state_healthy": {
+      "en": "Network appears healthy",
+      "pl": "Sieć wygląda na sprawną"
+    },
+    "state_healthy_detail": {
+      "en": "The checks found no issue.",
+      "pl": "Kontrole nie wykazały problemu."
+    },
+    "state_problem": {
+      "en": "A network issue may be present",
+      "pl": "Możliwy problem z siecią"
+    },
+    "state_problem_detail": {
+      "en": "Review the checks and the suggested next step.",
+      "pl": "Sprawdź kontrole i sugerowany następny krok."
+    },
+    "state_investigating": {
+      "en": "Checking the network",
+      "pl": "Badanie sieci"
+    },
+    "state_investigating_detail": {
+      "en": "The network checks are running.",
+      "pl": "Trwają kontrole sieci."
+    },
+    "state_unknown": {
+      "en": "Network state unknown",
+      "pl": "Stan sieci nieznany"
+    },
+    "state_unknown_detail": {
+      "en": "Run diagnostics to learn more. VPN status is not confirmed.",
+      "pl": "Uruchom diagnostykę. Stan VPN nie jest potwierdzony."
+    },
+    "result_problem": {
+      "en": "A check found a possible problem.",
+      "pl": "Kontrola wykryła możliwy problem."
+    },
+    "result_healthy": {
+      "en": "No problem found by the checks.",
+      "pl": "Kontrole nie wykryły problemu."
+    },
+    "next_problem": {
+      "en": "Review technical details, then contact your administrator if the issue persists.",
+      "pl": "Przejrzyj szczegóły i skontaktuj się z administratorem, jeśli problem trwa."
+    },
+    "next_healthy": {
+      "en": "If the issue persists, run diagnostics again after disconnecting VPN.",
+      "pl": "Jeśli problem trwa, uruchom diagnostykę po rozłączeniu VPN."
+    },
+    "cancelled_result": {
+      "en": "The operation was cancelled.",
+      "pl": "Operacja została anulowana."
+    },
+    "unknown_error": {
+      "en": "The check could not finish.",
+      "pl": "Nie udało się zakończyć kontroli."
+    },
+    "check_network": {
+      "en": "Network path",
+      "pl": "Ścieżka sieci"
+    },
+    "check_dns": {
+      "en": "DNS settings",
+      "pl": "Ustawienia DNS"
+    },
+    "check_route": {
+      "en": "Local route",
+      "pl": "Trasa lokalna"
+    },
+    "check_bonjour": {
+      "en": "Local discovery",
+      "pl": "Wykrywanie lokalne"
+    },
+    "check_ok": {
+      "en": "No issue found",
+      "pl": "Bez problemu"
+    },
+    "check_problem": {
+      "en": "Needs attention",
+      "pl": "Wymaga uwagi"
+    },
+    "repair_candidate": {
+      "en": "Repair candidate",
+      "pl": "Kandydat do naprawy"
+    },
+    "review_candidate": {
+      "en": "Review candidate",
+      "pl": "Sprawdź kandydata"
+    },
+    "change": {
+      "en": "Change",
+      "pl": "Zmiana"
+    },
+    "why": {
+      "en": "Why",
+      "pl": "Dlaczego"
+    },
+    "resource": {
+      "en": "Resource",
+      "pl": "Zasób"
+    },
+    "impact": {
+      "en": "Impact",
+      "pl": "Wpływ"
+    },
+    "permission": {
+      "en": "Permission",
+      "pl": "Uprawnienie"
+    },
+    "verification": {
+      "en": "Verification",
+      "pl": "Weryfikacja"
+    },
+    "candidate_change": {
+      "en": "Refresh a local network resource (simulation only).",
+      "pl": "Odśwież zasób sieci lokalnej (tylko symulacja)."
+    },
+    "candidate_reason": {
+      "en": "A check suggests a stale local setting.",
+      "pl": "Kontrola sugeruje pozostałe ustawienie lokalne."
+    },
+    "candidate_resource": {
+      "en": "Local network only",
+      "pl": "Tylko sieć lokalna"
+    },
+    "candidate_impact": {
+      "en": "A brief local interruption may occur in a real repair.",
+      "pl": "Prawdziwa naprawa mogłaby krótko przerwać połączenie lokalne."
+    },
+    "candidate_permission": {
+      "en": "System approval would be required for a real repair.",
+      "pl": "Prawdziwa naprawa wymagałaby zgody systemowej."
+    },
+    "candidate_verification": {
+      "en": "Repeat the affected check before and after.",
+      "pl": "Powtórz kontrolę przed zmianą i po niej."
+    },
+    "mock_repair_notice": {
+      "en": "This button only simulates a result. No settings are changed.",
+      "pl": "Ten przycisk tylko symuluje wynik. Ustawienia nie są zmieniane."
+    },
+    "simulate_repair": {
+      "en": "Simulate result",
+      "pl": "Symuluj wynik"
+    },
+    "repair_verified_mock": {
+      "en": "Candidate only: the simulated check passed. No repair was performed. Run diagnosis again after a real repair is integrated.",
+      "pl": "Tylko kandydat: symulowana kontrola przeszła. Nie wykonano naprawy. Po podłączeniu naprawy ponów diagnostykę."
+    },
+    "repair_failed_mock": {
+      "en": "Simulated repair failed. No settings were changed.",
+      "pl": "Symulowana naprawa nie powiodła się. Ustawienia pozostały bez zmian."
+    },
+    "filter": {
+      "en": "Filter",
+      "pl": "Filtr"
+    },
+    "all": {
+      "en": "All",
+      "pl": "Wszystkie"
+    },
+    "success": {
+      "en": "Successful",
+      "pl": "Udane"
+    },
+    "problems": {
+      "en": "Problems",
+      "pl": "Problemy"
+    },
+    "no_activity": {
+      "en": "No activity yet",
+      "pl": "Brak aktywności"
+    },
+    "no_activity_detail": {
+      "en": "Run diagnostics to create a session.",
+      "pl": "Uruchom diagnostykę, aby utworzyć sesję."
+    },
+    "preview_report": {
+      "en": "Preview report…",
+      "pl": "Podgląd raportu…"
+    },
+    "report_preview": {
+      "en": "Report preview",
+      "pl": "Podgląd raportu"
+    },
+    "report_redacted": {
+      "en": "Only sanitized session data is included. Review it before saving.",
+      "pl": "Raport zawiera tylko oczyszczone dane sesji. Sprawdź go przed zapisaniem."
+    },
+    "save_report": {
+      "en": "Save report…",
+      "pl": "Zapisz raport…"
+    },
+    "helper": {
+      "en": "Helper",
+      "pl": "Pomocnik"
+    },
+    "helper_available": {
+      "en": "Available",
+      "pl": "Dostępny"
+    },
+    "helper_approvalRequired": {
+      "en": "System approval required",
+      "pl": "Wymaga zatwierdzenia systemowego"
+    },
+    "helper_denied": {
+      "en": "Approval denied",
+      "pl": "Odmowa zgody"
+    },
+    "helper_unavailable": {
+      "en": "Unavailable",
+      "pl": "Niedostępny"
+    },
+    "helper_note": {
+      "en": "Diagnostics work without the helper. System approval cannot be bypassed.",
+      "pl": "Diagnostyka działa bez pomocnika. Nie można ominąć zgody systemowej."
+    },
+    "privacy": {
+      "en": "Privacy",
+      "pl": "Prywatność"
+    },
+    "privacy_detail": {
+      "en": "Reports are saved only after preview and your explicit request. No upload or telemetry.",
+      "pl": "Raporty są zapisywane po podglądzie i na Twoje żądanie. Bez wysyłania i telemetrii."
+    },
+    "vpn_active": {
+      "en": "VPN active · changes are unavailable",
+      "pl": "VPN aktywny · zmiany są niedostępne"
+    },
+    "vpn_unknown": {
+      "en": "VPN state unknown · changes are unavailable",
+      "pl": "Stan VPN nieznany · zmiany są niedostępne"
+    },
+    "vpn_inactive_mock": {
+      "en": "VPN appears inactive in this simulation",
+      "pl": "VPN wygląda na nieaktywny w tej symulacji"
+    },
+    "result_vpn_unknown": {
+      "en": "VPN status prevents a clear result.",
+      "pl": "Stan VPN nie pozwala na jednoznaczny wynik."
+    },
+    "next_vpn_unknown": {
+      "en": "Disconnect VPN or confirm its status, then run diagnostics again.",
+      "pl": "Rozłącz VPN lub potwierdź jego stan, a potem ponów diagnostykę."
+    },
+    "check_skipped": {
+      "en": "Not conclusive",
+      "pl": "Wynik niejednoznaczny"
+    },
+    "check_cancelled": {
+      "en": "Cancelled",
+      "pl": "Anulowano"
+    },
+    "check_permission": {
+      "en": "Permission denied",
+      "pl": "Odmowa dostępu"
+    },
+    "check_timeout": {
+      "en": "Timed out",
+      "pl": "Przekroczono czas"
+    },
+    "result_permission": {
+      "en": "Local discovery could not run because access was denied.",
+      "pl": "Odkrywanie lokalne nie mogło się uruchomić, ponieważ system odmówił dostępu."
+    },
+    "next_permission": {
+      "en": "Check local network permission in System Settings, then run diagnostics again.",
+      "pl": "Sprawdź uprawnienie do sieci lokalnej w Ustawieniach systemowych, a potem ponów diagnostykę."
+    },
+    "result_timeout": {
+      "en": "The network check did not finish in time.",
+      "pl": "Sprawdzenie sieci nie zakończyło się w wyznaczonym czasie."
+    },
+    "next_timeout": {
+      "en": "Check the connection and try the diagnosis again.",
+      "pl": "Sprawdź połączenie i ponów diagnostykę."
+    },
+    "result_no_receiver": {
+      "en": "No local receiver was found; this does not prove a network fault.",
+      "pl": "Nie znaleziono lokalnego odbiornika; samo to nie dowodzi awarii sieci."
+    },
+    "next_no_receiver": {
+      "en": "Make sure the receiver is on and on the same local network, then try again.",
+      "pl": "Upewnij się, że odbiornik jest włączony i korzysta z tej samej sieci lokalnej, a potem spróbuj ponownie."
+    },
+    "export_failed": {
+      "en": "The report could not be saved",
+      "pl": "Nie udało się zapisać raportu"
+    },
+    "export_failed_detail": {
+      "en": "Choose a writable location and try again from the preview.",
+      "pl": "Wybierz miejsce, w którym możesz zapisać plik, i spróbuj ponownie z podglądu."
+    },
+    "ok": {
+      "en": "OK",
+      "pl": "OK"
+    },
+    "wait_or_cancel": {
+      "en": "Wait for the result or cancel the operation.",
+      "pl": "Poczekaj na wynik albo anuluj operację."
+    },
+    "state_sharing": {
+      "en": "Network works; this Mac is not ready to share files",
+      "pl": "Sieć działa; ten Mac nie jest gotowy do udostępniania plików"
+    },
+    "state_sharing_detail": {
+      "en": "Other Macs reach this Mac, but a file sharing setting blocks logging in.",
+      "pl": "Inne komputery Mac docierają do tego Maca, ale ustawienie udostępniania plików blokuje logowanie."
+    },
+    "result_sharing": {
+      "en": "The network checks passed; your account has no SMB password stored, so other Macs cannot log in to this Mac’s shared folders.",
+      "pl": "Kontrole sieci przeszły; Twoje konto nie ma zapisanego hasła SMB, więc inne komputery Mac nie mogą zalogować się do udostępnionych folderów tego Maca."
+    },
+    "next_sharing": {
+      "en": "Open System Settings › General › Sharing › File Sharing › ⓘ › Options…, turn on your account under “Share files and folders using SMB” and enter your password; then use “Connect As…” on the other Mac.",
+      "pl": "Otwórz Ustawienia systemowe › Ogólne › Udostępnianie › Udostępnianie plików › ⓘ › Opcje…, włącz swoje konto w „Udostępnianie plików i folderów za pomocą SMB” i podaj hasło; potem na drugim Macu wybierz „Połącz jako…”."
+    },
+    "result_sharing_nologin": {
+      "en": "The network checks passed, but this Mac rejects guest logins and your account has no SMB password stored, so no computer can log in to its shared folders.",
+      "pl": "Kontrole sieci przeszły, ale ten Mac odrzuca logowanie gościa, a Twoje konto nie ma zapisanego hasła SMB, więc żaden komputer nie zaloguje się do jego udostępnionych folderów."
+    },
+    "next_sharing_nologin": {
+      "en": "Open System Settings › General › Sharing › File Sharing › ⓘ › Options…, turn on your account under “Share files and folders using SMB” and enter your password. Optionally allow guests under Users & Groups › Guest User › “Allow guests to connect to shared folders”. Then use “Connect As…” on the other Mac.",
+      "pl": "Otwórz Ustawienia systemowe › Ogólne › Udostępnianie › Udostępnianie plików › ⓘ › Opcje…, włącz swoje konto w „Udostępnianie plików i folderów za pomocą SMB” i podaj hasło. Opcjonalnie w Użytkownicy i grupy › Gość włącz „Zezwalaj gościom na łączenie się z udostępnianymi folderami”. Potem na drugim Macu wybierz „Połącz jako…”."
+    },
+    "network_healthy": {
+      "en": "No problem was detected by this check.",
+      "pl": "Nie wykryto problemu w tym sprawdzeniu."
+    },
+    "network_dataIncomplete": {
+      "en": "There is not enough information to assess this area.",
+      "pl": "Brakuje danych, aby ocenić ten obszar."
+    },
+    "network_environmentLimited": {
+      "en": "Network conditions limit this check.",
+      "pl": "Warunki sieciowe ograniczają to sprawdzenie."
+    },
+    "network_cancelled": {
+      "en": "The check was cancelled.",
+      "pl": "Sprawdzenie zostało anulowane."
+    },
+    "network_timedOut": {
+      "en": "The check timed out.",
+      "pl": "Sprawdzenie przekroczyło limit czasu."
+    },
+    "network_noPhysicalLink": {
+      "en": "There is no active physical connection.",
+      "pl": "Nie ma aktywnego fizycznego połączenia."
+    },
+    "network_noAddressLease": {
+      "en": "The interface has no usable network address.",
+      "pl": "Interfejs nie ma użytecznej adresacji."
+    },
+    "network_noGateway": {
+      "en": "No gateway was found on the physical connection.",
+      "pl": "Nie znaleziono bramy na fizycznym połączeniu."
+    },
+    "network_noDefaultRoute": {
+      "en": "No default route was found.",
+      "pl": "Nie znaleziono trasy domyślnej."
+    },
+    "network_duplicateDefaultRoute": {
+      "en": "Competing default routes were found.",
+      "pl": "Wykryto konkurujące trasy domyślne."
+    },
+    "network_residualDefaultRoute": {
+      "en": "The default route points to a tunnel interface.",
+      "pl": "Trasa domyślna wskazuje interfejs tunelowy."
+    },
+    "network_localRouteMissing": {
+      "en": "The route to the local subnet could not be confirmed.",
+      "pl": "Nie można potwierdzić trasy do lokalnej podsieci."
+    },
+    "network_localRouteViaTunnel": {
+      "en": "Traffic to the local subnet may be sent through a tunnel.",
+      "pl": "Ruch do lokalnej podsieci może trafiać do tunelu."
+    },
+    "network_resolverMissing": {
+      "en": "No available DNS server was found.",
+      "pl": "Nie znaleziono dostępnego serwera DNS."
+    },
+    "network_residualScopedDNS": {
+      "en": "A tunnel-bound DNS resolver may still be active.",
+      "pl": "Resolver powiązany z tunelem może nadal działać."
+    },
+    "network_resolverOrder": {
+      "en": "Resolver order may direct DNS queries to a tunnel.",
+      "pl": "Kolejność resolverów może kierować zapytania do tunelu."
+    },
+    "network_residualSearchDomain": {
+      "en": "A search domain may remain from the tunnel.",
+      "pl": "Domena wyszukiwania może pochodzić z tunelu."
+    },
+    "network_dnsNXDomain": {
+      "en": "The DNS server reported that the name does not exist.",
+      "pl": "Serwer DNS zgłosił brak tej nazwy."
+    },
+    "network_dnsTimeout": {
+      "en": "The DNS response did not arrive in time.",
+      "pl": "Odpowiedź DNS nie nadeszła na czas."
+    },
+    "network_dnsServerUnavailable": {
+      "en": "The DNS server is unavailable.",
+      "pl": "Serwer DNS jest niedostępny."
+    },
+    "network_dnsNoPath": {
+      "en": "There is no network path for the DNS query.",
+      "pl": "Brak ścieżki sieciowej do zapytania DNS."
+    },
+    "network_dnsFailure": {
+      "en": "Name resolution failed.",
+      "pl": "Rozwiązanie nazwy nie powiodło się."
+    },
+    "network_localPathUnavailable": {
+      "en": "The local connection is unavailable.",
+      "pl": "Lokalne połączenie nie jest dostępne."
+    },
+    "network_internetUnavailable": {
+      "en": "The internet connection could not be confirmed.",
+      "pl": "Nie potwierdzono ścieżki internetowej."
+    },
+    "network_internetReachable": {
+      "en": "The internet connection is available.",
+      "pl": "Ścieżka internetowa jest dostępna."
+    },
+    "network_activeProxy": {
+      "en": "An active proxy may affect connectivity after VPN disconnect.",
+      "pl": "Aktywny proxy może wpływać na łączność po VPN."
+    },
+    "network_activePAC": {
+      "en": "An active PAC configuration may affect connectivity after VPN disconnect.",
+      "pl": "Aktywna konfiguracja PAC może wpływać na łączność po VPN."
+    },
+    "network_orphanedTunnel": {
+      "en": "A tunnel interface remains without an active connection.",
+      "pl": "Pozostał interfejs tunelowy bez aktywnego połączenia."
+    },
+    "network_routingConflict": {
+      "en": "The same network has routes through different interfaces; traffic may take the wrong path.",
+      "pl": "Ta sama sieć ma trasy przez różne interfejsy; ruch może wychodzić niewłaściwą drogą."
+    },
+    "network_routeViaInactiveTunnel": {
+      "en": "A route points to an inactive tunnel interface.",
+      "pl": "Trasa wskazuje nieaktywny interfejs tunelowy."
+    },
+    "network_expectedInterfaceMissing": {
+      "en": "An interface required by a route is missing.",
+      "pl": "Brakuje interfejsu używanego przez trasę."
+    },
+    "network_unstableAfterDisconnect": {
+      "en": "The network state is still changing after disconnection.",
+      "pl": "Stan sieci nadal się zmienia po rozłączeniu."
+    },
+    "device_reachable": {
+      "en": "The device accepted the connection on this port. The network path and listening service work.",
+      "pl": "Urządzenie przyjęło połączenie na tym porcie. Sieć i nasłuchująca usługa działają."
+    },
+    "device_refused": {
+      "en": "The device responds but refuses this port. The service may be off or using another port.",
+      "pl": "Urządzenie odpowiada, ale odrzuca ten port. Usługa może być wyłączona lub używać innego portu."
+    },
+    "device_timedOut": {
+      "en": "No response arrived in time. Packets may be blocked or the response may use another route.",
+      "pl": "Brak odpowiedzi na czas. Pakiety mogą być blokowane lub odpowiedź wraca inną drogą."
+    },
+    "device_unreachable": {
+      "en": "This Mac has no usable route to the device, or the device is not responding on this link.",
+      "pl": "Ten Mac nie ma drogi do urządzenia lub urządzenie nie odpowiada na tym łączu."
+    },
+    "device_nameUnresolved": {
+      "en": "The device name could not be resolved.",
+      "pl": "Nie udało się rozwiązać nazwy urządzenia."
+    },
+    "device_invalidInput": {
+      "en": "Enter a device name or address and a port from 1 to 65535.",
+      "pl": "Podaj nazwę lub adres urządzenia oraz port z zakresu 1–65535."
+    },
+    "device_failed": {
+      "en": "The connection failed for another reason.",
+      "pl": "Połączenie nie powiodło się z innego powodu."
+    },
+    "device_cancelled": {
+      "en": "The test was cancelled.",
+      "pl": "Test został anulowany."
+    },
+    "sharing_healthy": {
+      "en": "File Sharing accepts connections and your account can sign in using SMB.",
+      "pl": "Udostępnianie plików przyjmuje połączenia, a Twoje konto może logować się przez SMB."
+    },
+    "sharing_guestRejected": {
+      "en": "Your account can sign in using SMB, but guests are rejected. Use “Connect As…” on the other Mac.",
+      "pl": "Konto może logować się przez SMB, ale goście są odrzucani. Na drugim Macu użyj „Połącz jako…”."
+    },
+    "sharing_noLoginMethod": {
+      "en": "File Sharing is on, but guest access is rejected and your account has no SMB password stored.",
+      "pl": "Udostępnianie działa, ale goście są odrzucani, a konto nie ma hasła SMB."
+    },
+    "sharing_sharingOff": {
+      "en": "File Sharing is off on this Mac. Other computers cannot connect to its shared folders.",
+      "pl": "Udostępnianie plików na tym Macu jest wyłączone; inne komputery nie połączą się z jego dyskami."
+    },
+    "sharing_accountNotEnabledForSMB": {
+      "en": "File Sharing is on, but your account has no SMB password stored. Sign-in from another Mac is rejected.",
+      "pl": "Udostępnianie działa, ale konto nie ma hasła SMB. Logowanie z drugiego Maca jest odrzucane."
+    },
+    "sharing_noSharedFolders": {
+      "en": "File Sharing is on, but no folder is shared using SMB.",
+      "pl": "Udostępnianie działa, ale żaden folder nie jest udostępniany przez SMB."
+    },
+    "sharing_dataIncomplete": {
+      "en": "The File Sharing state could not be read.",
+      "pl": "Nie udało się odczytać stanu udostępniania plików."
+    },
+    "sharing_cancelled": {
+      "en": "The check was cancelled.",
+      "pl": "Sprawdzenie zostało anulowane."
+    },
+    "filter_noFilter": {
+      "en": "No socket content filter is active on this Mac.",
+      "pl": "Na tym Macu nie działa żaden filtr treści na gniazdach."
+    },
+    "filter_firewallFilterActive": {
+      "en": "The macOS firewall is active as a socket content filter. A filter may affect SMB or AFP sessions even when the port responds.",
+      "pl": "Zapora macOS działa jako filtr treści. Filtr może wpływać na sesje SMB lub AFP mimo działającego portu."
+    },
+    "filter_thirdPartyFilterActive": {
+      "en": "A third-party socket content filter is active on this Mac. It may affect SMB sessions.",
+      "pl": "Na tym Macu działa filtr treści innego programu. Może wpływać na sesje SMB."
+    },
+    "filter_filterActive": {
+      "en": "A socket content filter is active; its source could not be identified.",
+      "pl": "Działa filtr treści na gniazdach; nie ustalono jego źródła."
+    },
+    "filter_dataIncomplete": {
+      "en": "The content filter state could not be read.",
+      "pl": "Nie udało się odczytać stanu filtrów treści."
+    },
+    "filter_cancelled": {
+      "en": "The check was cancelled.",
+      "pl": "Sprawdzenie zostało anulowane."
+    },
+    "helper_unchecked": {
+      "en": "The helper has not been checked yet.",
+      "pl": "Helper nie był jeszcze sprawdzany."
+    },
+    "helper_preparing": {
+      "en": "Checking the helper. Wait for it to be ready.",
+      "pl": "Sprawdzanie helpera. Poczekaj na potwierdzenie gotowości."
+    },
+    "helper_not_responding": {
+      "en": "The registered helper has not confirmed readiness. Check it again before repairing.",
+      "pl": "Zarejestrowany helper nie potwierdził gotowości. Sprawdź go ponownie przed naprawą."
+    },
+    "helper_setup_required": {
+      "en": "Register the helper and approve it in macOS before confirming this repair. Registration does not change network settings.",
+      "pl": "Zarejestruj helper i zatwierdź go w macOS przed naprawą. Rejestracja nie zmienia sieci."
+    },
+    "helper_approve_guidance": {
+      "en": "Approve NetUnstick in Login Items, then return to confirm the repair.",
+      "pl": "Zatwierdź NetUnstick w Elementach logowania, a potem wróć i potwierdź naprawę."
+    },
+    "helper_unavailable_guidance": {
+      "en": "Check administrator approval and the complete, signed NetUnstick installation.",
+      "pl": "Helper jest niedostępny. Sprawdź zgodę administratora i instalację kompletnego, podpisanego pakietu NetUnstick."
+    },
+    "helper_ready_guidance": {
+      "en": "The helper is registered. Network changes require your confirmation.",
+      "pl": "Helper jest zarejestrowany. Zmiana sieci wymaga Twojego potwierdzenia."
+    },
+    "vpn_stale_repair": {
+      "en": "Only the verified leftover VPN routes can be repaired.",
+      "pl": "Wykryto trasy pozostałe po rozłączeniu VPN. Dostępna jest tylko naprawa dokładnie tych tras."
+    },
+    "vpn_leftover_routes": {
+      "en": "VPN reports disconnected, but tunnel routes remain. Network changes are paused.",
+      "pl": "Usługa VPN zgłasza rozłączenie, ale w systemie pozostały trasy tunelowe. Zmiany sieci są zablokowane."
+    },
+    "vpn_active_guidance": {
+      "en": "VPN is active. Network changes are paused.",
+      "pl": "VPN aktywny. Zmiany sieci są zablokowane."
+    },
+    "vpn_inactive_guidance": {
+      "en": "VPN is inactive. You can run diagnostics.",
+      "pl": "VPN nieaktywny. Możesz uruchomić diagnostykę."
+    },
+    "vpn_leftover_interfaces": {
+      "en": "VPN reports disconnected, but inactive tunnel interfaces remain. Ordinary changes are paused.",
+      "pl": "Usługa VPN zgłasza rozłączenie, ale klient VPN zostawił nieaktywne interfejsy tunelowe. Zwykłe zmiany sieci są zablokowane."
+    },
+    "vpn_unknown_interface": {
+      "en": "A tunnel interface remains and VPN status is unknown. Network changes are paused.",
+      "pl": "Pozostał interfejs tunelowy, a stan usługi VPN jest nieznany. Zmiany sieci są zablokowane."
+    },
+    "vpn_changing": {
+      "en": "The network is changing. Network changes are paused until reassessment.",
+      "pl": "Sieć właśnie się zmienia. Zmiany sieci są zablokowane do ponownej oceny."
+    },
+    "vpn_incomplete": {
+      "en": "The network state could not be fully read. Network changes are paused.",
+      "pl": "Nie udało się w pełni odczytać stanu sieci. Zmiany sieci są zablokowane do ponownej oceny."
+    },
+    "vpn_missing_tunnel": {
+      "en": "A route or resolver points to a missing tunnel. Network changes are paused.",
+      "pl": "Trasa lub resolver wskazuje nieobecny tunel. Zmiany sieci są zablokowane do ponownej oceny."
+    },
+    "vpn_uncertain": {
+      "en": "VPN status is uncertain. Network changes are paused until reassessment.",
+      "pl": "Stan VPN niepewny. Zmiany sieci są zablokowane do ponownej oceny."
+    },
+    "vpn_disconnected_next": {
+      "en": "VPN disconnected. Run diagnostics to check the connection.",
+      "pl": "VPN został rozłączony. Uruchom diagnostykę, aby sprawdzić połączenie."
+    },
+    "history_unavailable": {
+      "en": "History could not be read. Check Application Support permissions.",
+      "pl": "Nie można odczytać historii. Sprawdź uprawnienia do Application Support."
+    },
+    "device_unknown_result": {
+      "en": "The result could not be assessed.",
+      "pl": "Nie można ocenić wyniku."
+    },
+    "device_via_tunnel": {
+      "en": "Traffic to this device uses a tunnel interface.",
+      "pl": " Ruch do tego urządzenia idzie przez interfejs tunelowy."
+    },
+    "smb_guest_accepted": {
+      "en": "The SMB session works and the server accepts guests.",
+      "pl": "Sesja SMB działa, a serwer przyjmuje gości."
+    },
+    "smb_login_required": {
+      "en": "The SMB session works, but guests are rejected. Use “Connect As…” with an SMB-enabled account on the other Mac.",
+      "pl": "Sesja SMB działa, ale goście są odrzucani. Użyj „Połącz jako…” z kontem włączonym do SMB na drugim Macu."
+    },
+    "smb_session_failed": {
+      "en": "The port responds, but an SMB session could not be negotiated. Check File Sharing settings and macOS compatibility on both Macs.",
+      "pl": "Port odpowiada, ale sesja SMB nie powstała. Sprawdź ustawienia udostępniania i zgodność wersji macOS obu komputerów."
+    },
+    "smb_filter_present": {
+      "en": "A socket content filter is also active on this Mac. Its presence alone does not identify the cause.",
+      "pl": "Na tym Macu działa też filtr treści. Sama jego obecność nie wskazuje przyczyny problemu."
+    },
+    "smb_timeout": {
+      "en": "The SMB client did not respond in time. Run the test again.",
+      "pl": "Klient SMB tego komputera nie odpowiedział w czasie; powtórz test."
+    },
+    "smb_other_exit": {
+      "en": "The SMB client returned an unexpected result. Run the test again or check the technical details.",
+      "pl": "Klient SMB zwrócił nietypowy wynik. Powtórz test lub przejrzyj szczegóły techniczne."
+    },
+    "smb_unknown": {
+      "en": "The SMB session could not be assessed.",
+      "pl": "Nie udało się ocenić sesji SMB."
+    },
+    "address_reachable": {
+      "en": "reachable",
+      "pl": "osiągalne"
+    },
+    "address_refused": {
+      "en": "refused",
+      "pl": "odrzucone"
+    },
+    "address_timeout": {
+      "en": "no response",
+      "pl": "bez odpowiedzi"
+    },
+    "address_unreachable": {
+      "en": "no route",
+      "pl": "brak drogi"
+    },
+    "address_ipv4_only": {
+      "en": "The name has only an IPv4 address.",
+      "pl": "Nazwa ma tylko adres IPv4."
+    },
+    "address_ipv6_only": {
+      "en": "The name has only an IPv6 address.",
+      "pl": "Nazwa ma tylko adres IPv6."
+    },
+    "diagnosis_failed": {
+      "en": "Diagnostics could not be completed or saved.",
+      "pl": "Nie udało się zapisać lub wykonać diagnozy."
+    },
+    "support_permissions": {
+      "en": "Check Application Support permissions and try again.",
+      "pl": "Sprawdź uprawnienia do Application Support i spróbuj ponownie."
+    },
+    "repair_waiting_helper": {
+      "en": "The repair is waiting for the helper to be ready.",
+      "pl": "Naprawa czeka na przygotowanie helpera."
+    },
+    "repair_reassessing": {
+      "en": "Reassessing VPN and repair conditions",
+      "pl": "Ponowna ocena VPN i warunków"
+    },
+    "repair_verified": {
+      "en": "Repaired. A fresh check confirmed the improvement.",
+      "pl": "Naprawiono — ponowny check potwierdził poprawę."
+    },
+    "review_details": {
+      "en": "Review the operation details.",
+      "pl": "Przejrzyj szczegóły operacji."
+    },
+    "repair_checking": {
+      "en": "Checking the network after repair",
+      "pl": "Sprawdzanie sieci po naprawie"
+    },
+    "repair_followup_cancelled": {
+      "en": "The target issue was repaired, but the full follow-up diagnosis was cancelled.",
+      "pl": "Naprawiono wskazany problem, ale pełna diagnoza po naprawie została anulowana."
+    },
+    "repair_followup_failed": {
+      "en": "The target issue was repaired, but the full follow-up diagnosis could not be completed or saved.",
+      "pl": "Naprawiono wskazany problem, ale nie udało się wykonać lub zapisać pełnej diagnozy po naprawie."
+    },
+    "repair_check_again": {
+      "en": "Run diagnostics again. Repair details are in Activity.",
+      "pl": "Uruchom diagnostykę ponownie. Szczegóły naprawy są w aktywności."
+    },
+    "bonjour_noServices": {
+      "en": "No receiver was found; one may not be present on this network.",
+      "pl": "Nie znaleziono odbiornika; może go nie być w tej sieci."
+    },
+    "bonjour_permissionDenied": {
+      "en": "Local network access was denied. Check the app’s permission.",
+      "pl": "System odmówił dostępu do sieci lokalnej. Sprawdź zgodę aplikacji."
+    },
+    "bonjour_timedOut": {
+      "en": "Local discovery did not finish in time. Try again.",
+      "pl": "Odkrywanie lokalne nie zakończyło się na czas. Spróbuj ponownie."
+    },
+    "bonjour_browserFailed": {
+      "en": "Local discovery failed. Try again.",
+      "pl": "Odkrywanie lokalne nie powiodło się. Spróbuj ponownie."
+    },
+    "bonjour_noLocalPath": {
+      "en": "No local connection was confirmed. Check the connection.",
+      "pl": "Brak potwierdzonej ścieżki lokalnej. Sprawdź połączenie."
+    },
+    "bonjour_cancelled": {
+      "en": "The check was cancelled.",
+      "pl": "Sprawdzenie zostało anulowane."
+    },
+    "bonjour_inconclusive": {
+      "en": "Local discovery could not be confirmed.",
+      "pl": "Nie można potwierdzić działania odkrywania lokalnego."
+    },
+    "phase_revalidate": {
+      "en": "Revalidating diagnosis",
+      "pl": "Ponowna walidacja diagnozy"
+    },
+    "phase_fresh_vpn": {
+      "en": "Checking current VPN state",
+      "pl": "Świeża ocena VPN"
+    },
+    "phase_vpn_gate": {
+      "en": "VPN safety check",
+      "pl": "Blokada VPN"
+    },
+    "phase_before_snapshot": {
+      "en": "Capturing state before the change",
+      "pl": "Migawka stanu przed zmianą"
+    },
+    "phase_helper_request": {
+      "en": "Requesting the helper",
+      "pl": "Żądanie do helpera"
+    },
+    "phase_read_only_retry": {
+      "en": "Repeating the check without changes",
+      "pl": "Ponowienie sprawdzenia bez zmian"
+    },
+    "phase_settle": {
+      "en": "Waiting for the network to settle",
+      "pl": "Oczekiwanie na ustabilizowanie"
+    },
+    "phase_after_snapshot": {
+      "en": "Capturing state after the change",
+      "pl": "Migawka stanu po zmianie"
+    },
+    "phase_recheck": {
+      "en": "Checking again",
+      "pl": "Ponowne sprawdzenie"
+    },
+    "phase_result": {
+      "en": "Result",
+      "pl": "Wynik"
+    },
+    "helper_protocol": {
+      "en": "Helper responds (protocol %lld).",
+      "pl": "Helper odpowiada (protokół %lld)."
+    },
+    "helper_error": {
+      "en": "Helper is not responding: %@.",
+      "pl": "Helper nie odpowiada: %@."
+    },
+    "address_ipv4_works": {
+      "en": "IPv4 works, but IPv6 does not (%@). Apps that prefer IPv6 may fail to connect. Check IPv6 settings on both devices.",
+      "pl": "IPv4 działa, ale IPv6 nie (%@). Programy wybierające IPv6 mogą nie nawiązać połączenia. Sprawdź ustawienia IPv6 obu urządzeń."
+    },
+    "address_ipv6_works": {
+      "en": "IPv6 works, but IPv4 does not (%@). Check the IPv4 address and subnet mask on both devices.",
+      "pl": "IPv6 działa, ale IPv4 nie (%@). Sprawdź adres IPv4 i maskę podsieci obu urządzeń."
+    },
+    "address_summary": {
+      "en": "IPv4: %@ · IPv6: %@.",
+      "pl": "IPv4: %@ · IPv6: %@."
+    },
+    "repair_outcome": {
+      "en": "Repair: %@; %@",
+      "pl": "Naprawa: %@; %@"
+    },
+    "no_error_code": {
+      "en": "no error code",
+      "pl": "bez kodu"
+    },
+    "store_diagnostic_scope": {
+      "en": "Read-only DNS, TCP and Bonjour checks. This edition does not inspect routing or VPN state and does not change the network.",
+      "pl": "Odczytowe kontrole DNS, TCP i Bonjour. To wydanie nie sprawdza routingu ani stanu VPN i nie zmienia sieci."
+    },
+    "store_result_connected": {
+      "en": "The tested connections passed.",
+      "pl": "Sprawdzone połączenia działają."
+    },
+    "store_result_incomplete": {
+      "en": "Some connections could not be confirmed.",
+      "pl": "Nie udało się potwierdzić części połączeń."
+    },
+    "store_next_step": {
+      "en": "Review the checks below. These results do not guarantee that every local device or service is reachable.",
+      "pl": "Przejrzyj wyniki poniżej. Nie potwierdzają one dostępności każdego urządzenia ani usługi w sieci lokalnej."
+    },
+    "helper_ready": {
+      "en": "The helper is ready.",
+      "pl": "Helper jest gotowy."
+    },
+    "helper_enable_when_needed": {
+      "en": "Enable the helper only for a repair you choose.",
+      "pl": "Włącz helper tylko przed wybraną naprawą."
+    },
+    "helper_approve_login": {
+      "en": "Approve the helper in System Settings › General › Login Items.",
+      "pl": "Zatwierdź helper w Ustawieniach systemowych > Ogólne > Elementy logowania."
+    },
+    "helper_reinstall": {
+      "en": "Reinstall the complete, signed app bundle.",
+      "pl": "Zainstaluj ponownie poprawny pakiet aplikacji."
+    },
+    "helper_signature_error": {
+      "en": "The app and helper must share the same valid signing certificate.",
+      "pl": "Aplikacja i helper muszą mieć ten sam ważny certyfikat podpisu."
+    },
+    "helper_authorization_error": {
+      "en": "Authorization was denied. Check administrator approval.",
+      "pl": "System odmówił uprawnienia. Sprawdź zgodę administratora."
+    },
+    "helper_launch_error": {
+      "en": "The helper was not allowed to start. Check Login Items.",
+      "pl": "System odmówił uruchomienia helpera. Sprawdź Elementy logowania."
+    },
+    "helper_registration_error": {
+      "en": "Registration failed. Check the app’s signature and installation.",
+      "pl": "Rejestracja nie powiodła się. Sprawdź podpis i instalację aplikacji."
+    },
+    "helper_reregistration_error": {
+      "en": "Registration could not be refreshed. Check Login Items.",
+      "pl": "Ponowna rejestracja nie powiodła się. Sprawdź Elementy logowania."
+    },
+    "helper_refresh_cancelled": {
+      "en": "Helper refresh was cancelled. Check its state before registering again.",
+      "pl": "Odświeżanie helpera anulowano. Sprawdź jego stan przed ponowną rejestracją."
+    },
+    "helper_unregister_timeout": {
+      "en": "macOS did not confirm helper removal within five seconds. Check its state and try again.",
+      "pl": "System nie potwierdził wyrejestrowania helpera w ciągu 5 sekund. Sprawdź jego stan i spróbuj ponownie."
+    },
+    "helper_unregister_before_retry": {
+      "en": "The helper could not be unregistered. Check Login Items before registering again.",
+      "pl": "Wyrejestrowanie helpera nie powiodło się. Sprawdź Elementy logowania przed ponowną rejestracją."
+    },
+    "helper_unregister_error": {
+      "en": "The helper could not be unregistered. Check Login Items.",
+      "pl": "Wyrejestrowanie nie powiodło się. Sprawdź Elementy logowania."
+    },
+    "repair_resource_check": {
+      "en": "Related check",
+      "pl": "Powiązane sprawdzenie"
+    },
+    "repair_resource_resolver": {
+      "en": "DNS resolver and mDNS cache",
+      "pl": "Cache resolvera i mDNS"
+    },
+    "repair_resource_interface": {
+      "en": "One confirmed physical interface",
+      "pl": "Jedyny wybrany interfejs fizyczny"
+    },
+    "repair_retry": {
+      "en": "Repeat the check without system changes",
+      "pl": "Ponowienie sprawdzenia bez zmiany systemu"
+    },
+    "repair_refresh_cache": {
+      "en": "Refresh DNS resolver and mDNS cache",
+      "pl": "Odświeżenie cache resolvera i mDNS"
+    },
+    "repair_renew_dhcp": {
+      "en": "Renew the DHCP lease",
+      "pl": "Odnowienie dzierżawy DHCP"
+    },
+    "repair_no_change": {
+      "en": "No network changes",
+      "pl": "Brak zmian sieci"
+    },
+    "repair_route_impact": {
+      "en": "Local traffic returns to the physical interface. Connections using the former tunnel may be interrupted.",
+      "pl": "Ruch do objętych fragmentów sieci lokalnej wróci na fizyczny interfejs; połączenia przez dawny tunel mogą się przerwać"
+    },
+    "repair_short_interruption": {
+      "en": "A brief connection interruption",
+      "pl": "Krótkie zakłócenie łączności"
+    },
+    "repair_remove_routes": {
+      "en": "Remove leftover VPN routes (%lld)",
+      "pl": "Usuń trasy pozostałe po VPN (%lld)"
+    },
+    "repair_purpose": {
+      "en": "Verify: %@",
+      "pl": "Weryfikacja: %@"
+    },
+    "repair_verification": {
+      "en": "Capture fresh state and repeat: %@",
+      "pl": "Nowa obserwacja i ponowne sprawdzenie: %@"
+    },
+    "repair_routes_count": {
+      "en": "Tunnel routes overlapping the local network: %lld",
+      "pl": "Trasy tunelowe nakładające się na sieć lokalną: %lld"
+    },
+    "repair_permission_required": {
+      "en": "Requires the approved helper",
+      "pl": "Wymaga zatwierdzonego helpera"
+    },
+    "repair_permission_none": {
+      "en": "No administrator privileges required",
+      "pl": "Bez uprawnień administratora"
+    },
+    "helper_checking": {
+      "en": "Checking helper…",
+      "pl": "Sprawdzanie helpera…"
+    },
+    "helper_verify": {
+      "en": "Check helper",
+      "pl": "Sprawdź helper"
+    },
+    "helper_register": {
+      "en": "Register helper",
+      "pl": "Zarejestruj helper"
+    },
+    "helper_open_settings": {
+      "en": "Open Login Items",
+      "pl": "Otwórz Elementy logowania"
+    },
+    "repair_confirm_routes": {
+      "en": "The app rechecks VPN disconnection and these exact routes, removes each route separately, then verifies local routing.",
+      "pl": "Aplikacja ponownie potwierdzi rozłączenie usług VPN i dokładnie te trasy, usunie każdą z nich osobnym poleceniem, a następnie sprawdzi trasę lokalną."
+    },
+    "repair_confirm_generic": {
+      "en": "The app rechecks VPN and repair conditions, performs the selected action, then repeats the check.",
+      "pl": "Po potwierdzeniu aplikacja ponownie sprawdzi VPN i warunki, następnie wykona akcję i powtórzy check."
+    },
+    "repair_confirm": {
+      "en": "Confirm and run",
+      "pl": "Potwierdź i wykonaj"
+    },
+    "operation_physical_link": {
+      "en": "Physical connection",
+      "pl": "Połączenie fizyczne"
+    },
+    "operation_default_route": {
+      "en": "Default route",
+      "pl": "Trasa domyślna"
+    },
+    "operation_local_subnet_route": {
+      "en": "Local network route",
+      "pl": "Trasa do sieci lokalnej"
+    },
+    "operation_resolver_configuration": {
+      "en": "DNS configuration",
+      "pl": "Konfiguracja DNS"
+    },
+    "operation_unicast_dns_resolution": {
+      "en": "DNS resolution",
+      "pl": "Rozwiązywanie nazw DNS"
+    },
+    "operation_internet_path": {
+      "en": "Internet connection",
+      "pl": "Połączenie internetowe"
+    },
+    "operation_proxy_configuration": {
+      "en": "Proxy configuration",
+      "pl": "Konfiguracja proxy"
+    },
+    "operation_interface_consistency": {
+      "en": "Interface consistency",
+      "pl": "Spójność interfejsów"
+    },
+    "operation_local_multicast_path": {
+      "en": "Local multicast",
+      "pl": "Lokalny multicast"
+    },
+    "operation_bonjour_discovery": {
+      "en": "Device discovery",
+      "pl": "Wykrywanie urządzeń"
+    },
+    "operation_bonjour_permission": {
+      "en": "Local network permission",
+      "pl": "Uprawnienie do sieci lokalnej"
+    },
+    "operation_file_sharing_readiness": {
+      "en": "File Sharing",
+      "pl": "Udostępnianie plików"
+    },
+    "operation_content_filter": {
+      "en": "Content filters",
+      "pl": "Filtry treści"
+    },
+    "operation_device_connection": {
+      "en": "Device connection",
+      "pl": "Połączenie z urządzeniem"
+    },
+    "operation_diagnosis_cancelled": {
+      "en": "Cancelled diagnosis",
+      "pl": "Anulowana diagnostyka"
+    },
+    "operation_helper_status": {
+      "en": "Helper status",
+      "pl": "Stan helpera"
+    },
+    "operation_helper_handshake": {
+      "en": "Helper connection",
+      "pl": "Połączenie z helperem"
+    },
+    "operation_privileged_repair": {
+      "en": "Authorized repair",
+      "pl": "Naprawa z uprawnieniami"
+    },
+    "operation_retryCheck": {
+      "en": "Repeat check",
+      "pl": "Ponów sprawdzenie"
+    },
+    "operation_refreshResolverCache": {
+      "en": "Refresh resolver cache",
+      "pl": "Odśwież pamięć DNS"
+    },
+    "operation_renewDHCP": {
+      "en": "Renew DHCP lease",
+      "pl": "Odnów dzierżawę DHCP"
+    },
+    "operation_removeStaleTunnelRoutes": {
+      "en": "Remove leftover VPN routes",
+      "pl": "Usuń pozostałe trasy VPN"
+    },
+    "operation_other": {
+      "en": "Operation",
+      "pl": "Operacja"
+    },
+    "nextstep_reviewDetails": {
+      "en": "Review the operation details.",
+      "pl": "Przejrzyj szczegóły operacji."
+    },
+    "nextstep_retryCheck": {
+      "en": "Run the check again.",
+      "pl": "Uruchom sprawdzenie ponownie."
+    },
+    "nextstep_checkPermissions": {
+      "en": "Check app permissions and retry.",
+      "pl": "Sprawdź uprawnienia aplikacji i spróbuj ponownie."
+    },
+    "nextstep_waitForVPN": {
+      "en": "Disconnect VPN and retry.",
+      "pl": "Rozłącz VPN i spróbuj ponownie."
+    },
+    "nextstep_verifyVPN": {
+      "en": "Verify that VPN is disconnected, then run the check again.",
+      "pl": "Upewnij się, że VPN jest rozłączony, a potem ponów sprawdzenie."
+    },
+    "nextstep_contactSupport": {
+      "en": "Contact your network administrator.",
+      "pl": "Skontaktuj się z administratorem sieci."
+    },
+    "nextstep_registerHelper": {
+      "en": "Register the helper before repairing.",
+      "pl": "Zarejestruj helper przed naprawą."
+    },
+    "nextstep_approveHelper": {
+      "en": "Approve the helper in Login Items.",
+      "pl": "Zatwierdź helper w Elementach logowania."
+    },
+    "nextstep_reinstallApp": {
+      "en": "Reinstall the complete, signed app bundle.",
+      "pl": "Zainstaluj ponownie kompletny, podpisany pakiet aplikacji."
+    },
+    "nextstep_retryHelper": {
+      "en": "Check VPN status and try again later.",
+      "pl": "Sprawdź stan VPN i spróbuj później."
+    },
+    "nextstep_checkHelperPermissions": {
+      "en": "Check helper permissions and system approval.",
+      "pl": "Sprawdź uprawnienia helpera i zgodę systemową."
+    },
+    "nextstep_restartAppForHelper": {
+      "en": "Reopen the app and check the helper status.",
+      "pl": "Uruchom ponownie aplikację i sprawdź stan helpera."
+    },
+    "nextstep_restartVPNClient": {
+      "en": "Quit and reopen the VPN client so it can release leftover tunnel interfaces.",
+      "pl": "Zamknij i uruchom ponownie klienta VPN, aby zwolnił pozostałe interfejsy tunelowe."
+    },
+    "nextstep_enableSMBAccount": {
+      "en": "Enable your account for SMB in this Mac’s File Sharing options, then connect again.",
+      "pl": "Włącz konto dla SMB w opcjach udostępniania plików tego Maca i połącz się ponownie."
+    },
+    "nextstep_disableLocalFirewall": {
+      "en": "Review firewall settings with your network administrator. Keep protections enabled.",
+      "pl": "Omów ustawienia zapory z administratorem sieci. Pozostaw ochronę włączoną."
+    },
+    "nextstep_connectAsAccount": {
+      "en": "Use “Connect As…” with an account on the other computer.",
+      "pl": "Użyj „Połącz jako…” z kontem drugiego komputera."
+    },
+    "nextstep_limitSMBToVersion2": {
+      "en": "Check macOS compatibility and SMB configuration on both Macs with your administrator.",
+      "pl": "Sprawdź z administratorem zgodność wersji macOS i konfigurację SMB obu komputerów."
+    },
+    "help_title": {
+      "en": "NetUnstick Help",
+      "pl": "Pomoc NetUnstick"
+    },
+    "help_gettingStarted": {
+      "en": "Getting started",
+      "pl": "Pierwsze kroki"
+    },
+    "help_results": {
+      "en": "Understanding results",
+      "pl": "Jak czytać wyniki"
+    },
+    "help_device": {
+      "en": "Test a device",
+      "pl": "Test urządzenia"
+    },
+    "help_repairs": {
+      "en": "Repairs and permissions",
+      "pl": "Naprawy i uprawnienia"
+    },
+    "help_privacy": {
+      "en": "Privacy policy",
+      "pl": "Polityka prywatności"
+    },
+    "help_safety": {
+      "en": "Safety",
+      "pl": "Bezpieczeństwo"
+    },
+    "help_support": {
+      "en": "Support",
+      "pl": "Pomoc techniczna"
+    },
+    "help_start_title": {
+      "en": "Run a check",
+      "pl": "Uruchom kontrolę"
+    },
+    "help_start_body": {
+      "en": "Click Run diagnostics. Checks observe the connection; they do not change network settings. Open Network details to see each result. You can cancel an operation in progress.",
+      "pl": "Kliknij Uruchom diagnostykę. Kontrole obserwują połączenie i nie zmieniają ustawień sieci. Rozwiń Szczegóły sieci, aby zobaczyć wyniki. Trwającą operację możesz anulować."
+    },
+    "help_editions_title": {
+      "en": "Two editions",
+      "pl": "Dwa wydania"
+    },
+    "help_editions_body": {
+      "en": "The App Store edition checks the network path, DNS, an internet connection, Bonjour and a chosen device. It does not inspect system routes or VPN configuration and cannot repair them. The Developer ID edition adds system diagnostics and individually confirmed repairs.",
+      "pl": "Wydanie App Store sprawdza ścieżkę sieci, DNS, połączenie z internetem, Bonjour i wybrane urządzenie. Nie bada systemowych tras ani konfiguracji VPN i nie może ich naprawiać. Wydanie Developer ID dodaje diagnostykę systemową i osobno potwierdzane naprawy."
+    },
+    "help_shortcuts_title": {
+      "en": "Keyboard shortcuts",
+      "pl": "Skróty klawiaturowe"
+    },
+    "help_shortcuts_body": {
+      "en": "Command-D: run diagnostics. Escape: cancel. Shift-Command-E: preview a report. Command-?: open Help. Use Tab to move between controls.",
+      "pl": "Command-D: diagnostyka. Escape: anulowanie. Shift-Command-E: podgląd raportu. Command-?: pomoc. Klawisz Tab przechodzi między kontrolkami."
+    },
+    "help_results_title": {
+      "en": "A result has a scope",
+      "pl": "Wynik ma określony zakres"
+    },
+    "help_results_body": {
+      "en": "A passed check confirms only what was tested at that time. An available internet connection does not prove that every local device or remote service works. A refused device connection may mean that its service is off.",
+      "pl": "Pomyślna kontrola potwierdza tylko to, co sprawdzono w danej chwili. Dostępny internet nie dowodzi działania każdego urządzenia lokalnego ani usługi zdalnej. Odrzucone połączenie z urządzeniem może oznaczać wyłączoną usługę."
+    },
+    "help_inconclusive_title": {
+      "en": "Inconclusive is not a failure",
+      "pl": "Nierozstrzygnięte nie oznacza awarii"
+    },
+    "help_inconclusive_body": {
+      "en": "A missing Bonjour receiver, a denied permission or an unavailable observation is reported separately. Review the reason before changing settings.",
+      "pl": "Brak odbiornika Bonjour, odmowa uprawnienia i niedostępny odczyt mają osobne wyniki. Sprawdź przyczynę przed zmianą ustawień."
+    },
+    "help_vpn_title": {
+      "en": "VPN and residual routes",
+      "pl": "VPN i pozostałe trasy"
+    },
+    "help_vpn_body": {
+      "en": "In the full edition, an active or uncertain VPN blocks ordinary network changes. Working local checks can coexist with residual tunnel routes. The App Store edition does not determine VPN state.",
+      "pl": "W pełnym wydaniu aktywny lub niepewny VPN blokuje zwykłe zmiany sieci. Poprawne kontrole lokalne mogą współistnieć z pozostałymi trasami tunelowymi. Wydanie App Store nie ustala stanu VPN."
+    },
+    "help_device_title": {
+      "en": "Choose an endpoint",
+      "pl": "Wybierz cel"
+    },
+    "help_device_body": {
+      "en": "Enter a device name or IP address and choose its service port. NetUnstick attempts a bounded TCP connection. It does not sign in or request a password. The full edition can also check an anonymous SMB negotiation.",
+      "pl": "Wpisz nazwę urządzenia lub adres IP i wybierz port usługi. NetUnstick próbuje połączenia TCP z limitem czasu. Nie loguje się i nie pyta o hasło. Pełne wydanie może też sprawdzić anonimową negocjację SMB."
+    },
+    "help_device_privacy_title": {
+      "en": "Your input stays local",
+      "pl": "Wpisane dane pozostają lokalnie"
+    },
+    "help_device_privacy_body": {
+      "en": "The endpoint is used only for this test and remains in the current window. History records outcome codes and interface types, not the endpoint or packet contents.",
+      "pl": "Cel jest używany tylko w tym teście i pozostaje w bieżącym oknie. Historia zapisuje kody wyników i typy interfejsów, bez celu połączenia ani treści pakietów."
+    },
+    "help_repair_title": {
+      "en": "Review before confirming",
+      "pl": "Sprawdź przed potwierdzeniem"
+    },
+    "help_repair_body": {
+      "en": "Only the full edition offers repairs. Review the exact change, its reason, affected resource, possible interruption, permissions and verification. Registration alone does not run a network repair.",
+      "pl": "Naprawy oferuje tylko pełne wydanie. Sprawdź zmianę, przyczynę, zasób, możliwą przerwę, uprawnienia i sposób weryfikacji. Sama rejestracja nie uruchamia naprawy sieci."
+    },
+    "help_helper_title": {
+      "en": "Administrator approval",
+      "pl": "Zgoda administratora"
+    },
+    "help_helper_body": {
+      "en": "DHCP renewal and removal of validated stale routes require the signed helper and macOS approval in Login Items. If needed, register it in Settings and wait for its response. An already approved registration may be refreshed after an app update.",
+      "pl": "Odnowienie DHCP i usunięcie zweryfikowanych pozostałych tras wymagają podpisanego helpera i zgody macOS w Elementach logowania. W razie potrzeby zarejestruj go w Ustawieniach i poczekaj na odpowiedź. Po aktualizacji aplikacja może odświeżyć wcześniej zatwierdzoną rejestrację."
+    },
+    "help_repair_limits_title": {
+      "en": "Success requires verification",
+      "pl": "Sukces wymaga weryfikacji"
+    },
+    "help_repair_limits_body": {
+      "en": "The app captures state before and after a repair and repeats the affected check. A successful command alone is not a successful repair. Test the originally affected device separately.",
+      "pl": "Aplikacja zbiera stan przed naprawą i po niej oraz powtarza właściwą kontrolę. Sam sukces polecenia nie oznacza skutecznej naprawy. Pierwotnie niedostępne urządzenie sprawdź osobno."
+    },
+    "privacy_local_title": {
+      "en": "Local processing",
+      "pl": "Przetwarzanie lokalne"
+    },
+    "privacy_local_body": {
+      "en": "NetUnstick has no accounts, advertising, analytics, tracking or background uploads. Network observations are processed on this Mac. Device names, SSIDs, addresses, internal domains, credentials and packet contents are omitted or redacted from history and reports.",
+      "pl": "NetUnstick nie ma kont, reklam, analityki, śledzenia ani wysyłki w tle. Obserwacje sieci są przetwarzane na tym Macu. Nazwy urządzeń, SSID, adresy, domeny wewnętrzne, poświadczenia i treści pakietów są pomijane lub redagowane w historii i raportach."
+    },
+    "privacy_network_title": {
+      "en": "Network traffic",
+      "pl": "Ruch sieciowy"
+    },
+    "privacy_network_body": {
+      "en": "On your request, diagnostics resolve example.com using your resolver, connect to 1.1.1.1:443 and browse local Bonjour services. A device test contacts the endpoint you entered. DNS providers and contacted devices can see the usual network metadata, including the source address. No diagnostic report is sent to the developer.",
+      "pl": "Na Twoje polecenie diagnostyka rozwiązuje example.com przez Twój resolver, łączy się z 1.1.1.1:443 i przegląda lokalne usługi Bonjour. Test urządzenia kontaktuje się ze wskazanym celem. Dostawcy DNS i urządzenia docelowe widzą zwykłe metadane sieciowe, w tym adres źródłowy. Żaden raport diagnostyczny nie jest wysyłany twórcy."
+    },
+    "privacy_retention_title": {
+      "en": "Storage and deletion",
+      "pl": "Przechowywanie i usuwanie"
+    },
+    "privacy_retention_body": {
+      "en": "Local history holds at most 20 sessions, 100 entries per session and 4 MB, including times, app/macOS versions, outcome and error codes and sanitized evidence. Delete it in Settings. Reports are saved only after a preview and your choice of file; delete exported copies separately. macOS manages the retention of its private system log entries.",
+      "pl": "Lokalna historia przechowuje do 20 sesji, 100 wpisów na sesję i 4 MB: czasy, wersje aplikacji i macOS, kody wyników i błędów oraz oczyszczone dowody. Usuń ją w Ustawieniach. Raport jest zapisywany dopiero po podglądzie i wyborze pliku; wyeksportowane kopie usuń osobno. Okres przechowywania prywatnych wpisów dziennika systemowego ustala macOS."
+    },
+    "privacy_permissions_title": {
+      "en": "Your choices",
+      "pl": "Twoje decyzje"
+    },
+    "privacy_permissions_body": {
+      "en": "You can cancel checks and revoke Local Network access in System Settings. The full edition also lets you unregister its helper. Exporting or sharing a report is optional. Information you choose to send to a support provider is handled by that recipient.",
+      "pl": "Możesz anulować kontrole i cofnąć dostęp do Sieci lokalnej w Ustawieniach systemowych. W pełnym wydaniu możesz też wyrejestrować helpera. Eksport i udostępnianie raportu są dobrowolne. Informacje wysłane przez Ciebie do pomocy technicznej przetwarza wybrany odbiorca."
+    },
+    "privacy_version_title": {
+      "en": "Policy version",
+      "pl": "Wersja polityki"
+    },
+    "privacy_version_body": {
+      "en": "21 October 2026. Publisher: Krzysztof Radzimski. For privacy questions, use the support contact on the app distribution page.",
+      "pl": "21 października 2026. Wydawca: Krzysztof Radzimski. Pytania o prywatność kieruj do kontaktu pomocy na stronie dystrybucji aplikacji."
+    },
+    "help_safety_title": {
+      "en": "Narrow changes only",
+      "pl": "Tylko ograniczone zmiany"
+    },
+    "help_safety_body": {
+      "en": "NetUnstick does not implement a VPN, change FortiClient/FortiGate policy, disable protections, flush all routes or reboot. Do not disable a firewall or managed security policy to obtain a green status. Ask your network administrator about managed VPN settings.",
+      "pl": "NetUnstick nie tworzy VPN, nie zmienia polityki FortiClient/FortiGate, nie wyłącza ochrony, nie usuwa wszystkich tras i nie restartuje komputera. Nie wyłączaj zapory ani zarządzanych zabezpieczeń, aby uzyskać zielony wynik. Zarządzane ustawienia VPN omów z administratorem sieci."
+    },
+    "help_reports_title": {
+      "en": "Inspect before sharing",
+      "pl": "Sprawdź przed udostępnieniem"
+    },
+    "help_reports_body": {
+      "en": "Preview every report before saving or sharing it. Technical identifiers remain useful for support, but no redaction can make an arbitrary attachment safe. Never add passwords, credentials or unredacted command output.",
+      "pl": "Obejrzyj raport przed zapisaniem lub wysłaniem. Identyfikatory techniczne pomagają w diagnozie, ale redakcja nie zabezpiecza dowolnego załącznika. Nie dodawaj haseł, poświadczeń ani surowego wyjścia poleceń."
+    },
+    "help_support_title": {
+      "en": "Get useful help",
+      "pl": "Uzyskaj skuteczną pomoc"
+    },
+    "help_support_body": {
+      "en": "Reproduce the issue, run diagnostics and preview the relevant session in Activity. Share a redacted report with your administrator or use the support contact on the app distribution page. Include what failed and when; omit private network details.",
+      "pl": "Odtwórz problem, uruchom diagnostykę i obejrzyj właściwą sesję w Aktywności. Udostępnij oczyszczony raport administratorowi lub skorzystaj z kontaktu pomocy na stronie dystrybucji aplikacji. Opisz, co i kiedy nie działało; pomiń prywatne szczegóły sieci."
+    },
+    "help_accessibility_title": {
+      "en": "System preferences",
+      "pl": "Ustawienia systemowe"
+    },
+    "help_accessibility_body": {
+      "en": "The app follows macOS appearance, text size, contrast and motion preferences. Controls support keyboard navigation and VoiceOver. Choose the app language in macOS Language & Region settings.",
+      "pl": "Aplikacja uwzględnia wygląd, rozmiar tekstu, kontrast i ograniczenie ruchu w macOS. Kontrolki obsługują klawiaturę i VoiceOver. Język aplikacji wybierz w ustawieniach Język i region systemu macOS."
+    },
+    "settings_edition": {
+      "en": "Edition",
+      "pl": "Wydanie"
+    },
+    "edition_full": {
+      "en": "Developer ID · diagnostics and repairs",
+      "pl": "Developer ID · diagnostyka i naprawy"
+    },
+    "edition_store": {
+      "en": "App Store · diagnostics",
+      "pl": "App Store · diagnostyka"
+    },
+    "edition_full_detail": {
+      "en": "Read-only checks and individually confirmed repairs.",
+      "pl": "Kontrole odczytowe i osobno potwierdzane naprawy."
+    },
+    "edition_store_detail": {
+      "en": "Sandboxed checks. No administrator helper or network changes.",
+      "pl": "Kontrole w sandboxie. Bez helpera administratora i zmian sieci."
+    },
+    "settings_helper_details": {
+      "en": "Details and permissions",
+      "pl": "Szczegóły i uprawnienia"
+    },
+    "settings_privacy_summary": {
+      "en": "History stays on this Mac. No telemetry or background uploads.",
+      "pl": "Historia pozostaje na tym Macu. Bez telemetrii i wysyłki w tle."
+    },
+    "settings_language": {
+      "en": "The app uses your macOS language preference.",
+      "pl": "Aplikacja używa języka wybranego w macOS."
+    },
+    "history_erase": {
+      "en": "Delete history…",
+      "pl": "Usuń historię…"
+    },
+    "history_erase_title": {
+      "en": "Delete local diagnostic history?",
+      "pl": "Usunąć lokalną historię diagnostyki?"
+    },
+    "history_erase_detail": {
+      "en": "This removes saved sessions in this edition. Exported reports and network settings are not changed.",
+      "pl": "Zapisane sesje tego wydania zostaną usunięte. Wyeksportowane raporty i ustawienia sieci pozostaną bez zmian."
+    },
+    "history_erase_failed": {
+      "en": "History could not be deleted",
+      "pl": "Nie udało się usunąć historii"
+    },
+    "history_erase_failed_detail": {
+      "en": "Check access to the app data folder and try again.",
+      "pl": "Sprawdź dostęp do folderu danych aplikacji i spróbuj ponownie."
+    },
+    "dashboard_vpn_disconnected": {
+      "en": "VPN disconnected",
+      "pl": "VPN rozłączony"
+    },
+    "dashboard_changes_paused": {
+      "en": "Network repairs are paused because of VPN status.",
+      "pl": "Naprawy sieci wstrzymane ze względu na stan VPN."
+    },
+    "dashboard_network_details": {
+      "en": "Network details",
+      "pl": "Szczegóły sieci"
+    },
+    "dashboard_check_count %lld": {
+      "en": "%lld checks",
+      "pl": "Liczba kontroli: %lld"
+    },
+    "dashboard_technical_details": {
+      "en": "Technical details",
+      "pl": "Szczegóły techniczne"
+    },
+    "device_screen_sharing_port": {
+      "en": "Screen Sharing · 5900",
+      "pl": "Udostępnianie ekranu · 5900"
+    },
+    "select_session": {
+      "en": "Select session",
+      "pl": "Wybierz sesję"
+    },
+    "helper_unregister": {
+      "en": "Unregister helper",
+      "pl": "Wyrejestruj helper"
+    },
+    "local_network_usage_description": {
+      "en": "NetUnstick checks DNS, discovers local devices and tests connections to devices you choose.",
+      "pl": "NetUnstick sprawdza DNS, wykrywa urządzenia lokalne i testuje połączenia z wybranymi urządzeniami."
+    }
+  }
+}

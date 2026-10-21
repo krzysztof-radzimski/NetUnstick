@@ -1,7 +1,10 @@
 import SwiftUI
 import NetUnstickCore
+#if APP_STORE
+import NetUnstickStoreNetwork
+#else
 import NetUnstickNetwork
-import NetUnstickRepair
+#endif
 
 @main
 struct NetUnstickApp: App {
@@ -15,5 +18,9 @@ struct NetUnstickApp: App {
                     if CompositionRoot.testOption("--ui-reduce-motion") { transaction.disablesAnimations = true }
                 }
         }
+        .commands { NetUnstickHelpCommands() }
+        Window(L10n.text("help_title"), id: "help") {
+            HelpView()
+        }.defaultSize(width: 820, height: 600)
     }
 }

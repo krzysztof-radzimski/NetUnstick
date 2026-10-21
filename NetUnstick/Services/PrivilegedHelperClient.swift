@@ -7,10 +7,10 @@ public enum HelperRegistrationStatus: String {
     case notRegistered, enabled, requiresApproval, notFound
     var guidance: String {
         switch self {
-        case .enabled: return "Helper jest gotowy."
-        case .notRegistered: return "Włącz helper tylko przed wybraną naprawą."
-        case .requiresApproval: return "Zatwierdź helper w Ustawieniach systemowych > Ogólne > Elementy logowania."
-        case .notFound: return "Zainstaluj ponownie poprawny pakiet aplikacji."
+        case .enabled: return L10n.text("helper_ready")
+        case .notRegistered: return L10n.text("helper_enable_when_needed")
+        case .requiresApproval: return L10n.text("helper_approve_login")
+        case .notFound: return L10n.text("helper_reinstall")
         }
     }
 }
@@ -142,13 +142,13 @@ public final class PrivilegedHelperClient {
         do { try service.register() } catch {
             let ns = error as NSError
             if ns.domain == "SMAppServiceErrorDomain" && ns.code == Int(kSMErrorInvalidSignature) {
-                lastRegistrationError = "Aplikacja i helper muszą mieć ten sam ważny certyfikat podpisu."
+                lastRegistrationError = L10n.text("helper_signature_error")
             } else if ns.domain == "SMAppServiceErrorDomain" && ns.code == Int(kSMErrorAuthorizationFailure) {
-                lastRegistrationError = "System odmówił uprawnienia. Sprawdź zgodę administratora."
+                lastRegistrationError = L10n.text("helper_authorization_error")
             } else if ns.domain == "SMAppServiceErrorDomain" && ns.code == Int(kSMErrorLaunchDeniedByUser) {
-                lastRegistrationError = "System odmówił uruchomienia helpera. Sprawdź Elementy logowania."
+                lastRegistrationError = L10n.text("helper_launch_error")
             } else {
-                lastRegistrationError = "Rejestracja nie powiodła się. Sprawdź podpis i instalację aplikacji."
+                lastRegistrationError = L10n.text("helper_registration_error")
             }
             return status
         }
@@ -162,7 +162,7 @@ public final class PrivilegedHelperClient {
     @discardableResult public func reregisterInPlace() -> HelperRegistrationStatus {
         lastRegistrationError = nil
         do { try service.register() } catch {
-            lastRegistrationError = "Ponowna rejestracja nie powiodła się. Sprawdź Elementy logowania."
+            lastRegistrationError = L10n.text("helper_reregistration_error")
         }
         return status
     }
@@ -177,11 +177,11 @@ public final class PrivilegedHelperClient {
                 register: { self.registerForSelectedRepair() }
             )
         } catch is CancellationError {
-            lastRegistrationError = "Odświeżanie helpera anulowano. Sprawdź jego stan przed ponowną rejestracją."
+            lastRegistrationError = L10n.text("helper_refresh_cancelled")
         } catch HelperRegistrationRefreshError.timedOut {
-            lastRegistrationError = "System nie potwierdził wyrejestrowania helpera w ciągu 5 sekund. Sprawdź jego stan i spróbuj ponownie."
+            lastRegistrationError = L10n.text("helper_unregister_timeout")
         } catch {
-            lastRegistrationError = "Wyrejestrowanie helpera nie powiodło się. Sprawdź Elementy logowania przed ponowną rejestracją."
+            lastRegistrationError = L10n.text("helper_unregister_before_retry")
         }
         return status
     }
@@ -190,7 +190,7 @@ public final class PrivilegedHelperClient {
     @discardableResult public func unregisterForUpdate() -> HelperRegistrationStatus {
         lastRegistrationError = nil
         do { try service.unregister() } catch {
-            lastRegistrationError = "Wyrejestrowanie nie powiodło się. Sprawdź Elementy logowania."
+            lastRegistrationError = L10n.text("helper_unregister_error")
         }
         return status
     }
