@@ -72,24 +72,55 @@
   "releaseType": "MANUAL",
   "metadataLocales": [
     "en-US",
-    "pl",
+    "pl-PL",
     "es-ES",
-    "es-MX"
+    "es-MX",
+    "cs",
+    "da",
+    "de-DE",
+    "el",
+    "fi",
+    "fr-FR",
+    "hr",
+    "hu",
+    "it",
+    "nl-NL",
+    "pt-PT",
+    "ro",
+    "sk",
+    "sl",
+    "sv"
   ],
   "appStoreConnectURLs": {
     "savedAndReadBack": true,
     "locales": [
       "en-US",
-      "pl",
+      "pl-PL",
       "es-ES",
-      "es-MX"
+      "es-MX",
+      "cs",
+      "da",
+      "de-DE",
+      "el",
+      "fi",
+      "fr-FR",
+      "hr",
+      "hu",
+      "it",
+      "nl-NL",
+      "pt-PT",
+      "ro",
+      "sk",
+      "sl",
+      "sv"
     ],
     "fields": [
       "supportURL",
       "marketingURL",
       "privacyPolicyURL"
     ],
-    "canonicalURLsWithoutHTMLExtension": true
+    "canonicalURLsWithoutHTMLExtension": true,
+    "additionalLocalesUseEnglishPublicPages": true
   },
   "appUILanguages": 24,
   "appCategory": "UTILITIES",
@@ -121,7 +152,7 @@
     "submissionMetadataCheck": {
       "command": "python3 Tools/CheckStoreMetadata.py --submission",
       "passed": true,
-      "metadataLocales": 4,
+      "metadataLocales": 19,
       "publicURLsChecked": true,
       "blockers": []
     }
@@ -162,17 +193,41 @@
     "submittedForReview": false,
     "released": false,
     "websiteVerified": true,
-    "screenshotsUploaded": false
+    "screenshotsUploaded": true
   },
   "remaining": [
     "Wait for Apple to verify and approve the address-only Membership Information Update request, then confirm the address is reflected in membership and Business records. The submission confirmation is not approval of the address change.",
     "Accept the New Paid Apps Agreement after the legal address is resolved, verify and complete banking and tax information as required, and finish DSA trader verification, currently In Review.",
-    "Capture and inspect current Mac App Store screenshots in an Apple-supported size, then upload in Preview. Desktop was occupied by another session; further desktop control was stopped for the turn.",
-    "Confirm all App Store Connect validation requirements before sending to review; retain manual release."
+    "Confirm all App Store Connect validation requirements before sending to review; retain manual release.",
+    "Complete native-language editorial review before public release; 24 native UI screenshot sets and 19 App Store Connect metadata localizations are prepared and inspected, which does not replace a native speaker review."
   ],
   "sources": [
     "https://developer.apple.com/help/account/membership/updating-your-account-information",
     "https://developer.apple.com/help/app-store-connect/manage-app-pricing/set-a-price",
     "https://www.apple.com/legal/internet-services/itunes/us/terms.html"
-  ]
+  ],
+  "screenshots": {
+    "manifest": "Distribution/AppStore/Screenshots/manifest.json",
+    "index": "Distribution/AppStore/Screenshots/README.md",
+    "nativeAppVersion": "1.0",
+    "nativeAppBuild": "14",
+    "languages": 24,
+    "localImages": 48,
+    "imagesPerLanguage": 2,
+    "dimensions": "2560x1600",
+    "format": "JPEG RGB without alpha",
+    "storeLocalizations": 19,
+    "storeAssetAttachments": 38,
+    "uploadSavedAndReadBack": true,
+    "verifiedDate": "2026-10-22",
+    "localOnlyLanguages": [
+      "bg",
+      "et",
+      "ga",
+      "lt",
+      "lv",
+      "mt"
+    ]
+  },
+  "localizationVerification": "Distribution/AppStore/localization-verification.json"
 }

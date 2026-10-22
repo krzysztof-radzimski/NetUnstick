@@ -1,0 +1,32 @@
+{
+  "name": "NetUnstick",
+  "bundleId": "org.netunstick.NetUnstick.AppStore",
+  "version": "1.0",
+  "build": "14",
+  "copyright": "2026 ITORG Krzysztof Radzimski",
+  "supportURL": "https://itorg.pl/NetUnstick/en/support",
+  "privacyPolicyURL": "https://itorg.pl/NetUnstick/en/privacy",
+  "appPrivacy": {
+    "dataCollected": false,
+    "tracking": false,
+    "basis": "No developer or partner telemetry, accounts, analytics or automatic uploads. Local diagnostics are not collected by the developer. DNS/connectivity endpoint operators see ordinary connection metadata. Optional user-shared reports are separate from app transmission."
+  },
+  "reviewNotes": "macOS utility with a sandboxed, read-only App Store composition. No account or review credentials are needed. Run diagnostics to check NWPath, resolution of example.com, a TCP connection to 1.1.1.1:443 and local AirPlay Bonjour discovery. A missing receiver is inconclusive, not a failure. The device section attempts a bounded TCP connection to a host and port chosen by the reviewer; it does not negotiate SMB or log in. No helper, root escalation, process launch or automated repair is included in this build. Global VPN state, routing tables, DNS configuration, file-sharing settings and content-filter settings are outside this edition. Activity stores sanitized results locally; preview then explicitly save a UTF-8 report. Help and Privacy policy are available offline from the Help menu and Settings. Delete history is in Settings and requires confirmation. Local Network permission may be requested by macOS; denial is handled without claiming a successful check.",
+  "publicationState": "app-record-created-not-submitted",
+  "requiredBeforeSubmission": [
+    "Verify that the canonical support, privacy policy and marketing URLs remain reachable and show the confirmed publisher contact before submission.",
+    "Confirm EU DSA trader status and complete the required publisher/contact verification in App Store Connect.",
+    "Archive in Xcode and validate/export the macOS app for App Store Connect using App Store distribution signing, including Xcode-managed/cloud signing. Provide a provisioning profile when required by the configured capabilities or if TestFlight is used.",
+    "Upload and process macOS version 1.0 (build 14) for the existing App Store Connect record 6825738008 and bundle ID org.netunstick.NetUnstick.AppStore.",
+    "Attach current screenshots from the sandboxed App Store build in the selected languages.",
+    "Review age rating, export compliance, pricing, territories and privacy answers for this build.",
+    "Perform a native-language editorial review of translations."
+  ],
+  "subtitle": "Testy siete, jasné výsledky",
+  "promotionalText": "Overte pripojenie, otestujte zariadenie a pozrite si lokálny report. Diagnostika pre Mac bez zmien siete, účtu a telemetrie.",
+  "description": "NetUnstick vám pomôže porozumieť problému s pripojením bez zmeny nastavení siete.\n\n• Skontrolujte sieťovú cestu, preklad DNS a internetové pripojenie TCP.\n• Vyhľadajte lokálne služby Bonjour AirPlay.\n• Otestujte zariadenie podľa názvu alebo adresy a portu služby.\n• Rozbaľte test a zobrazte si jeho vysvetlenie a technické podrobnosti.\n• Prezrite si lokálnu históriu a pred uložením zobrazte náhľad reportu so zredigovanými citlivými údajmi.\n• Čítajte vstavanú pomoc a zásady ochrany súkromia offline.\n\nVerzia z Mac App Store beží v sandboxe a vykonáva iba operácie na čítanie. Nekontroluje globálny stav VPN, systémové smerovacie tabuľky ani spravovanú konfiguráciu siete, neinštaluje pomocný nástroj so zvýšenými oprávneniami, neobnovuje prenájom DHCP ani neodstraňuje trasy. Testy zariadení overujú iba pripojenie TCP; nevykonávajú overenie totožnosti ani nevytvárajú reláciu SMB.\n\nÚspešný test potvrdzuje iba otestovaný rozsah. Chýbajúci prijímač Bonjour alebo nedostupný internetový cieľ môže znamenať nejednoznačný výsledok. Aplikácia neobsahuje účet, reklamy, analytiku ani nahrávanie reportov na pozadí. Vy rozhodujete o vymazaní lokálnej histórie a exporte reportov.\n\nJednorazový nákup bez predplatného a nákupov v aplikácii. Budúce aktualizácie tejto aplikácie sú zahrnuté bez ďalších poplatkov. NetUnstick nepridáva vlastný limit aktivácií; používanie na vašich zariadeniach sa riadi príslušnými podmienkami spoločnosti Apple.",
+  "keywords": "sieť,DNS,pripojenie,diagnostika,Bonjour,TCP,internet,lokálne,súkromie",
+  "locale": "sk",
+  "appStoreConnectId": "6825738008",
+  "marketingURL": "https://itorg.pl/en/NetUnstick/"
+}

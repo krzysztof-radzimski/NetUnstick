@@ -45,7 +45,9 @@ Historia jest ograniczona do 20 sesji, 100 wpisów na sesję i 4 MB. Usuwanie hi
 
 ## Materiały i dane publikacji
 
-`Distribution/AppStore/metadata.{en,pl,es-ES,es-MX}.json` zawierają opisy zgodne z wersją sklepową, słowa kluczowe, instrukcje recenzenta i odpowiedzi prywatności. Zapisano je w czterech lokalizacjach rekordu App Store Connect: en-US, pl, es-ES i es-MX. We wszystkich czterech lokalizacjach zapisano i ponownie odczytano `supportURL`, `marketingURL` i `privacyPolicyURL`, wskazujące sprawdzony publiczny hosting ITORG i kanoniczne adresy bez rozszerzenia `.html`. Obie hiszpańskie lokalizacje korzystają z tej samej hiszpańskiej strony produktu, wsparcia i polityki. W aplikacji pozostaje kompletna kopia polityki offline.
+`Distribution/AppStore/metadata.*.json` zawierają 19 lokalizacji opisów zgodnych z wersją sklepową, słów kluczowych, podtytułów, instrukcji recenzenta i odpowiedzi prywatności. Zapisano i ponownie otwarto wszystkie 19 lokalizacji rekordu App Store Connect: en-US, pl-PL, es-ES, es-MX, cs, da, de-DE, el, fi, fr-FR, hr, hu, it, nl-NL, pt-PT, ro, sk, sl i sv. Odczyt potwierdził zgodność opisów, promocji, słów kluczowych, nazw i podtytułów z plikami oraz właściwe `supportURL`, `marketingURL` i `privacyPolicyURL`. Adresy wskazują publiczny hosting ITORG i kanoniczne strony bez rozszerzenia `.html`. Polski i hiszpański mają własne strony; dodatkowe lokalizacje korzystają z publicznych stron angielskich. W aplikacji pozostaje kompletna kopia polityki offline w 24 językach.
+
+[Katalog zrzutów](../Distribution/AppStore/Screenshots/README.md) zawiera 48 rzeczywistych obrazów wydania sklepowego 1.0 (14), po dwa w każdym z 24 języków: diagnostykę z rozwiniętymi wynikami oraz Ustawienia z prywatnością i dostępem do pomocy. Są to natywne JPEG RGB bez alfa, 2560 × 1600, wykonane na macOS arm64 bez skalowania i retuszu. Wszystkie obejrzano; potwierdzono format, wymiary i SHA-256. W 19 lokalizacjach App Store Connect zapisano 38 przypięć obrazów. Ponowne otwarcie każdej lokalizacji potwierdziło „2 of 10”, dwie miniatury i brak dziedziczenia angielskiego zestawu. Hiszpania i Meksyk używają tego samego hiszpańskiego interfejsu. Apple nie udostępnia osobnych lokalizacji bg, et, ga, lt, lv i mt; ich zestawy pozostają w projekcie. [Zapis weryfikacji lokalizacji](../Distribution/AppStore/localization-verification.json) utrwala zakres odczytu.
 
 ## Zapisane ustawienia pierwszego wydania
 
@@ -68,7 +70,7 @@ Przed wysłaniem należy:
 - Następnie dokończyć Paid Apps Agreement oraz zweryfikować i uzupełnić wymagane dane bankowe i podatkowe na koncie właściciela. Profil jest potrzebny dla TestFlight oraz restricted entitlements; zwykły sandbox macOS sam w sobie nie wymaga profilu.
 - Potwierdzić [status przedsiębiorcy DSA](https://developer.apple.com/help/app-store-connect/manage-compliance-information/manage-european-union-digital-services-act-trader-requirements) oraz kontakt wydawcy. Decyzja o tym statusie należy do właściciela, nie wynika z samego certyfikatu.
 - Potwierdzić końcowe odpowiedzi dotyczące eksportu kryptografii. Brak własnego szyfrowania lub korzystanie wyłącznie z szyfrowania systemowego wymaga odpowiedniej deklaracji w formularzu, nie stanowi ogólnego oświadczenia o zwolnieniu prawnym. Opublikowane strony HTTPS przeszły kontrolę.
-- Wykonać aktualne zrzuty wydania sklepowego w obsługiwanych rozmiarach Mac App Store, sprawdzić ikony, oba motywy, klawiaturę i długie tłumaczenia. Nowych zrzutów sklepowych nie wykonano: sterowanie pulpitem było zajęte, a następnie przerwane. Istniejący obraz strony produktu 1800 × 1208 nie ma obsługiwanego rozmiaru zrzutu Mac App Store.
+- Dokończyć redakcję tłumaczeń przez rodzimych użytkowników języków. Bieżące 48 zrzutów wykonano w systemowym ciemnym wyglądzie i obejrzano pod kątem długich tekstów; nie stanowią nowego testu wszystkich wariantów dostępności, ikon, klawiatury i jasnego wyglądu. Wcześniejsze oględziny pozostają zapisane w raporcie weryfikacji.
 - Sprawdzić gotowy build w Xcode Organizer, raport prywatności i wymagania aktualnego SDK; podpis Developer ID nie jest podpisem dystrybucji sklepowej.
 
 Nie dodano kont użytkowników aplikacji, telemetrii ani zdalnego przesyłania raportów. Upload buildu wykonano z istniejącym kontem Xcode, a build został przetworzony i przypięty do wersji. Strony produktu, wsparcia i prywatności są publicznie dostępne. Wysłanie aplikacji do App Review i późniejsze ręczne udostępnienie pozostają kolejnymi etapami po spełnieniu opisanych warunków.
@@ -80,6 +82,7 @@ python3 Tools/Localization.py
 python3 Tools/BuildPrivacyPages.py
 python3 Tools/CheckStoreMetadata.py
 python3 Tools/CheckStoreMetadata.py --submission
+python3 Tools/CheckStoreScreenshots.py
 xcodebuild -project NetUnstick.xcodeproj -scheme NetUnstickAppStore -configuration Release -destination 'platform=macOS,arch=arm64' build
 python3 Tools/CheckAppStoreBundle.py '<gotowy-pakiet.app>'
 Tools/ArchiveAppStore.sh
