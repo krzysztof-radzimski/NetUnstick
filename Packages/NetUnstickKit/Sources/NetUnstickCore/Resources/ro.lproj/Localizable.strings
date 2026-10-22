@@ -108,7 +108,7 @@
 "help_start_body" = "Apăsați Rulează diagnosticarea. Verificările observă conexiunea fără a schimba configurările rețelei. Deschideți Detalii rețea pentru fiecare rezultat. Puteți anula o operație în curs.";
 "help_start_title" = "Rulează o verificare";
 "help_support" = "Asistență";
-"help_support_body" = "Reproduceți problema, rulați diagnosticarea și previzualizați sesiunea relevantă în Activitate. Partajați un raport mascat cu administratorul sau folosiți contactul de asistență de pe pagina de distribuție. Includeți ce a eșuat și când; omiteți detaliile private ale rețelei.";
+"help_support_body" = "Reproduceți problema, rulați diagnosticarea și previzualizați sesiunea relevantă în Activitate. Partajați un raport mascat cu administratorul sau contactați asistența la kr@itorg.pl. Includeți ce a eșuat și când; omiteți detaliile private ale rețelei.";
 "help_support_title" = "Obțineți ajutor util";
 "help_title" = "Ajutor NetUnstick";
 "help_vpn_body" = "În ediția completă, un VPN activ sau incert blochează modificările obișnuite ale rețelei. Verificările locale reușite pot coexista cu rute de tunel reziduale. Ediția App Store nu determină starea VPN.";
@@ -266,7 +266,7 @@
 "privacy_permissions_title" = "Opțiunile dvs.";
 "privacy_retention_body" = "Istoricul local păstrează cel mult 20 de sesiuni, 100 de intrări pe sesiune și 4 MB, inclusiv ore, versiuni aplicație/macOS, coduri de rezultat și eroare și dovezi fără date sensibile. Ștergeți-l din Configurări. Rapoartele se salvează doar după previzualizare și alegerea fișierului; ștergeți copiile exportate separat. macOS gestionează păstrarea intrărilor private din jurnalul sistemului.";
 "privacy_retention_title" = "Stocare și ștergere";
-"privacy_version_body" = "21 octombrie 2026. Editor: Krzysztof Radzimski. Pentru întrebări despre confidențialitate, folosiți contactul de asistență de pe pagina de distribuție a aplicației.";
+"privacy_version_body" = "21 octombrie 2026. Editor: ITORG Krzysztof Radzimski. Contact pentru confidențialitate: kr@itorg.pl.";
 "privacy_version_title" = "Versiunea politicii";
 "problems" = "Probleme";
 "repair_candidate" = "Reparație propusă";

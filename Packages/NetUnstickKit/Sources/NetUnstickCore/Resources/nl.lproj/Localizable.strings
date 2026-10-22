@@ -108,7 +108,7 @@
 "help_start_body" = "Klik op Diagnose starten. Controles observeren de verbinding zonder netwerkinstellingen te wijzigen. Open Netwerkdetails om elk resultaat te bekijken. U kunt een lopende bewerking annuleren.";
 "help_start_title" = "Een controle uitvoeren";
 "help_support" = "Ondersteuning";
-"help_support_body" = "Reproduceer het probleem, voer de diagnose uit en bekijk de relevante sessie in Activiteit. Deel een geschoond rapport met uw beheerder of gebruik het ondersteuningscontact op de distributiepagina van de app. Vermeld wat misging en wanneer; laat privénetwerkdetails weg.";
+"help_support_body" = "Reproduceer het probleem, voer de diagnose uit en bekijk de relevante sessie in Activiteit. Deel een geschoond rapport met uw beheerder of neem contact op met de ondersteuning via kr@itorg.pl. Vermeld wat misging en wanneer; laat privénetwerkdetails weg.";
 "help_support_title" = "Nuttige hulp krijgen";
 "help_title" = "NetUnstick-help";
 "help_vpn_body" = "In de volledige editie blokkeert een actieve of onzekere VPN gewone netwerkwijzigingen. Geslaagde lokale controles kunnen samengaan met resterende tunnelroutes. De App Store-editie bepaalt de VPN-status niet.";
@@ -266,7 +266,7 @@
 "privacy_permissions_title" = "Uw keuzes";
 "privacy_retention_body" = "De lokale geschiedenis bewaart maximaal 20 sessies, 100 vermeldingen per sessie en 4 MB, waaronder tijden, app-/macOS-versies, resultaat- en foutcodes en geschoonde gegevens. Verwijder deze in Instellingen. Rapporten worden alleen na voorvertoning en bestandskeuze opgeslagen; verwijder geëxporteerde kopieën apart. macOS beheert de bewaartermijn van zijn privégemarkeerde systeemlogvermeldingen.";
 "privacy_retention_title" = "Opslag en verwijdering";
-"privacy_version_body" = "21 oktober 2026. Uitgever: Krzysztof Radzimski. Gebruik voor privacyvragen het ondersteuningscontact op de distributiepagina van de app.";
+"privacy_version_body" = "21 oktober 2026. Uitgever: ITORG Krzysztof Radzimski. Contact voor privacyvragen: kr@itorg.pl.";
 "privacy_version_title" = "Beleidsversie";
 "problems" = "Problemen";
 "repair_candidate" = "Voorgestelde reparatie";

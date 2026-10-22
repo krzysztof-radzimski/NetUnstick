@@ -108,7 +108,7 @@
 "help_start_body" = "Clique em Iniciar diagnóstico. As verificações observam a ligação sem alterar as definições da rede. Abra Detalhes da rede para ver cada resultado. Pode cancelar uma operação em curso.";
 "help_start_title" = "Executar uma verificação";
 "help_support" = "Suporte";
-"help_support_body" = "Reproduza o problema, execute o diagnóstico e pré-visualize a sessão relevante em Atividade. Partilhe um relatório sem dados sensíveis com o administrador ou use o contacto de suporte da página de distribuição da aplicação. Indique o que falhou e quando; omita os detalhes privados da rede.";
+"help_support_body" = "Reproduza o problema, execute o diagnóstico e pré-visualize a sessão relevante em Atividade. Partilhe um relatório sem dados sensíveis com o administrador ou contacte o suporte através de kr@itorg.pl. Indique o que falhou e quando; omita os detalhes privados da rede.";
 "help_support_title" = "Obter ajuda útil";
 "help_title" = "Ajuda do NetUnstick";
 "help_vpn_body" = "Na edição completa, uma VPN ativa ou incerta bloqueia as alterações normais da rede. Verificações locais bem-sucedidas podem coexistir com rotas de túnel residuais. A edição da App Store não determina o estado da VPN.";
@@ -266,7 +266,7 @@
 "privacy_permissions_title" = "As suas escolhas";
 "privacy_retention_body" = "O histórico local conserva no máximo 20 sessões, 100 entradas por sessão e 4 MB, incluindo horas, versões da aplicação/macOS, códigos de resultado e erro e dados sem informações sensíveis. Elimine-o nas Definições. Os relatórios só são guardados após pré-visualização e escolha do ficheiro; elimine as cópias exportadas separadamente. O macOS gere a retenção das entradas privadas do registo do sistema.";
 "privacy_retention_title" = "Armazenamento e eliminação";
-"privacy_version_body" = "21 de outubro de 2026. Editor: Krzysztof Radzimski. Para questões de privacidade, use o contacto de suporte na página de distribuição da aplicação.";
+"privacy_version_body" = "21 de outubro de 2026. Editor: ITORG Krzysztof Radzimski. Contacto para privacidade: kr@itorg.pl.";
 "privacy_version_title" = "Versão da política";
 "problems" = "Problemas";
 "repair_candidate" = "Reparação proposta";

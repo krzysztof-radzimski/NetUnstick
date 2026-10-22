@@ -108,7 +108,7 @@
 "help_start_body" = "Pulse Iniciar diagnóstico. Las comprobaciones observan la conexión sin cambiar los ajustes de red. Abra Detalles de la red para ver cada resultado. Puede cancelar una operación en curso.";
 "help_start_title" = "Ejecutar una comprobación";
 "help_support" = "Soporte";
-"help_support_body" = "Reproduzca el problema, ejecute el diagnóstico y revise la sesión correspondiente en Actividad. Comparta un informe depurado con su administrador o use el contacto de soporte de la página de distribución de la app. Indique qué falló y cuándo; omita detalles privados de la red.";
+"help_support_body" = "Reproduzca el problema, ejecute el diagnóstico y revise la sesión correspondiente en Actividad. Comparta un informe depurado con su administrador o contacte con el soporte en kr@itorg.pl. Indique qué falló y cuándo; omita detalles privados de la red.";
 "help_support_title" = "Obtener ayuda útil";
 "help_title" = "Ayuda de NetUnstick";
 "help_vpn_body" = "En la edición completa, una VPN activa o incierta bloquea los cambios de red normales. Las comprobaciones locales satisfactorias pueden coexistir con rutas de túnel residuales. La edición de App Store no determina el estado de la VPN.";
@@ -266,7 +266,7 @@
 "privacy_permissions_title" = "Sus opciones";
 "privacy_retention_body" = "El historial local conserva un máximo de 20 sesiones, 100 entradas por sesión y 4 MB, con horas, versiones de la app y macOS, códigos de resultado y error y evidencias depuradas. Elimínelo en Ajustes. Los informes solo se guardan tras la vista previa y la elección del archivo; elimine las copias exportadas por separado. macOS gestiona la retención de sus entradas privadas del registro del sistema.";
 "privacy_retention_title" = "Almacenamiento y eliminación";
-"privacy_version_body" = "21 de octubre de 2026. Editor: Krzysztof Radzimski. Para consultas de privacidad, use el contacto de soporte de la página de distribución de la app.";
+"privacy_version_body" = "21 de octubre de 2026. Editor: ITORG Krzysztof Radzimski. Contacto de privacidad: kr@itorg.pl.";
 "privacy_version_title" = "Versión de la política";
 "problems" = "Problemas";
 "repair_candidate" = "Reparación propuesta";

@@ -108,7 +108,7 @@
 "help_start_body" = "Kliknite Zaženi diagnostiko. Preverjanja opazujejo povezavo in ne spreminjajo omrežnih nastavitev. Za posamezne rezultate odprite Podrobnosti omrežja. Postopek lahko prekličete.";
 "help_start_title" = "Zaženite preverjanje";
 "help_support" = "Tehnična podpora";
-"help_support_body" = "Ponovite težavo, zaženite diagnostiko in preglejte ustrezno sejo v Dejavnosti. Očiščeno poročilo posredujte skrbniku ali podpori na distribucijski strani aplikacije. Opišite, kaj in kdaj ni delovalo; izpustite zasebne omrežne podrobnosti.";
+"help_support_body" = "Ponovite težavo, zaženite diagnostiko in preglejte ustrezno sejo v Dejavnosti. Očiščeno poročilo posredujte skrbniku ali podpori na kr@itorg.pl. Opišite, kaj in kdaj ni delovalo; izpustite zasebne omrežne podrobnosti.";
 "help_support_title" = "Pridobite koristno pomoč";
 "help_title" = "Pomoč NetUnstick";
 "help_vpn_body" = "V polni izdaji dejaven ali negotov VPN blokira običajne omrežne spremembe. Uspešna krajevna preverjanja lahko spremljajo preostale tunelske poti. Izdaja App Store ne ugotavlja stanja VPN.";
@@ -266,7 +266,7 @@
 "privacy_permissions_title" = "Vaše izbire";
 "privacy_retention_body" = "Krajevna zgodovina hrani največ 20 sej, 100 vnosov na sejo in 4 MB: čase, različice aplikacije in macOS, kode rezultatov in napak ter očiščene podatke. Izbrišete jo v Nastavitvah. Poročila se shranijo po predogledu in izbiri datoteke; izvožene kopije izbrišite posebej. Hrambo zasebnih sistemskih dnevnikov upravlja macOS.";
 "privacy_retention_title" = "Shranjevanje in brisanje";
-"privacy_version_body" = "21. oktober 2026. Izdajatelj: Krzysztof Radzimski. Za vprašanja o zasebnosti uporabite stik s podporo na distribucijski strani aplikacije.";
+"privacy_version_body" = "21. oktober 2026. Izdajatelj: ITORG Krzysztof Radzimski. Kontakt za vprašanja o zasebnosti: kr@itorg.pl.";
 "privacy_version_title" = "Različica pravilnika";
 "problems" = "Težave";
 "repair_candidate" = "Predlagano popravilo";

@@ -1416,8 +1416,8 @@
       "pl": "Wersja polityki"
     },
     "privacy_version_body": {
-      "en": "21 October 2026. Publisher: Krzysztof Radzimski. For privacy questions, use the support contact on the app distribution page.",
-      "pl": "21 października 2026. Wydawca: Krzysztof Radzimski. Pytania o prywatność kieruj do kontaktu pomocy na stronie dystrybucji aplikacji."
+      "en": "21 October 2026. Publisher: ITORG Krzysztof Radzimski. Privacy contact: kr@itorg.pl.",
+      "pl": "21 października 2026. Wydawca: ITORG Krzysztof Radzimski. Kontakt w sprawach prywatności: kr@itorg.pl."
     },
     "help_safety_title": {
       "en": "Narrow changes only",
@@ -1440,8 +1440,8 @@
       "pl": "Uzyskaj skuteczną pomoc"
     },
     "help_support_body": {
-      "en": "Reproduce the issue, run diagnostics and preview the relevant session in Activity. Share a redacted report with your administrator or use the support contact on the app distribution page. Include what failed and when; omit private network details.",
-      "pl": "Odtwórz problem, uruchom diagnostykę i obejrzyj właściwą sesję w Aktywności. Udostępnij oczyszczony raport administratorowi lub skorzystaj z kontaktu pomocy na stronie dystrybucji aplikacji. Opisz, co i kiedy nie działało; pomiń prywatne szczegóły sieci."
+      "en": "Reproduce the issue, run diagnostics and preview the relevant session in Activity. Share a redacted report with your administrator or contact support at kr@itorg.pl. Include what failed and when; omit private network details.",
+      "pl": "Odtwórz problem, uruchom diagnostykę i obejrzyj właściwą sesję w Aktywności. Udostępnij oczyszczony raport administratorowi lub napisz do pomocy technicznej na kr@itorg.pl. Opisz, co i kiedy nie działało; pomiń prywatne szczegóły sieci."
     },
     "help_accessibility_title": {
       "en": "System preferences",

@@ -1,0 +1,178 @@
+{
+  "appStoreConnectId": "6825738008",
+  "appStoreConnectURL": "https://appstoreconnect.apple.com/apps/6825738008",
+  "bundleId": "org.netunstick.NetUnstick.AppStore",
+  "version": "1.0",
+  "build": "14",
+  "publisher": "ITORG Krzysztof Radzimski",
+  "supportEmail": "kr@itorg.pl",
+  "purchase": {
+    "model": "paid-upfront",
+    "baseTerritory": "USA",
+    "customerPrice": "0.99",
+    "currency": "USD",
+    "subscriptions": false,
+    "inAppPurchases": false,
+    "futureUpdatesToThisAppIncluded": true,
+    "appImposedActivationLimit": null,
+    "deviceUsage": "Subject to applicable Apple App Store and Apple Account terms"
+  },
+  "availability": {
+    "territories": [
+      "ARG",
+      "AUT",
+      "BEL",
+      "BGR",
+      "BOL",
+      "CHL",
+      "COL",
+      "CRI",
+      "CYP",
+      "CZE",
+      "DEU",
+      "DNK",
+      "DOM",
+      "ECU",
+      "ESP",
+      "EST",
+      "FIN",
+      "FRA",
+      "GRC",
+      "GTM",
+      "HND",
+      "HRV",
+      "HUN",
+      "IRL",
+      "ITA",
+      "LTU",
+      "LUX",
+      "LVA",
+      "MEX",
+      "MLT",
+      "NIC",
+      "NLD",
+      "PAN",
+      "PER",
+      "POL",
+      "PRT",
+      "PRY",
+      "ROU",
+      "SLV",
+      "SVK",
+      "SVN",
+      "SWE",
+      "URY",
+      "USA",
+      "VEN"
+    ],
+    "count": 45,
+    "automaticallyAddFutureTerritories": false,
+    "scope": "EU27, USA and 17 Spanish-speaking Latin American storefronts; no Asia-Pacific or China mainland"
+  },
+  "releaseType": "MANUAL",
+  "metadataLocales": [
+    "en-US",
+    "pl",
+    "es-ES",
+    "es-MX"
+  ],
+  "appStoreConnectURLs": {
+    "savedAndReadBack": true,
+    "locales": [
+      "en-US",
+      "pl",
+      "es-ES",
+      "es-MX"
+    ],
+    "fields": [
+      "supportURL",
+      "marketingURL",
+      "privacyPolicyURL"
+    ],
+    "canonicalURLsWithoutHTMLExtension": true
+  },
+  "appUILanguages": 24,
+  "appCategory": "UTILITIES",
+  "calculatedAgeRating": "4+",
+  "privacy": {
+    "dataCollected": false,
+    "tracking": false,
+    "submittedDeclaration": "Data Not Collected",
+    "appPrivacyStatus": "Published"
+  },
+  "website": {
+    "verified": "2026-10-22",
+    "canonicalPagesHTTPStatus": 200,
+    "productURLs": {
+      "pl": "https://itorg.pl/NetUnstick/",
+      "en": "https://itorg.pl/en/NetUnstick/",
+      "es": "https://itorg.pl/es/NetUnstick/"
+    },
+    "supportURLs": {
+      "pl": "https://itorg.pl/NetUnstick/pl/support",
+      "en": "https://itorg.pl/NetUnstick/en/support",
+      "es": "https://itorg.pl/NetUnstick/es/support"
+    },
+    "privacyPolicyURLs": {
+      "pl": "https://itorg.pl/NetUnstick/pl/privacy",
+      "en": "https://itorg.pl/NetUnstick/en/privacy",
+      "es": "https://itorg.pl/NetUnstick/es/privacy"
+    },
+    "submissionMetadataCheck": {
+      "command": "python3 Tools/CheckStoreMetadata.py --submission",
+      "passed": true,
+      "metadataLocales": 4,
+      "publicURLsChecked": true,
+      "blockers": []
+    }
+  },
+  "accountFormalities": {
+    "membershipType": "Individual",
+    "legalNameChangeRequested": false,
+    "paidAppsAgreement": {
+      "status": "New",
+      "signed": false
+    },
+    "dsaTraderVerificationStatus": "In Review",
+    "legalEntityAddress": {
+      "newAddressConfirmedByOwner": true,
+      "persistenceConfirmed": false,
+      "businessStillDisplaysPreviousAddress": true,
+      "requestSubmittedToApple": true,
+      "ownerAuthorized": true,
+      "confirmationReceived": true,
+      "verificationPending": true,
+      "requestScope": "address-only",
+      "requestURL": "https://developer.apple.com/contact/request/update-individual-information/",
+      "caseReferenceDisplayed": false
+    },
+    "bankingDetailsChanged": false,
+    "taxDetailsChanged": false
+  },
+  "localArchive": "Artifacts/Distribution/NetUnstickAppStore-1.0-14-20261022.xcarchive",
+  "localPackage": "Artifacts/Distribution/AppStore-1.0-14/NetUnstick App Store.pkg",
+  "packageSHA256": "d7927d1a08e89b32784995ac9b210e534b5fe506bfe9136e81931c6275767ef9",
+  "state": {
+    "updated": "2026-10-22",
+    "recordCreated": true,
+    "priceSaved": true,
+    "availabilitySaved": true,
+    "uploadSucceeded": true,
+    "buildProcessedAndAttached": true,
+    "submittedForReview": false,
+    "released": false,
+    "websiteVerified": true,
+    "screenshotsUploaded": false
+  },
+  "remaining": [
+    "Wait for Apple to verify and approve the address-only Membership Information Update request, then confirm the address is reflected in membership and Business records. The submission confirmation is not approval of the address change.",
+    "Accept the New Paid Apps Agreement after the legal address is resolved, verify and complete banking and tax information as required, and finish DSA trader verification, currently In Review.",
+    "Capture and inspect current Mac App Store screenshots in an Apple-supported size, then upload in Preview. Desktop was occupied by another session; further desktop control was stopped for the turn.",
+    "Confirm all App Store Connect validation requirements before sending to review; retain manual release."
+  ],
+  "sources": [
+    "https://developer.apple.com/help/account/membership/updating-your-account-information",
+    "https://developer.apple.com/help/app-store-connect/manage-app-pricing/set-a-price",
+    "https://www.apple.com/legal/internet-services/itunes/us/terms.html"
+  ]
+}

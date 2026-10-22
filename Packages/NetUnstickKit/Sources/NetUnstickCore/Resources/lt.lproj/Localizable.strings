@@ -108,7 +108,7 @@
 "help_start_body" = "Spustelėkite „Vykdyti diagnostiką“. Patikros stebi ryšį ir nekeičia tinklo nustatymų. Atverkite tinklo duomenis, kad matytumėte kiekvieną rezultatą. Vykdomą operaciją galite atšaukti.";
 "help_start_title" = "Vykdykite patikrą";
 "help_support" = "Pagalba";
-"help_support_body" = "Atkurkite problemą, vykdykite diagnostiką ir peržiūrėkite atitinkamą sesiją veiklos skiltyje. Pasidalykite išvalyta ataskaita su administratoriumi arba kreipkitės programos platinimo puslapio pagalbos kontaktu. Nurodykite, kas ir kada nepavyko; privačius tinklo duomenis praleiskite.";
+"help_support_body" = "Atkurkite problemą, vykdykite diagnostiką ir peržiūrėkite atitinkamą sesiją veiklos skiltyje. Pasidalykite išvalyta ataskaita su administratoriumi arba kreipkitės į pagalbą adresu kr@itorg.pl. Nurodykite, kas ir kada nepavyko; privačius tinklo duomenis praleiskite.";
 "help_support_title" = "Gaukite naudingą pagalbą";
 "help_title" = "„NetUnstick“ pagalba";
 "help_vpn_body" = "Visame leidime aktyvus ar neaiškios būsenos VPN blokuoja įprastus tinklo pakeitimus. Vietinės patikros gali būti sėkmingos net likus tunelio maršrutų. „App Store“ leidimas nenustato VPN būsenos.";
@@ -266,7 +266,7 @@
 "privacy_permissions_title" = "Jūsų pasirinkimai";
 "privacy_retention_body" = "Vietinė istorija saugo iki 20 sesijų, 100 įrašų sesijoje ir 4 MB: laikus, programos ir „macOS“ versijas, rezultatų bei klaidų kodus ir išvalytus duomenis. Ištrinkite ją nustatymuose. Ataskaitos išsaugomos tik po peržiūros ir pasirinkus failą; eksportuotas kopijas trinkite atskirai. Privačių sistemos žurnalo įrašų saugojimą valdo „macOS“.";
 "privacy_retention_title" = "Saugojimas ir šalinimas";
-"privacy_version_body" = "2026 m. spalio 21 d. Leidėjas: Krzysztof Radzimski. Privatumo klausimais kreipkitės programos platinimo puslapyje nurodytu pagalbos kontaktu.";
+"privacy_version_body" = "2026 m. spalio 21 d. Leidėjas: ITORG Krzysztof Radzimski. Kontaktas privatumo klausimais: kr@itorg.pl.";
 "privacy_version_title" = "Politikos versija";
 "problems" = "Problemos";
 "repair_candidate" = "Siūlomas taisymas";

@@ -108,7 +108,7 @@
 "help_start_body" = "Kliknite na Spustiť diagnostiku. Kontroly sledujú pripojenie a nemenia nastavenia siete. Jednotlivé výsledky nájdete v Podrobnostiach siete. Prebiehajúcu operáciu možno zrušiť.";
 "help_start_title" = "Spustenie kontroly";
 "help_support" = "Technická podpora";
-"help_support_body" = "Zopakujte problém, spustite diagnostiku a prezrite príslušnú reláciu v Aktivite. Očistenú správu odovzdajte správcovi alebo kontaktu podpory na distribučnej stránke aplikácie. Opíšte, čo a kedy zlyhalo; vynechajte súkromné sieťové podrobnosti.";
+"help_support_body" = "Zopakujte problém, spustite diagnostiku a prezrite príslušnú reláciu v Aktivite. Očistenú správu odovzdajte správcovi alebo podpore na kr@itorg.pl. Opíšte, čo a kedy zlyhalo; vynechajte súkromné sieťové podrobnosti.";
 "help_support_title" = "Ako získať účinnú pomoc";
 "help_title" = "Pomocník NetUnstick";
 "help_vpn_body" = "V plnom vydaní blokuje aktívny alebo neistý VPN bežné zmeny siete. Úspešné miestne kontroly môžu sprevádzať zostávajúce tunelové trasy. Vydanie App Store stav VPN neurčuje.";
@@ -266,7 +266,7 @@
 "privacy_permissions_title" = "Vaše možnosti";
 "privacy_retention_body" = "Miestna história uchováva najviac 20 relácií, 100 záznamov na reláciu a 4 MB: časy, verzie aplikácie a macOS, kódy výsledkov a chýb a očistené údaje. Vymažete ju v Nastaveniach. Správy sa ukladajú až po náhľade a výbere súboru; exportované kópie vymažte zvlášť. Uchovávanie súkromných systémových záznamov riadi macOS.";
 "privacy_retention_title" = "Ukladanie a mazanie";
-"privacy_version_body" = "21. októbra 2026. Vydavateľ: Krzysztof Radzimski. Otázky k súkromiu posielajte na kontakt podpory na distribučnej stránke aplikácie.";
+"privacy_version_body" = "21. októbra 2026. Vydavateľ: ITORG Krzysztof Radzimski. Kontakt pre otázky súkromia: kr@itorg.pl.";
 "privacy_version_title" = "Verzia zásad";
 "problems" = "Problémy";
 "repair_candidate" = "Návrh opravy";

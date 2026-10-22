@@ -108,7 +108,7 @@
 "help_start_body" = "Klik på Kør diagnostik. Kontrollerne observerer forbindelsen og ændrer ikke netværksindstillinger. Åbn Netværksoplysninger for at se hvert resultat. Du kan annullere en igangværende handling.";
 "help_start_title" = "Kør en kontrol";
 "help_support" = "Support";
-"help_support_body" = "Genskab problemet, kør diagnostik og gennemse den relevante session under Aktivitet. Del en renset rapport med administratoren eller brug supportkontakten på appens distributionsside. Beskriv hvad der fejlede og hvornår; udelad private netværksoplysninger.";
+"help_support_body" = "Genskab problemet, kør diagnostik og gennemse den relevante session under Aktivitet. Del en renset rapport med administratoren eller kontakt supporten på kr@itorg.pl. Beskriv hvad der fejlede og hvornår; udelad private netværksoplysninger.";
 "help_support_title" = "Få nyttig hjælp";
 "help_title" = "Hjælp til NetUnstick";
 "help_vpn_body" = "I den fulde udgave blokerer en aktiv eller usikker VPN almindelige netværksændringer. Beståede lokale kontroller kan forekomme sammen med resterende tunnelruter. App Store-udgaven fastslår ikke VPN-status.";
@@ -266,7 +266,7 @@
 "privacy_permissions_title" = "Dine valg";
 "privacy_retention_body" = "Lokal historik indeholder højst 20 sessioner, 100 poster pr. session og 4 MB med tidspunkter, app- og macOS-versioner, resultat- og fejlkoder samt rensede oplysninger. Slet den i Indstillinger. Rapporter gemmes først efter en forhåndsvisning og dit filvalg; slet eksporterede kopier separat. macOS styrer opbevaringen af sine private systemlogposter.";
 "privacy_retention_title" = "Lagring og sletning";
-"privacy_version_body" = "21. oktober 2026. Udgiver: Krzysztof Radzimski. Ved spørgsmål om privatliv bruges supportkontakten på appens distributionsside.";
+"privacy_version_body" = "21. oktober 2026. Udgiver: ITORG Krzysztof Radzimski. Kontakt om privatliv: kr@itorg.pl.";
 "privacy_version_title" = "Politikkens version";
 "problems" = "Problemer";
 "repair_candidate" = "Mulig reparation";

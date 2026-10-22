@@ -108,7 +108,7 @@
 "help_start_body" = "Valitse Suorita vianmääritys. Tarkistukset havainnoivat yhteyttä eivätkä muuta verkkoasetuksia. Katso yksittäiset tulokset kohdasta Verkon tiedot. Voit perua käynnissä olevan toiminnon.";
 "help_start_title" = "Suorita tarkistus";
 "help_support" = "Tuki";
-"help_support_body" = "Toista ongelma, suorita vianmääritys ja esikatsele vastaavaa istuntoa Toiminta-näkymässä. Jaa siivottu raportti ylläpitäjälle tai käytä sovelluksen jakelusivun tukiyhteystietoja. Kuvaile, mikä epäonnistui ja milloin; jätä yksityiset verkkotiedot pois.";
+"help_support_body" = "Toista ongelma, suorita vianmääritys ja esikatsele vastaavaa istuntoa Toiminta-näkymässä. Jaa siivottu raportti ylläpitäjälle tai ota yhteyttä tukeen osoitteessa kr@itorg.pl. Kuvaile, mikä epäonnistui ja milloin; jätä yksityiset verkkotiedot pois.";
 "help_support_title" = "Hanki hyödyllistä apua";
 "help_title" = "NetUnstickin ohje";
 "help_vpn_body" = "Täysversiossa aktiivinen tai epävarma VPN estää tavalliset verkkomuutokset. Paikalliset tarkistukset voivat onnistua, vaikka tunnelireittejä on jäljellä. App Store -versio ei määritä VPN:n tilaa.";
@@ -266,7 +266,7 @@
 "privacy_permissions_title" = "Valintasi";
 "privacy_retention_body" = "Paikallinen historia sisältää enintään 20 istuntoa, 100 merkintää istuntoa kohti ja 4 Mt: ajankohdat, sovelluksen ja macOS:n versiot, tulos- ja virhekoodit sekä siivotut havainnot. Poista historia Asetuksissa. Raportit tallennetaan vasta esikatselun ja tiedostovalinnan jälkeen; poista viedyt kopiot erikseen. macOS hallitsee yksityisten järjestelmälokiensa säilytystä.";
 "privacy_retention_title" = "Tallennus ja poistaminen";
-"privacy_version_body" = "21. lokakuuta 2026. Julkaisija: Krzysztof Radzimski. Tietosuojakysymyksissä käytä sovelluksen jakelusivun tukiyhteystietoja.";
+"privacy_version_body" = "21. lokakuuta 2026. Julkaisija: ITORG Krzysztof Radzimski. Tietosuojayhteydenotot: kr@itorg.pl.";
 "privacy_version_title" = "Käytännön versio";
 "problems" = "Ongelmat";
 "repair_candidate" = "Korjausehdotus";

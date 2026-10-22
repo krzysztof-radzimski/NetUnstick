@@ -108,7 +108,7 @@
 "help_start_body" = "Click Run diagnostics. Checks observe the connection; they do not change network settings. Open Network details to see each result. You can cancel an operation in progress.";
 "help_start_title" = "Run a check";
 "help_support" = "Support";
-"help_support_body" = "Reproduce the issue, run diagnostics and preview the relevant session in Activity. Share a redacted report with your administrator or use the support contact on the app distribution page. Include what failed and when; omit private network details.";
+"help_support_body" = "Reproduce the issue, run diagnostics and preview the relevant session in Activity. Share a redacted report with your administrator or contact support at kr@itorg.pl. Include what failed and when; omit private network details.";
 "help_support_title" = "Get useful help";
 "help_title" = "NetUnstick Help";
 "help_vpn_body" = "In the full edition, an active or uncertain VPN blocks ordinary network changes. Working local checks can coexist with residual tunnel routes. The App Store edition does not determine VPN state.";
@@ -266,7 +266,7 @@
 "privacy_permissions_title" = "Your choices";
 "privacy_retention_body" = "Local history holds at most 20 sessions, 100 entries per session and 4 MB, including times, app/macOS versions, outcome and error codes and sanitized evidence. Delete it in Settings. Reports are saved only after a preview and your choice of file; delete exported copies separately. macOS manages the retention of its private system log entries.";
 "privacy_retention_title" = "Storage and deletion";
-"privacy_version_body" = "21 October 2026. Publisher: Krzysztof Radzimski. For privacy questions, use the support contact on the app distribution page.";
+"privacy_version_body" = "21 October 2026. Publisher: ITORG Krzysztof Radzimski. Privacy contact: kr@itorg.pl.";
 "privacy_version_title" = "Policy version";
 "problems" = "Problems";
 "repair_candidate" = "Repair candidate";

@@ -108,7 +108,7 @@
 "help_start_body" = "Klõpsa Käivita diagnostika. Kontrollid jälgivad ühendust ega muuda võrguseadeid. Iga tulemuse vaatamiseks ava Võrgu üksikasjad. Käimasoleva toimingu saab tühistada.";
 "help_start_title" = "Käivita kontroll";
 "help_support" = "Kasutajatugi";
-"help_support_body" = "Korda probleemi, käivita diagnostika ja vaata vastavat seanssi jaotises Tegevus. Jaga puhastatud aruannet administraatoriga või kasuta rakenduse levitamislehe kasutajatoe kontakti. Kirjelda, mis ja millal nurjus; jäta privaatsed võrguandmed välja.";
+"help_support_body" = "Korda probleemi, käivita diagnostika ja vaata vastavat seanssi jaotises Tegevus. Jaga puhastatud aruannet administraatoriga või kirjuta kasutajatoele aadressil kr@itorg.pl. Kirjelda, mis ja millal nurjus; jäta privaatsed võrguandmed välja.";
 "help_support_title" = "Saa kasulikku abi";
 "help_title" = "NetUnsticki abi";
 "help_vpn_body" = "Täisväljaandes blokeerib aktiivne või ebaselge VPN tavalised võrgumuudatused. Edukad kohalikud kontrollid võivad esineda koos allesjäänud tunnelimarsruutidega. App Store'i väljaanne ei määra VPN-i olekut.";
@@ -266,7 +266,7 @@
 "privacy_permissions_title" = "Sinu valikud";
 "privacy_retention_body" = "Kohalik ajalugu hoiab kuni 20 seanssi, 100 kirjet seansi kohta ja 4 MB: ajad, rakenduse ja macOS-i versioonid, tulemuste ning vigade koodid ja puhastatud tõendid. Kustuta see Seadetes. Aruanded salvestatakse alles pärast eelvaadet ja faili valimist; eksporditud koopiad kustuta eraldi. macOS haldab oma privaatsete süsteemilogide säilitamist.";
 "privacy_retention_title" = "Säilitamine ja kustutamine";
-"privacy_version_body" = "21. oktoober 2026. Väljaandja: Krzysztof Radzimski. Privaatsusküsimustes kasuta rakenduse levitamislehel olevat kasutajatoe kontakti.";
+"privacy_version_body" = "21. oktoober 2026. Väljaandja: ITORG Krzysztof Radzimski. Privaatsusküsimuste kontakt: kr@itorg.pl.";
 "privacy_version_title" = "Põhimõtete versioon";
 "problems" = "Probleemid";
 "repair_candidate" = "Parandusettepanek";

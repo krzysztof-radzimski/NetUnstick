@@ -108,7 +108,7 @@
 "help_start_body" = "Cliquez sur Lancer le diagnostic. Les vérifications observent la connexion sans modifier les réglages du réseau. Ouvrez Détails du réseau pour voir chaque résultat. Vous pouvez annuler une opération en cours.";
 "help_start_title" = "Lancer une vérification";
 "help_support" = "Assistance";
-"help_support_body" = "Reproduisez le problème, lancez le diagnostic et prévisualisez la session concernée dans Activité. Partagez un rapport expurgé avec votre administrateur ou utilisez le contact d’assistance de la page de distribution de l’app. Précisez ce qui a échoué et quand ; omettez les détails privés du réseau.";
+"help_support_body" = "Reproduisez le problème, lancez le diagnostic et prévisualisez la session concernée dans Activité. Partagez un rapport expurgé avec votre administrateur ou contactez l’assistance à l’adresse kr@itorg.pl. Précisez ce qui a échoué et quand ; omettez les détails privés du réseau.";
 "help_support_title" = "Obtenir une aide utile";
 "help_title" = "Aide NetUnstick";
 "help_vpn_body" = "Dans l’édition complète, un VPN actif ou incertain bloque les modifications ordinaires du réseau. Des vérifications locales réussies peuvent coexister avec des routes tunnel résiduelles. L’édition App Store ne détermine pas l’état du VPN.";
@@ -266,7 +266,7 @@
 "privacy_permissions_title" = "Vos choix";
 "privacy_retention_body" = "L’historique local conserve au maximum 20 sessions, 100 entrées par session et 4 Mo, avec horaires, versions de l’app et de macOS, codes de résultat et d’erreur et éléments expurgés. Supprimez-le dans Réglages. Les rapports ne sont enregistrés qu’après aperçu et choix du fichier ; supprimez les copies exportées séparément. macOS gère la conservation de ses entrées privées du journal système.";
 "privacy_retention_title" = "Stockage et suppression";
-"privacy_version_body" = "21 octobre 2026. Éditeur : Krzysztof Radzimski. Pour toute question de confidentialité, utilisez le contact d’assistance sur la page de distribution de l’app.";
+"privacy_version_body" = "21 octobre 2026. Éditeur : ITORG Krzysztof Radzimski. Contact pour la confidentialité : kr@itorg.pl.";
 "privacy_version_title" = "Version de la politique";
 "problems" = "Problèmes";
 "repair_candidate" = "Réparation proposée";

@@ -108,7 +108,7 @@
 "help_start_body" = "Klicken Sie auf „Diagnose starten“. Die Prüfungen beobachten die Verbindung, ohne Netzwerkeinstellungen zu ändern. Öffnen Sie „Netzwerkdetails“, um die einzelnen Ergebnisse zu sehen. Laufende Vorgänge können Sie abbrechen.";
 "help_start_title" = "Prüfung starten";
 "help_support" = "Support";
-"help_support_body" = "Stellen Sie das Problem nach, starten Sie die Diagnose und prüfen Sie die betreffende Sitzung unter Aktivität. Teilen Sie einen bereinigten Bericht mit Ihrer Administration oder nutzen Sie den Supportkontakt auf der Vertriebsseite der App. Beschreiben Sie, was wann fehlgeschlagen ist; lassen Sie private Netzwerkdaten weg.";
+"help_support_body" = "Stellen Sie das Problem nach, starten Sie die Diagnose und prüfen Sie die betreffende Sitzung unter Aktivität. Teilen Sie einen bereinigten Bericht mit Ihrer Administration oder wenden Sie sich an kr@itorg.pl. Beschreiben Sie, was wann fehlgeschlagen ist; lassen Sie private Netzwerkdaten weg.";
 "help_support_title" = "Effektive Unterstützung";
 "help_title" = "NetUnstick-Hilfe";
 "help_vpn_body" = "In der Vollversion blockiert ein aktives oder ungewisses VPN normale Netzwerkänderungen. Erfolgreiche lokale Prüfungen schließen verbliebene Tunnelrouten nicht aus. Die App-Store-Ausgabe bestimmt den VPN-Status nicht.";
@@ -266,7 +266,7 @@
 "privacy_permissions_title" = "Ihre Wahlmöglichkeiten";
 "privacy_retention_body" = "Der lokale Verlauf speichert höchstens 20 Sitzungen, 100 Einträge pro Sitzung und 4 MB, darunter Zeiten, App-/macOS-Versionen, Ergebnis- und Fehlercodes sowie bereinigte Nachweise. Löschen Sie ihn unter Einstellungen. Berichte werden erst nach Vorschau und Dateiauswahl gespeichert; exportierte Kopien löschen Sie gesondert. macOS verwaltet die Aufbewahrung seiner privaten Systemprotokolle.";
 "privacy_retention_title" = "Speichern und Löschen";
-"privacy_version_body" = "21. Oktober 2026. Herausgeber: Krzysztof Radzimski. Bei Datenschutzfragen nutzen Sie den Supportkontakt auf der Vertriebsseite der App.";
+"privacy_version_body" = "21. Oktober 2026. Herausgeber: ITORG Krzysztof Radzimski. Kontakt für Datenschutzfragen: kr@itorg.pl.";
 "privacy_version_title" = "Version der Erklärung";
 "problems" = "Probleme";
 "repair_candidate" = "Reparaturvorschlag";

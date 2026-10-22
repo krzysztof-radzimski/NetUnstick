@@ -108,7 +108,7 @@
 "help_start_body" = "Noklikšķiniet uz “Palaist diagnostiku”. Pārbaudes novēro savienojumu, nemainot tīkla iestatījumus. Atveriet tīkla informāciju, lai redzētu visus rezultātus. Darbību tās laikā var atcelt.";
 "help_start_title" = "Palaidiet pārbaudi";
 "help_support" = "Atbalsts";
-"help_support_body" = "Atkārtojiet problēmu, palaidiet diagnostiku un priekšskatiet attiecīgo sesiju darbību skatā. Nosūtiet attīrītu pārskatu administratoram vai izmantojiet atbalsta kontaktu lietotnes izplatīšanas lapā. Norādiet, kas un kad neizdevās; izlaidiet privātu tīkla informāciju.";
+"help_support_body" = "Atkārtojiet problēmu, palaidiet diagnostiku un priekšskatiet attiecīgo sesiju darbību skatā. Nosūtiet attīrītu pārskatu administratoram vai sazinieties ar atbalstu, rakstot uz kr@itorg.pl. Norādiet, kas un kad neizdevās; izlaidiet privātu tīkla informāciju.";
 "help_support_title" = "Saņemiet noderīgu palīdzību";
 "help_title" = "NetUnstick palīdzība";
 "help_vpn_body" = "Pilnajā izdevumā aktīvs vai neskaidrs VPN bloķē parastās tīkla izmaiņas. Veiksmīgas lokālās pārbaudes var pastāvēt kopā ar tuneļa maršrutu paliekām. App Store izdevums nenosaka VPN statusu.";
@@ -266,7 +266,7 @@
 "privacy_permissions_title" = "Jūsu izvēles";
 "privacy_retention_body" = "Lokālā vēsture glabā līdz 20 sesijām, 100 ierakstiem sesijā un 4 MB: laiku, lietotnes un macOS versijas, rezultātu un kļūdu kodus un attīrītus datus. Dzēsiet to iestatījumos. Pārskatus saglabā tikai pēc priekšskatījuma un faila izvēles; eksportētās kopijas dzēsiet atsevišķi. Privāto sistēmas žurnāla ierakstu glabāšanu pārvalda macOS.";
 "privacy_retention_title" = "Glabāšana un dzēšana";
-"privacy_version_body" = "2026. gada 21. oktobris. Izdevējs: Krzysztof Radzimski. Privātuma jautājumiem izmantojiet atbalsta kontaktinformāciju lietotnes izplatīšanas lapā.";
+"privacy_version_body" = "2026. gada 21. oktobris. Izdevējs: ITORG Krzysztof Radzimski. Kontaktinformācija privātuma jautājumiem: kr@itorg.pl.";
 "privacy_version_title" = "Politikas versija";
 "problems" = "Problēmas";
 "repair_candidate" = "Ierosinātais labojums";

@@ -108,7 +108,7 @@
 "help_start_body" = "Cliceáil Rith diagnóisic. Breathnaíonn na seiceálacha ar an gceangal gan socruithe líonra a athrú. Oscail Sonraí líonra le gach toradh a fheiceáil. Is féidir oibríocht atá ar siúl a chealú.";
 "help_start_title" = "Rith seiceáil";
 "help_support" = "Tacaíocht";
-"help_support_body" = "Atáirg an fhadhb, rith diagnóisic agus réamhamharc an seisiún ábhartha sa Ghníomhaíocht. Comhroinn tuairisc ghlanta le do riarthóir nó úsáid tacaíocht ar leathanach dáilte na haipe. Inis cad a theip agus cathain; fág sonraí líonra príobháideacha ar lár.";
+"help_support_body" = "Atáirg an fhadhb, rith diagnóisic agus réamhamharc an seisiún ábhartha sa Ghníomhaíocht. Comhroinn tuairisc ghlanta le do riarthóir nó déan teagmháil leis an tacaíocht ag kr@itorg.pl. Inis cad a theip agus cathain; fág sonraí líonra príobháideacha ar lár.";
 "help_support_title" = "Faigh cabhair úsáideach";
 "help_title" = "Cabhair NetUnstick";
 "help_vpn_body" = "Sa leagan iomlán, cuireann VPN gníomhach nó éiginnte cosc ar ghnáthathruithe líonra. Is féidir le seiceálacha áitiúla a bheith rathúil agus ródanna tolláin fágtha fós. Ní mheasann leagan App Store staid VPN.";
@@ -266,7 +266,7 @@
 "privacy_permissions_title" = "Do roghanna";
 "privacy_retention_body" = "Coinníonn stair áitiúil 20 seisiún ar a mhéad, 100 iontráil sa seisiún agus 4 MB: amanna, leaganacha aip/macOS, cóid toraidh agus earráide agus fianaise ghlanta. Scrios í i Socruithe. Ní shábháiltear tuairiscí ach tar éis réamhamhairc agus roghnú comhaid; scrios cóipeanna easpórtáilte ar leith. Bainistíonn macOS coinneáil iontrálacha príobháideacha a loga córais.";
 "privacy_retention_title" = "Stóráil agus scriosadh";
-"privacy_version_body" = "21 Deireadh Fómhair 2026. Foilsitheoir: Krzysztof Radzimski. Le ceisteanna príobháideachais, úsáid an teagmhálaí tacaíochta ar leathanach dáilte na haipe.";
+"privacy_version_body" = "21 Deireadh Fómhair 2026. Foilsitheoir: ITORG Krzysztof Radzimski. Teagmháil phríobháideachais: kr@itorg.pl.";
 "privacy_version_title" = "Leagan an bheartais";
 "problems" = "Fadhbanna";
 "repair_candidate" = "Deisiúchán molta";

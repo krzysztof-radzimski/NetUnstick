@@ -108,7 +108,7 @@
 "help_start_body" = "Ikklikkja Ħaddem id-dijanjostika. Il-kontrolli josservaw il-konnessjoni mingħajr ma jbiddlu s-settings tan-netwerk. Iftaħ id-dettalji tan-netwerk biex tara kull riżultat. Tista’ tikkanċella operazzjoni għaddejja.";
 "help_start_title" = "Ħaddem kontroll";
 "help_support" = "Appoġġ";
-"help_support_body" = "Irriproduċi l-problema, ħaddem id-dijanjostika u ara s-sessjoni rilevanti fl-Attività. Aqsam rapport imnaddaf mal-amministratur jew uża l-appoġġ fil-paġna tad-distribuzzjoni. Għid x’falla u meta; tħallix dettalji privati tan-netwerk.";
+"help_support_body" = "Irriproduċi l-problema, ħaddem id-dijanjostika u ara s-sessjoni rilevanti fl-Attività. Aqsam rapport imnaddaf mal-amministratur jew ikkuntattja l-appoġġ fuq kr@itorg.pl. Għid x’falla u meta; tħallix dettalji privati tan-netwerk.";
 "help_support_title" = "Ikseb għajnuna utli";
 "help_title" = "Għajnuna ta’ NetUnstick";
 "help_vpn_body" = "Fl-edizzjoni sħiħa, VPN attiv jew mhux ċert jimblokka l-bidliet normali tan-netwerk. Kontrolli lokali jistgħu jgħaddu anki meta baqgħu rotot tal-mina. L-edizzjoni tal-App Store ma tiddeterminax l-istat tal-VPN.";
@@ -266,7 +266,7 @@
 "privacy_permissions_title" = "L-għażliet tiegħek";
 "privacy_retention_body" = "L-istorja lokali żżomm sa 20 sessjoni, 100 entrata kull sessjoni u 4 MB: ħinijiet, verżjonijiet tal-app/macOS, kodiċijiet tar-riżultat u tal-iżball u evidenza mnaddfa. Ħassarha fis-settings. Ir-rapporti jiġu ssejvjati biss wara previżjoni u għażla ta’ fajl; ħassar kopji esportati separatament. macOS jimmaniġġja ż-żamma tal-entrati privati fir-reġistru tas-sistema.";
 "privacy_retention_title" = "Ħażna u tħassir";
-"privacy_version_body" = "21 ta’ Ottubru 2026. Pubblikatur: Krzysztof Radzimski. Għal mistoqsijiet dwar il-privatezza, uża l-kuntatt tal-appoġġ fil-paġna tad-distribuzzjoni tal-app.";
+"privacy_version_body" = "21 ta’ Ottubru 2026. Pubblikatur: ITORG Krzysztof Radzimski. Kuntatt għall-privatezza: kr@itorg.pl.";
 "privacy_version_title" = "Verżjoni tal-politika";
 "problems" = "Problemi";
 "repair_candidate" = "Tiswija proposta";

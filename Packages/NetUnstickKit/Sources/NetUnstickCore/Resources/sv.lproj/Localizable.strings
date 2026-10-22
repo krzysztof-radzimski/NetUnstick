@@ -108,7 +108,7 @@
 "help_start_body" = "Klicka på Starta diagnostik. Kontrollerna observerar anslutningen utan att ändra nätverksinställningar. Öppna Nätverksinformation för att se varje resultat. Du kan avbryta en pågående åtgärd.";
 "help_start_title" = "Kör en kontroll";
 "help_support" = "Support";
-"help_support_body" = "Återskapa problemet, kör diagnostiken och förhandsvisa den relevanta sessionen i Aktivitet. Dela en maskerad rapport med administratören eller använd supportkontakten på appens distributionssida. Ange vad som misslyckades och när; utelämna privata nätverksuppgifter.";
+"help_support_body" = "Återskapa problemet, kör diagnostiken och förhandsvisa den relevanta sessionen i Aktivitet. Dela en maskerad rapport med administratören eller kontakta supporten på kr@itorg.pl. Ange vad som misslyckades och när; utelämna privata nätverksuppgifter.";
 "help_support_title" = "Få användbar hjälp";
 "help_title" = "NetUnstick-hjälp";
 "help_vpn_body" = "I den fullständiga utgåvan blockerar aktivt eller osäkert VPN vanliga nätverksändringar. Lokala kontroller kan fungera trots kvarvarande tunnelrutter. App Store-utgåvan bedömer inte VPN-status.";
@@ -266,7 +266,7 @@
 "privacy_permissions_title" = "Dina val";
 "privacy_retention_body" = "Den lokala historiken lagrar högst 20 sessioner, 100 poster per session och 4 MB, inklusive tider, app-/macOS-versioner, resultat- och felkoder samt rensade underlag. Radera den i Inställningar. Rapporter sparas bara efter förhandsvisning och ditt filval; radera exporterade kopior separat. macOS hanterar lagringstiden för sina privata systemloggposter.";
 "privacy_retention_title" = "Lagring och radering";
-"privacy_version_body" = "21 oktober 2026. Utgivare: Krzysztof Radzimski. Använd supportkontakten på appens distributionssida för integritetsfrågor.";
+"privacy_version_body" = "21 oktober 2026. Utgivare: ITORG Krzysztof Radzimski. Kontakt för integritetsfrågor: kr@itorg.pl.";
 "privacy_version_title" = "Policyversion";
 "problems" = "Problem";
 "repair_candidate" = "Föreslagen reparation";

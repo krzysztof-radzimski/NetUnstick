@@ -300,3 +300,48 @@ Przez `abc-desktop` uruchomiono oba zainstalowane wydania w `/Applications`; obe
 - Pełną diagnozę Developer ID: 13 kontroli, nagłówek „Sieć lokalna i internet działają”, osiem podstawowych kontroli bez problemu i osobna informacja o blokadzie zmian ze względu na pozostałe ślady VPN. Nie wykonywano napraw ani zmian konfiguracji sieci. Okno pozostawiono otwarte z wynikiem, szczegóły zwinięto i zwolniono pulpit.
 
 Oba końcowe produkty zainstalowano lokalnie. Nie przeprowadzono nowej notaryzacji Developer ID, podpisu Apple Distribution z profilem, walidacji w Organizerze, wysyłki do App Store Connect ani publikacji. Przed wysłaniem pozostają publiczne strony prywatności i wsparcia, dane i decyzje właściciela w App Store Connect, zrzuty sklepowe oraz redakcja tłumaczeń. Przygotowane strony HTML są lokalnymi materiałami, nie działającymi publicznymi adresami.
+
+## Archiwum 1.0 (14), wydawca i wysyłka buildu — 22 października 2026
+
+Dla pierwszego wydania sklepowego ustawiono **1.0 (14)** wyłącznie w targecie `NetUnstickAppStore`, zgodnie z utworzonym rekordem macOS w App Store Connect. Pełne wydanie Developer ID i helper zachowały **0.3.0 (13)**. Dodano copyright **© 2026 ITORG Krzysztof Radzimski** oraz zasób `Credits.rtf` z nazwą wydawcy i adresem `kr@itorg.pl`, wykorzystywany przez natywne okno O aplikacji. Politykę prywatności i pomoc offline uzupełniono o te same dane we wszystkich 24 językach.
+
+| Weryfikacja | Wynik |
+| --- | --- |
+| Generator i kontrola lokalizacji | 378 kluczy w każdym z 24 języków, zgodne placeholdery. Zasoby polityki i wsparcia w finalnym archiwum zawierają nazwę wydawcy i kontakt. |
+| `swift test --filter LocalizationTests` po aktualizacji danych wydawcy | 5 testów, 0 błędów, w tym odczyt rzeczywistych 24 katalogów lokalizacji. Log: `/tmp/netunstick-publisher-contact-tests.log`. |
+| Składnia narzędzi i konfiguracja | Kompilacja składniowa skryptu Python, `zsh -n` skryptu archiwizacji, `plutil` projektu i Info.plist oraz `git diff --check` zakończone poprawnie. |
+| Kontrola podpisu sklepowego | Zwykła kontrola akceptuje testową aplikację sandboxowaną; `--distribution` poprawnie odrzuca podpis ad hoc. Kontrola profilu odrzuca niewłaściwy termin ważności, platformę, team, certyfikat, App ID, profile urządzeniowe i `get-task-allow`. |
+| `xcodebuild … -scheme NetUnstickAppStore … -allowProvisioningUpdates archive` | Kod wyjścia 0, `ARCHIVE SUCCEEDED`; archiwum **1.0 (14)** utworzone ponownie po ostatecznej aktualizacji danych wydawcy. |
+| `xcodebuild -exportArchive … destination=export … -allowProvisioningUpdates` | Kod wyjścia 0, `EXPORT SUCCEEDED`; zachowano lokalny pakiet instalacyjny bez instalowania go. |
+| `pkgutil --check-signature` lokalnego pakietu | Poprawny podpis `3rd Party Mac Developer Installer` i łańcuch zaufania Apple. |
+| `Tools/CheckAppStoreBundle.py … --distribution` aplikacji wyodrębnionej z pakietu | Kontrola zakończona poprawnie: podpis Apple Distribution właściwego teamu, zgodny osadzony profil, sandbox; brak helpera, LaunchDaemona i importów uruchamiania procesów. |
+
+Archiwum podpisuje się jako Apple Development, a eksport App Store Connect nadaje aplikacji podpis Apple Distribution. Poprawiono wcześniejszą sprzeczność automatycznego podpisywania z wymuszoną tożsamością dystrybucyjną podczas samej archiwizacji. Profil macOS nie jest bezwarunkowo wymagany dla aplikacji bez ograniczonych uprawnień; `--distribution` sprawdza obecny profil, a `--testflight` dodatkowo wymaga jego obecności. Odpowiada to rozróżnieniu opisanemu w [Apple TN3125](https://developer.apple.com/documentation/technotes/tn3125-inside-code-signing-provisioning-profiles). W tym eksporcie Xcode dostarczył profil i przeszedł on kontrolę zgodności.
+
+Zachowane produkty lokalne:
+
+- Archiwum: `Artifacts/Distribution/NetUnstickAppStore-1.0-14-20261022.xcarchive`.
+- Pakiet: `Artifacts/Distribution/AppStore-1.0-14/NetUnstick App Store.pkg`, **968303 bajty**.
+- SHA-256 lokalnego pakietu: `d7927d1a08e89b32784995ac9b210e534b5fe506bfe9136e81931c6275767ef9`.
+
+Odczyt aplikacji wyodrębnionej z tego pakietu potwierdził bundle ID `org.netunstick.NetUnstick.AppStore`, wersję **1.0 (14)**, minimum **macOS 14.0** oraz architektury **arm64 i x86_64**. Testy i oględziny wykonywano na macOS arm64; wariant x86_64 jest zawarty w produkcie, lecz nie został uruchomiony ani sprawdzony na hoście Intel. Wyniki testów z 21 października pozostają odrębnym zapisem; po aktualizacji danych wydawcy powtórzono testy lokalizacji i wykonano nowe archiwum oraz eksport.
+
+Po upoważnieniu użytkownika wykonano osobny eksport z `destination=upload` tego samego finalnego archiwum do App Store Connect. **22 października 2026 o 12:42:30 według lokalnego logu Xcode** zwrócono `Upload succeeded`, `Uploaded package is processing` oraz `EXPORT SUCCEEDED` z kodem wyjścia 0. Lokalny pakiet i jego powyższy hash zachowano; hash identyfikuje eksport lokalny, nie stanowi deklaracji tożsamości bajtowej ponownego eksportu użytego do wysyłki.
+
+Logi archiwum i eksportu są poza repozytorium: `/tmp/netunstick-appstore-archive-1.0-14-20261022.log` i `/tmp/netunstick-appstore-export-1.0-14-20261022.log`. Zredagowany zapis postępu wysyłki zapisano w `/tmp/netunstick-appstore-upload-1.0-14-20261022-sanitized.log`. Nie odczytywano sekretów z Keychain. Sukces wysyłki potwierdza przyjęcie pakietu do przetwarzania, nie zakończenie przetwarzania, zatwierdzenie przez App Review ani publikację. Ten etap nie obejmował wysłania aplikacji do recenzji ani jej udostępnienia w sklepie.
+
+## Dane rekordu i publiczny hosting — 22 października 2026
+
+Po zakończeniu przetwarzania w App Store Connect build **1.0 (14)** został przypięty do wersji w rekordzie **6825738008**. Zapisano cztery lokalizacje metadanych: en-US, pl, es-ES i es-MX, cenę bazową USA **0,99 USD** za jednorazowy zakup oraz **45 rynków**: 27 państw UE, USA i 17 hiszpańskojęzycznych państw Ameryki Łacińskiej. Azja i pozostałe rynki są wyłączone, podobnie jak automatyczne dodawanie przyszłych storefrontów. Przyszłe aktualizacje tej aplikacji są bez dopłat; NetUnstick nie wprowadza własnego limitu aktywacji ponad zasady Apple. Deklaracja App Privacy **Data Not Collected** została opublikowana. Wydanie nadal wymaga ręcznego udostępnienia po ewentualnej akceptacji; nie wysłano aplikacji do App Review ani nie rozpoczęto sprzedaży.
+
+Właściciel opublikował strony produktu [po polsku](https://itorg.pl/NetUnstick/), [po angielsku](https://itorg.pl/en/NetUnstick/) i [po hiszpańsku](https://itorg.pl/es/NetUnstick/). Kanoniczne adresy wsparcia i polityki mają postać `https://itorg.pl/NetUnstick/{pl,en,es}/{support,privacy}`, bez rozszerzenia `.html`. Odczyty stron potwierdziły HTTP 200 i właściwą treść. Ponowne uruchomienie `python3 Tools/CheckStoreMetadata.py --submission` zwróciło kod wyjścia 0, cztery lokalizacje, poprawne limity tekstu, kompletność pól publikacji, `publicURLsChecked: true` i pustą listę lokalnych blokad. Wcześniejszy wynik HTTP 404 został usunięty. Ta kontrola nie potwierdza formalności konta ani gotowości zrzutów do sklepu.
+
+W App Store Connect zapisano i ponownie odczytano końcowe adresy `supportURL`, `marketingURL` i `privacyPolicyURL` we wszystkich czterech lokalizacjach: en-US, pl, es-ES oraz es-MX. Korzystają z kanonicznych publicznych adresów bez rozszerzenia `.html`; obie hiszpańskie lokalizacje wskazują te same strony hiszpańskie.
+
+Końcowy odczyt po ponownej nawigacji w App Store Connect potwierdził wersję 1.0 z buildem 1.0 (14), brak wymaganego logowania, ręczne udostępnienie oraz zapisane angielskie adresy wsparcia i produktu. Przycisk zapisu był nieaktywny, a sekcja zrzutów pokazywała **0 z 10**. Ponowne kontrole lokalizacji (378 kluczy × 24 języki i placeholdery), metadanych `--submission` dla czterech lokalizacji oraz składni Python i różnic zakończyły się poprawnie.
+
+Paid Apps Agreement pozostaje **New** i nie został podpisany, a weryfikacja przedsiębiorcy DSA ma stan **In Review**. Próbę aktualizacji adresu Legal Entity wykonano z potwierdzonymi danymi właściciela i uwierzytelnieniem dwuskładnikowym, lecz po odświeżeniu formularza Apple nadal wyświetlał poprzednie dane, a edycja nie była dostępna. Nie potwierdzono trwałego zapisu nowego adresu; nie utrwalono go w tym raporcie. Danych podatkowych ani bankowych nie zmieniano.
+
+Następnie, po jawnej zgodzie właściciela „Wyślij zgłoszenie do Apple”, wysłano oficjalny [Membership Information Update](https://developer.apple.com/contact/request/update-individual-information/) dotyczący wyłącznie adresu. Strona Apple potwierdziła otrzymanie zgłoszenia i zapowiedziała jego weryfikację oraz odpowiedź; nie wyświetliła numeru sprawy. Nie wnioskowano o zmianę nazwy prawnej ani typu konta Individual. Kontakt pozostawiono domyślny dla konta Apple, bez utrwalania prywatnego adresu e-mail i adresu pocztowego w repozytorium. Zmiana nadal oczekuje na Apple; potwierdzenie formularza nie jest dowodem jej zatwierdzenia. Wymóg akceptacji aktualizacji danych członkostwa opisuje [dokumentacja Apple](https://developer.apple.com/help/account/membership/updating-your-account-information).
+
+Nie wykonano nowych zrzutów sklepowych. Pulpit był zajęty inną sesją, a późniejsze sterowanie zostało przerwane; nie ponawiano go ani nie zastępowano innym sterownikiem. Istniejący zrzut na stronie produktu ma **1800 × 1208** i nie spełnia obsługiwanych wymiarów zrzutu Mac App Store. Historyczne oględziny aplikacji pozostają zapisane wyżej, ale nie zastępują aktualnych materiałów sklepowych. Aktualizacja tej sekcji dotyczy dokumentacji i danych publikacji; nie zmieniano ani ponownie nie budowano aplikacji.

@@ -108,7 +108,7 @@
 "help_start_body" = "Kliknij Uruchom diagnostykę. Kontrole obserwują połączenie i nie zmieniają ustawień sieci. Rozwiń Szczegóły sieci, aby zobaczyć wyniki. Trwającą operację możesz anulować.";
 "help_start_title" = "Uruchom kontrolę";
 "help_support" = "Pomoc techniczna";
-"help_support_body" = "Odtwórz problem, uruchom diagnostykę i obejrzyj właściwą sesję w Aktywności. Udostępnij oczyszczony raport administratorowi lub skorzystaj z kontaktu pomocy na stronie dystrybucji aplikacji. Opisz, co i kiedy nie działało; pomiń prywatne szczegóły sieci.";
+"help_support_body" = "Odtwórz problem, uruchom diagnostykę i obejrzyj właściwą sesję w Aktywności. Udostępnij oczyszczony raport administratorowi lub napisz do pomocy technicznej na kr@itorg.pl. Opisz, co i kiedy nie działało; pomiń prywatne szczegóły sieci.";
 "help_support_title" = "Uzyskaj skuteczną pomoc";
 "help_title" = "Pomoc NetUnstick";
 "help_vpn_body" = "W pełnym wydaniu aktywny lub niepewny VPN blokuje zwykłe zmiany sieci. Poprawne kontrole lokalne mogą współistnieć z pozostałymi trasami tunelowymi. Wydanie App Store nie ustala stanu VPN.";
@@ -266,7 +266,7 @@
 "privacy_permissions_title" = "Twoje decyzje";
 "privacy_retention_body" = "Lokalna historia przechowuje do 20 sesji, 100 wpisów na sesję i 4 MB: czasy, wersje aplikacji i macOS, kody wyników i błędów oraz oczyszczone dowody. Usuń ją w Ustawieniach. Raport jest zapisywany dopiero po podglądzie i wyborze pliku; wyeksportowane kopie usuń osobno. Okres przechowywania prywatnych wpisów dziennika systemowego ustala macOS.";
 "privacy_retention_title" = "Przechowywanie i usuwanie";
-"privacy_version_body" = "21 października 2026. Wydawca: Krzysztof Radzimski. Pytania o prywatność kieruj do kontaktu pomocy na stronie dystrybucji aplikacji.";
+"privacy_version_body" = "21 października 2026. Wydawca: ITORG Krzysztof Radzimski. Kontakt w sprawach prywatności: kr@itorg.pl.";
 "privacy_version_title" = "Wersja polityki";
 "problems" = "Problemy";
 "repair_candidate" = "Kandydat do naprawy";

@@ -108,7 +108,7 @@
 "help_start_body" = "Kattintson a Diagnosztika indítása gombra. Az ellenőrzések megfigyelik a kapcsolatot, nem módosítják a hálózati beállításokat. Az egyes eredményekhez nyissa meg a Hálózati részleteket. A folyamatban lévő művelet megszakítható.";
 "help_start_title" = "Ellenőrzés futtatása";
 "help_support" = "Támogatás";
-"help_support_body" = "Idézze elő a hibát, futtassa a diagnosztikát, majd tekintse át az érintett munkamenetet a Tevékenységben. Osszon meg megtisztított jelentést a rendszergazdával, vagy használja az app terjesztési oldalának támogatási kapcsolatát. Adja meg, mi és mikor hibázott; a privát hálózati adatokat hagyja ki.";
+"help_support_body" = "Idézze elő a hibát, futtassa a diagnosztikát, majd tekintse át az érintett munkamenetet a Tevékenységben. Osszon meg megtisztított jelentést a rendszergazdával, vagy írjon az ügyfélszolgálatnak a kr@itorg.pl címre. Adja meg, mi és mikor hibázott; a privát hálózati adatokat hagyja ki.";
 "help_support_title" = "Hasznos segítség kérése";
 "help_title" = "NetUnstick súgó";
 "help_vpn_body" = "A teljes kiadásban az aktív vagy bizonytalan VPN tiltja a szokásos hálózati módosításokat. A helyi ellenőrzések hátramaradt alagútútvonalak mellett is sikeresek lehetnek. Az App Store-kiadás nem állapítja meg a VPN állapotát.";
@@ -266,7 +266,7 @@
 "privacy_permissions_title" = "Az Ön választásai";
 "privacy_retention_body" = "A helyi előzmények legfeljebb 20 munkamenetet, munkamenetenként 100 bejegyzést és 4 MB-ot tárolnak, köztük időpontokat, app-/macOS-verziókat, eredmény- és hibakódokat, valamint megtisztított bizonyítékokat. A Beállításokban törölhetők. Jelentés csak előnézet és fájlválasztás után mentődik; az exportált másolatokat külön törölje. A macOS kezeli a saját, privát rendszerlog-bejegyzéseinek megőrzését.";
 "privacy_retention_title" = "Tárolás és törlés";
-"privacy_version_body" = "2026. október 21. Kiadó: Krzysztof Radzimski. Adatvédelmi kérdéseivel forduljon az app terjesztési oldalán megadott támogatási kapcsolathoz.";
+"privacy_version_body" = "2026. október 21. Kiadó: ITORG Krzysztof Radzimski. Adatvédelmi kapcsolat: kr@itorg.pl.";
 "privacy_version_title" = "Tájékoztató verziója";
 "problems" = "Problémák";
 "repair_candidate" = "Javasolt javítás";
