@@ -1,10 +1,6 @@
 import SwiftUI
 import NetUnstickCore
-#if APP_STORE
-import NetUnstickStoreNetwork
-#else
 import NetUnstickNetwork
-#endif
 
 struct DashboardView: View {
     @ObservedObject var store: PresentationStore
@@ -56,7 +52,7 @@ struct DashboardView: View {
     }
 
     private var changesPaused: Bool {
-        store.supportsRepairs && store.vpn.state != .inactive && store.candidate?.allowsWhenResidualRoute != true
+        store.vpn.state != .inactive && store.candidate?.allowsWhenResidualRoute != true
     }
 
     private var statusCard: some View {

@@ -29,7 +29,6 @@
 "check_bonjour" = "Miestne zisťovanie";
 "check_cancelled" = "Zrušené";
 "check_dns" = "Nastavenia DNS";
-"check_network" = "Sieťová cesta";
 "check_ok" = "Bez nájdeného problému";
 "check_permission" = "Prístup odmietnutý";
 "check_problem" = "Vyžaduje pozornosť";
@@ -62,10 +61,6 @@
 "diagnosis_failed" = "Diagnostiku nemožno dokončiť alebo uložiť.";
 "diagnosis_hint" = "Spustí sieťové kontroly iba na čítanie.";
 "diagnosis_running" = "Prebieha diagnostika…";
-"edition_full" = "Developer ID · diagnostika a opravy";
-"edition_full_detail" = "Kontroly iba na čítanie a jednotlivo potvrdzované opravy.";
-"edition_store" = "App Store · diagnostika";
-"edition_store_detail" = "Kontroly v sandboxe. Bez pomocnej služby správcu a zmien siete.";
 "export_failed" = "Správu nemožno uložiť";
 "export_failed_detail" = "Vyberte zapisovateľné umiestnenie a skúste to znova z náhľadu.";
 "filter" = "Filter";
@@ -82,8 +77,6 @@
 "help_device_privacy_body" = "Cieľ sa používa len na tento test a zostáva v aktuálnom okne. História ukladá kódy výsledkov a typy rozhraní, nie cieľ ani obsah paketov.";
 "help_device_privacy_title" = "Zadané údaje zostávajú miestne";
 "help_device_title" = "Výber cieľa";
-"help_editions_body" = "Vydanie App Store kontroluje sieťovú cestu, DNS, internet, Bonjour a zvolené zariadenie. Neskúma systémové trasy ani konfiguráciu VPN a nemôže ich opravovať. Vydanie Developer ID pridáva systémovú diagnostiku a jednotlivo potvrdzované opravy.";
-"help_editions_title" = "Dve vydania";
 "help_gettingStarted" = "Začíname";
 "help_helper_body" = "Obnovenie DHCP a odstránenie overených zostávajúcich trás vyžaduje podpísanú pomocnú službu a súhlas macOS v Prihlasovacích položkách. Podľa potreby ju zaregistrujte v Nastaveniach a počkajte na odpoveď. Po aktualizácii možno predtým schválenú registráciu obnoviť.";
 "help_helper_title" = "Súhlas správcu";
@@ -103,6 +96,8 @@
 "help_safety" = "Bezpečnosť";
 "help_safety_body" = "NetUnstick nevytvára VPN, nemení pravidlá FortiClient/FortiGate, nevypína ochranu, nemaže všetky trasy ani nereštartuje počítač. Nevypínajte firewall ani spravované zabezpečenia kvôli zelenému výsledku. Spravované nastavenia VPN riešte so správcom siete.";
 "help_safety_title" = "Iba úzko vymedzené zmeny";
+"help_scope_body" = "Kontroly iba na čítanie a jednotlivo potvrdzované opravy.";
+"help_scope_title" = "Diagnostika a opravy";
 "help_shortcuts_body" = "Command-D: diagnostika. Escape: zrušenie. Shift-Command-E: náhľad správy. Command-?: pomocník. Klávesom Tab prechádzate medzi ovládacími prvkami.";
 "help_shortcuts_title" = "Klávesové skratky";
 "help_start_body" = "Kliknite na Spustiť diagnostiku. Kontroly sledujú pripojenie a nemenia nastavenia siete. Jednotlivé výsledky nájdete v Podrobnostiach siete. Prebiehajúcu operáciu možno zrušiť.";
@@ -111,7 +106,7 @@
 "help_support_body" = "Zopakujte problém, spustite diagnostiku a prezrite príslušnú reláciu v Aktivite. Očistenú správu odovzdajte správcovi alebo podpore na kr@itorg.pl. Opíšte, čo a kedy zlyhalo; vynechajte súkromné sieťové podrobnosti.";
 "help_support_title" = "Ako získať účinnú pomoc";
 "help_title" = "Pomocník NetUnstick";
-"help_vpn_body" = "V plnom vydaní blokuje aktívny alebo neistý VPN bežné zmeny siete. Úspešné miestne kontroly môžu sprevádzať zostávajúce tunelové trasy. Vydanie App Store stav VPN neurčuje.";
+"help_vpn_body" = "V plnom vydaní blokuje aktívny alebo neistý VPN bežné zmeny siete. Úspešné miestne kontroly môžu sprevádzať zostávajúce tunelové trasy.";
 "help_vpn_title" = "VPN a zostávajúce trasy";
 "helper" = "Pomocná služba";
 "helper_approvalRequired" = "Vyžaduje súhlas systému";
@@ -353,10 +348,6 @@
 "state_unknown" = "Stav siete neznámy";
 "state_unknown_detail" = "Ďalšie informácie získate diagnostikou. Stav VPN nie je potvrdený.";
 "status" = "Stav";
-"store_diagnostic_scope" = "Kontroly DNS, TCP a Bonjour iba na čítanie. Toto vydanie neskúma smerovanie ani stav VPN a nemení sieť.";
-"store_next_step" = "Prezrite nižšie uvedené kontroly. Výsledky nezaručujú dostupnosť všetkých miestnych zariadení ani služieb.";
-"store_result_connected" = "Testované pripojenia fungujú.";
-"store_result_incomplete" = "Niektoré pripojenia nemožno potvrdiť.";
 "success" = "Úspešné";
 "support_permissions" = "Skontrolujte oprávnenia Application Support a skúste to znova.";
 "unknown_error" = "Kontrolu nebolo možné dokončiť.";

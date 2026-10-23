@@ -29,7 +29,6 @@
 "check_bonjour" = "Descoperire locală";
 "check_cancelled" = "Anulat";
 "check_dns" = "Configurări DNS";
-"check_network" = "Cale de rețea";
 "check_ok" = "Nicio problemă găsită";
 "check_permission" = "Permisiune refuzată";
 "check_problem" = "Necesită atenție";
@@ -62,10 +61,6 @@
 "diagnosis_failed" = "Diagnosticarea nu a putut fi finalizată sau salvată.";
 "diagnosis_hint" = "Pornește verificări ale rețelei fără modificări.";
 "diagnosis_running" = "Diagnosticare în curs…";
-"edition_full" = "Developer ID · diagnosticare și reparații";
-"edition_full_detail" = "Verificări fără modificări și reparații confirmate individual.";
-"edition_store" = "App Store · diagnosticare";
-"edition_store_detail" = "Verificări în sandbox. Fără serviciu auxiliar de administrator sau modificări ale rețelei.";
 "export_failed" = "Raportul nu a putut fi salvat";
 "export_failed_detail" = "Alegeți o locație cu drept de scriere și reîncercați din previzualizare.";
 "filter" = "Filtru";
@@ -82,8 +77,6 @@
 "help_device_privacy_body" = "Destinația este folosită doar pentru acest test și rămâne în fereastra curentă. Istoricul înregistrează coduri de rezultat și tipuri de interfețe, nu destinația sau conținutul pachetelor.";
 "help_device_privacy_title" = "Datele introduse rămân locale";
 "help_device_title" = "Alegeți o destinație";
-"help_editions_body" = "Ediția App Store verifică calea de rețea, DNS, o conexiune la internet, Bonjour și un dispozitiv ales. Nu examinează rutele sistemului sau configurația VPN și nu le poate repara. Ediția Developer ID adaugă diagnosticare de sistem și reparații confirmate individual.";
-"help_editions_title" = "Două ediții";
 "help_gettingStarted" = "Primii pași";
 "help_helper_body" = "Reînnoirea DHCP și eliminarea rutelor învechite validate necesită serviciul auxiliar semnat și aprobarea macOS în Articole de login. Dacă este necesar, înregistrați-l în Configurări și așteptați răspunsul. O înregistrare deja aprobată poate fi reîmprospătată după actualizarea aplicației.";
 "help_helper_title" = "Aprobarea administratorului";
@@ -103,6 +96,8 @@
 "help_safety" = "Siguranță";
 "help_safety_body" = "NetUnstick nu implementează VPN, nu modifică politici FortiClient/FortiGate, nu dezactivează protecții, nu șterge toate rutele și nu repornește. Nu dezactivați un firewall sau o politică de securitate administrată pentru a obține o stare verde. Întrebați administratorul rețelei despre configurările VPN administrate.";
 "help_safety_title" = "Doar modificări limitate";
+"help_scope_body" = "Verificări fără modificări și reparații confirmate individual.";
+"help_scope_title" = "Diagnosticare și reparații";
 "help_shortcuts_body" = "Command-D: rulează diagnosticarea. Escape: anulează. Shift-Command-E: previzualizează raportul. Command-?: deschide Ajutor. Folosiți Tab pentru a trece între controale.";
 "help_shortcuts_title" = "Scurtături de tastatură";
 "help_start_body" = "Apăsați Rulează diagnosticarea. Verificările observă conexiunea fără a schimba configurările rețelei. Deschideți Detalii rețea pentru fiecare rezultat. Puteți anula o operație în curs.";
@@ -111,7 +106,7 @@
 "help_support_body" = "Reproduceți problema, rulați diagnosticarea și previzualizați sesiunea relevantă în Activitate. Partajați un raport mascat cu administratorul sau contactați asistența la kr@itorg.pl. Includeți ce a eșuat și când; omiteți detaliile private ale rețelei.";
 "help_support_title" = "Obțineți ajutor util";
 "help_title" = "Ajutor NetUnstick";
-"help_vpn_body" = "În ediția completă, un VPN activ sau incert blochează modificările obișnuite ale rețelei. Verificările locale reușite pot coexista cu rute de tunel reziduale. Ediția App Store nu determină starea VPN.";
+"help_vpn_body" = "În ediția completă, un VPN activ sau incert blochează modificările obișnuite ale rețelei. Verificările locale reușite pot coexista cu rute de tunel reziduale.";
 "help_vpn_title" = "VPN și rute reziduale";
 "helper" = "Serviciu auxiliar";
 "helper_approvalRequired" = "Necesită aprobarea sistemului";
@@ -353,10 +348,6 @@
 "state_unknown" = "Stare necunoscută a rețelei";
 "state_unknown_detail" = "Rulați diagnosticarea pentru detalii. Starea VPN nu este confirmată.";
 "status" = "Stare";
-"store_diagnostic_scope" = "Verificări DNS, TCP și Bonjour fără modificări. Această ediție nu examinează rutele sau starea VPN și nu modifică rețeaua.";
-"store_next_step" = "Consultați verificările de mai jos. Rezultatele nu garantează accesibilitatea fiecărui dispozitiv sau serviciu local.";
-"store_result_connected" = "Conexiunile testate au reușit.";
-"store_result_incomplete" = "Unele conexiuni nu au putut fi confirmate.";
 "success" = "Reușite";
 "support_permissions" = "Verificați permisiunile pentru Application Support și reîncercați.";
 "unknown_error" = "Verificarea nu s-a putut încheia.";

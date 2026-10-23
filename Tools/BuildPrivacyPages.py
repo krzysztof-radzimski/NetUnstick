@@ -23,34 +23,28 @@ PRODUCT_URLS = {
 }
 COPY = {
     "en": {
-        "home": "Network diagnostics for Mac",
-        "intro": "Check your network path, DNS, internet connectivity and a chosen device without changing network settings.",
-        "purchase": "One purchase, no subscription or in-app purchases. Future updates to this app are included at no additional charge. NetUnstick adds no activation or device limit; use and redownloads are subject to Apple's App Store terms.",
-        "edition": "The Mac App Store edition is read-only. It does not install a privileged helper or repair system routes, DHCP or VPN settings.",
+        "home": "Restore local connections after VPN",
+        "intro": "NetUnstick helps when another Mac is visible through Bonjour in Finder but cannot be reached after disconnecting a VPN.",
+        "distribution": "NetUnstick is distributed as a Developer ID application. It diagnoses the network and can repair verified stale VPN routes after your confirmation. Repairs require an administrator-approved helper and a check before and after the change.",
         "support": "Support", "privacy": "Privacy policy", "contact": "Contact",
         "mail": "If you email support, ITORG processes the contact details and information you choose to send to answer your request. Send only the details needed; do not send passwords, credentials or unredacted network reports. You may ask about or request deletion of your support correspondence at the same address. Necessary records may be retained to handle the request and legal obligations.",
-        "apple": "Apple handles purchases and the Apple Account under its own privacy policy. This utility does not receive your payment card details. The hosting provider may process ordinary web access logs; these static pages contain no analytics scripts or tracking cookies.",
-        "status": "The App Store release is being prepared. It is not yet available for purchase.",
+        "hosting": "The hosting provider may process ordinary web access logs; these static pages contain no analytics scripts or tracking cookies.",
     },
     "pl": {
-        "home": "Diagnostyka sieci dla Maca",
-        "intro": "Sprawdź ścieżkę sieci, DNS, dostęp do internetu i wybrane urządzenie bez zmieniania ustawień sieci.",
-        "purchase": "Jeden zakup, bez abonamentu i zakupów w aplikacji. Przyszłe aktualizacje tej aplikacji są bez dopłat. NetUnstick nie nakłada limitu aktywacji ani urządzeń; korzystanie i ponowne pobieranie podlegają warunkom App Store Apple.",
-        "edition": "Wydanie Mac App Store jest tylko odczytowe. Nie instaluje uprzywilejowanego helpera ani nie naprawia systemowych tras, DHCP lub ustawień VPN.",
+        "home": "Odzyskaj lokalne połączenia po VPN",
+        "intro": "NetUnstick pomaga, gdy po rozłączeniu VPN inny Mac jest widoczny przez Bonjour w Finderze, ale nie można się z nim połączyć.",
+        "distribution": "NetUnstick jest dystrybuowany jako aplikacja Developer ID. Diagnozuje sieć i po Twoim potwierdzeniu może naprawić zweryfikowane pozostałe trasy VPN. Naprawy wymagają helpera zatwierdzonego przez administratora i kontroli przed zmianą oraz po niej.",
         "support": "Wsparcie", "privacy": "Polityka prywatności", "contact": "Kontakt",
         "mail": "Jeśli napiszesz do wsparcia, ITORG przetwarza przekazane dane kontaktowe i informacje, aby odpowiedzieć na zgłoszenie. Wysyłaj tylko potrzebne szczegóły; nie przesyłaj haseł, danych logowania ani nieoczyszczonych raportów sieci. Pod tym samym adresem możesz pytać o korespondencję lub prosić o jej usunięcie. Niezbędne zapisy mogą być zachowane w celu obsługi zgłoszenia i obowiązków prawnych.",
-        "apple": "Zakupy i konto Apple obsługuje Apple zgodnie z własną polityką prywatności. Narzędzie nie otrzymuje danych Twojej karty płatniczej. Hosting może przetwarzać zwykłe logi dostępu WWW; te statyczne strony nie zawierają skryptów analitycznych ani śledzących plików cookie.",
-        "status": "Wydanie App Store jest w przygotowaniu. Zakup nie jest jeszcze dostępny.",
+        "hosting": "Hosting może przetwarzać zwykłe logi dostępu WWW; te statyczne strony nie zawierają skryptów analitycznych ani śledzących plików cookie.",
     },
     "es": {
-        "home": "Diagnóstico de red para Mac",
-        "intro": "Comprueba la ruta de red, el DNS, la conexión a internet y un dispositivo sin cambiar los ajustes de red.",
-        "purchase": "Una sola compra, sin suscripciones ni compras dentro de la app. Las futuras actualizaciones de esta app están incluidas sin coste adicional. NetUnstick no impone límites de activación ni de dispositivos; el uso y las descargas posteriores se rigen por las condiciones del App Store de Apple.",
-        "edition": "La edición del Mac App Store es de solo lectura. No instala un componente privilegiado ni repara rutas del sistema, DHCP o ajustes de VPN.",
+        "home": "Recupera las conexiones locales después de la VPN",
+        "intro": "NetUnstick ayuda cuando otro Mac aparece mediante Bonjour en Finder, pero no se puede conectar después de desconectar una VPN.",
+        "distribution": "NetUnstick se distribuye como aplicación Developer ID. Diagnostica la red y, con tu confirmación, puede reparar rutas residuales de VPN verificadas. Las reparaciones requieren un componente auxiliar autorizado por un administrador y comprobaciones antes y después del cambio.",
         "support": "Soporte", "privacy": "Política de privacidad", "contact": "Contacto",
         "mail": "Si escribes al soporte, ITORG trata los datos de contacto y la información que decidas enviar para responder a tu solicitud. Envía solo los detalles necesarios; no envíes contraseñas, credenciales ni informes de red sin anonimizar. Puedes consultar o solicitar la eliminación de tu correspondencia de soporte en la misma dirección. Los registros necesarios pueden conservarse para atender la solicitud y las obligaciones legales.",
-        "apple": "Apple gestiona las compras y la cuenta de Apple conforme a su propia política de privacidad. Esta utilidad no recibe los datos de tu tarjeta de pago. El alojamiento puede tratar registros normales de acceso web; estas páginas estáticas no contienen scripts de análisis ni cookies de seguimiento.",
-        "status": "La versión del App Store está en preparación. Todavía no está disponible para comprar.",
+        "hosting": "El alojamiento puede tratar registros normales de acceso web; estas páginas estáticas no contienen scripts de análisis ni cookies de seguimiento.",
     },
 }
 
@@ -86,7 +80,7 @@ def build():
     for language in COPY:
         for page, title, sections in (
             ("privacy", "help_privacy", ["privacy_local", "privacy_network", "privacy_retention", "privacy_permissions", "privacy_version"]),
-            ("support", "help_support", ["help_start", "help_editions", "help_support", "help_safety"]),
+            ("support", "help_support", ["help_start", "help_scope", "help_support", "help_safety"]),
         ):
             def text(key):
                 return html.escape(SPANISH[key] if language == "es" else SOURCE[key][language])
@@ -94,7 +88,7 @@ def build():
             copy = COPY[language]
             content += f'<section><h2>{copy["contact"]}</h2><p><a href="mailto:{CONTACT}">{CONTACT}</a></p><p>{html.escape(copy["mail"])}</p></section>'
             if page == "privacy":
-                content += f'<p>{html.escape(copy["apple"])}</p>'
+                content += f'<p>{html.escape(copy["hosting"])}</p>'
             path = output / language / f"{page}.html"
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(document(language, COPY[language][page], content), encoding="utf-8")
@@ -105,7 +99,7 @@ def build():
         for language, label in (("en", "English"), ("pl", "Polski"), ("es", "Español"))
     ) + "</nav>"
     for language, copy in COPY.items():
-        materials += f'<section lang="{language}"><h2>{copy["home"]}</h2><p>{copy["intro"]}</p><p>{copy["edition"]}</p><p>{copy["purchase"]}</p><p>{copy["status"]}</p><p><a href="{page_url(language, "support")}">{copy["support"]}</a> · <a href="{page_url(language, "privacy")}">{copy["privacy"]}</a></p></section>'
+        materials += f'<section lang="{language}"><h2>{copy["home"]}</h2><p>{copy["intro"]}</p><p>{copy["distribution"]}</p><p><a href="{page_url(language, "support")}">{copy["support"]}</a> · <a href="{page_url(language, "privacy")}">{copy["privacy"]}</a></p></section>'
     index = output / "index.html"
     index.write_text(document("en", "Content materials", materials, render_nav=False), encoding="utf-8")
     pages.append(index)

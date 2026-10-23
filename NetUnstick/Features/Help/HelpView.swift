@@ -18,7 +18,7 @@ enum HelpTopic: String, CaseIterable, Identifiable {
     }
     var sections: [String] {
         switch self {
-        case .gettingStarted: ["help_start", "help_editions", "help_shortcuts"]
+        case .gettingStarted: ["help_start", "help_scope", "help_shortcuts"]
         case .results: ["help_results", "help_inconclusive", "help_vpn"]
         case .device: ["help_device", "help_device_privacy"]
         case .repairs: ["help_repair", "help_helper", "help_repair_limits"]

@@ -29,7 +29,6 @@
 "check_bonjour" = "Wykrywanie lokalne";
 "check_cancelled" = "Anulowano";
 "check_dns" = "Ustawienia DNS";
-"check_network" = "Ścieżka sieci";
 "check_ok" = "Bez problemu";
 "check_permission" = "Odmowa dostępu";
 "check_problem" = "Wymaga uwagi";
@@ -62,10 +61,6 @@
 "diagnosis_failed" = "Nie udało się zapisać lub wykonać diagnozy.";
 "diagnosis_hint" = "Uruchamia kontrole sieci tylko do odczytu.";
 "diagnosis_running" = "Trwa diagnostyka…";
-"edition_full" = "Developer ID · diagnostyka i naprawy";
-"edition_full_detail" = "Kontrole odczytowe i osobno potwierdzane naprawy.";
-"edition_store" = "App Store · diagnostyka";
-"edition_store_detail" = "Kontrole w sandboxie. Bez helpera administratora i zmian sieci.";
 "export_failed" = "Nie udało się zapisać raportu";
 "export_failed_detail" = "Wybierz miejsce, w którym możesz zapisać plik, i spróbuj ponownie z podglądu.";
 "filter" = "Filtr";
@@ -82,8 +77,6 @@
 "help_device_privacy_body" = "Cel jest używany tylko w tym teście i pozostaje w bieżącym oknie. Historia zapisuje kody wyników i typy interfejsów, bez celu połączenia ani treści pakietów.";
 "help_device_privacy_title" = "Wpisane dane pozostają lokalnie";
 "help_device_title" = "Wybierz cel";
-"help_editions_body" = "Wydanie App Store sprawdza ścieżkę sieci, DNS, połączenie z internetem, Bonjour i wybrane urządzenie. Nie bada systemowych tras ani konfiguracji VPN i nie może ich naprawiać. Wydanie Developer ID dodaje diagnostykę systemową i osobno potwierdzane naprawy.";
-"help_editions_title" = "Dwa wydania";
 "help_gettingStarted" = "Pierwsze kroki";
 "help_helper_body" = "Odnowienie DHCP i usunięcie zweryfikowanych pozostałych tras wymagają podpisanego helpera i zgody macOS w Elementach logowania. W razie potrzeby zarejestruj go w Ustawieniach i poczekaj na odpowiedź. Po aktualizacji aplikacja może odświeżyć wcześniej zatwierdzoną rejestrację.";
 "help_helper_title" = "Zgoda administratora";
@@ -103,6 +96,8 @@
 "help_safety" = "Bezpieczeństwo";
 "help_safety_body" = "NetUnstick nie tworzy VPN, nie zmienia polityki FortiClient/FortiGate, nie wyłącza ochrony, nie usuwa wszystkich tras i nie restartuje komputera. Nie wyłączaj zapory ani zarządzanych zabezpieczeń, aby uzyskać zielony wynik. Zarządzane ustawienia VPN omów z administratorem sieci.";
 "help_safety_title" = "Tylko ograniczone zmiany";
+"help_scope_body" = "Kontrole odczytowe i osobno potwierdzane naprawy.";
+"help_scope_title" = "Diagnostyka i naprawy";
 "help_shortcuts_body" = "Command-D: diagnostyka. Escape: anulowanie. Shift-Command-E: podgląd raportu. Command-?: pomoc. Klawisz Tab przechodzi między kontrolkami.";
 "help_shortcuts_title" = "Skróty klawiaturowe";
 "help_start_body" = "Kliknij Uruchom diagnostykę. Kontrole obserwują połączenie i nie zmieniają ustawień sieci. Rozwiń Szczegóły sieci, aby zobaczyć wyniki. Trwającą operację możesz anulować.";
@@ -111,7 +106,7 @@
 "help_support_body" = "Odtwórz problem, uruchom diagnostykę i obejrzyj właściwą sesję w Aktywności. Udostępnij oczyszczony raport administratorowi lub napisz do pomocy technicznej na kr@itorg.pl. Opisz, co i kiedy nie działało; pomiń prywatne szczegóły sieci.";
 "help_support_title" = "Uzyskaj skuteczną pomoc";
 "help_title" = "Pomoc NetUnstick";
-"help_vpn_body" = "W pełnym wydaniu aktywny lub niepewny VPN blokuje zwykłe zmiany sieci. Poprawne kontrole lokalne mogą współistnieć z pozostałymi trasami tunelowymi. Wydanie App Store nie ustala stanu VPN.";
+"help_vpn_body" = "Aktywny lub niepewny VPN blokuje zwykłe zmiany sieci. Poprawne kontrole lokalne mogą współistnieć z pozostałymi trasami tunelowymi.";
 "help_vpn_title" = "VPN i pozostałe trasy";
 "helper" = "Pomocnik";
 "helper_approvalRequired" = "Wymaga zatwierdzenia systemowego";
@@ -353,10 +348,6 @@
 "state_unknown" = "Stan sieci nieznany";
 "state_unknown_detail" = "Uruchom diagnostykę. Stan VPN nie jest potwierdzony.";
 "status" = "Stan";
-"store_diagnostic_scope" = "Odczytowe kontrole DNS, TCP i Bonjour. To wydanie nie sprawdza routingu ani stanu VPN i nie zmienia sieci.";
-"store_next_step" = "Przejrzyj wyniki poniżej. Nie potwierdzają one dostępności każdego urządzenia ani usługi w sieci lokalnej.";
-"store_result_connected" = "Sprawdzone połączenia działają.";
-"store_result_incomplete" = "Nie udało się potwierdzić części połączeń.";
 "success" = "Udane";
 "support_permissions" = "Sprawdź uprawnienia do Application Support i spróbuj ponownie.";
 "unknown_error" = "Nie udało się zakończyć kontroli.";

@@ -1,4 +1,3 @@
-import NetUnstickStoreNetwork
 import Foundation
 
 /// A network-changing action is permitted only after an `inactive` assessment.

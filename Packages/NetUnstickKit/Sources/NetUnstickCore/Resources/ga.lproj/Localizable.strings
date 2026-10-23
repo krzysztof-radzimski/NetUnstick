@@ -29,7 +29,6 @@
 "check_bonjour" = "Aimsiú áitiúil";
 "check_cancelled" = "Cealaithe";
 "check_dns" = "Socruithe DNS";
-"check_network" = "Conair líonra";
 "check_ok" = "Níor aimsíodh fadhb";
 "check_permission" = "Cead diúltaithe";
 "check_problem" = "Aird de dhíth";
@@ -62,10 +61,6 @@
 "diagnosis_failed" = "Níorbh fhéidir diagnóisic a chríochnú nó a shábháil.";
 "diagnosis_hint" = "Tosaíonn seiceálacha líonra gan athruithe.";
 "diagnosis_running" = "Diagnóisic ar siúl…";
-"edition_full" = "Developer ID · diagnóisic agus deisiúcháin";
-"edition_full_detail" = "Seiceálacha gan athruithe agus deisiúcháin a dheimhnítear ar leith.";
-"edition_store" = "App Store · diagnóisic";
-"edition_store_detail" = "Seiceálacha i dtimpeallacht shrianta. Gan clár cúnta riarthóra ná athruithe líonra.";
 "export_failed" = "Níorbh fhéidir an tuairisc a shábháil";
 "export_failed_detail" = "Roghnaigh suíomh inscríofa agus bain triail eile as ón réamhamharc.";
 "filter" = "Scagaire";
@@ -82,8 +77,6 @@
 "help_device_privacy_body" = "Ní úsáidtear an ceann scríbe ach don tástáil seo agus fanann sé san fhuinneog reatha. Sábhálann an stair cóid toraidh agus cineálacha comhéadan, ní an ceann scríbe ná ábhar paicéad.";
 "help_device_privacy_title" = "Fanann d’ionchur go háitiúil";
 "help_device_title" = "Roghnaigh ceann scríbe";
-"help_editions_body" = "Seiceálann leagan App Store an chonair líonra, DNS, ceangal idirlín, Bonjour agus gléas roghnaithe. Ní scrúdaíonn sé ródanna córais ná cumraíocht VPN agus ní dheisíonn sé iad. Cuireann leagan Developer ID diagnóisic chórais agus deisiúcháin a dheimhnítear ar leith leis.";
-"help_editions_title" = "Dhá leagan";
 "help_gettingStarted" = "Tús a chur leis";
 "help_helper_body" = "Teastaíonn an clár cúnta sínithe agus cead macOS i Míreanna Logála Isteach le léas DHCP a athnuachan nó ródanna iarmharacha fíoraithe a bhaint. Más gá, cláraigh i Socruithe é agus fan lena fhreagra. D’fhéadfaí clárú ceadaithe cheana a athnuachan tar éis nuashonrú na haipe.";
 "help_helper_title" = "Cead an riarthóra";
@@ -103,6 +96,8 @@
 "help_safety" = "Sábháilteacht";
 "help_safety_body" = "Ní chuireann NetUnstick VPN i bhfeidhm, ní athraíonn sé beartas FortiClient/FortiGate, ní mhúchann sé cosaintí, ní ghlanann sé gach ród agus ní atosaíonn sé an Mac. Ná múch balla dóiteáin ná beartas slándála bainistithe chun stádas glas a fháil. Cuir ceist ar riarthóir do líonra faoi VPN bainistithe.";
 "help_safety_title" = "Athruithe cúnga amháin";
+"help_scope_body" = "Seiceálacha gan athruithe agus deisiúcháin a dheimhnítear ar leith.";
+"help_scope_title" = "Diagnóisic agus deisiúcháin";
 "help_shortcuts_body" = "Command-D: rith diagnóisic. Escape: cealaigh. Shift-Command-E: réamhamharc tuairisce. Command-?: oscail Cabhair. Úsáid Tab chun bogadh idir rialuithe.";
 "help_shortcuts_title" = "Aicearraí méarchláir";
 "help_start_body" = "Cliceáil Rith diagnóisic. Breathnaíonn na seiceálacha ar an gceangal gan socruithe líonra a athrú. Oscail Sonraí líonra le gach toradh a fheiceáil. Is féidir oibríocht atá ar siúl a chealú.";
@@ -111,7 +106,7 @@
 "help_support_body" = "Atáirg an fhadhb, rith diagnóisic agus réamhamharc an seisiún ábhartha sa Ghníomhaíocht. Comhroinn tuairisc ghlanta le do riarthóir nó déan teagmháil leis an tacaíocht ag kr@itorg.pl. Inis cad a theip agus cathain; fág sonraí líonra príobháideacha ar lár.";
 "help_support_title" = "Faigh cabhair úsáideach";
 "help_title" = "Cabhair NetUnstick";
-"help_vpn_body" = "Sa leagan iomlán, cuireann VPN gníomhach nó éiginnte cosc ar ghnáthathruithe líonra. Is féidir le seiceálacha áitiúla a bheith rathúil agus ródanna tolláin fágtha fós. Ní mheasann leagan App Store staid VPN.";
+"help_vpn_body" = "Sa leagan iomlán, cuireann VPN gníomhach nó éiginnte cosc ar ghnáthathruithe líonra. Is féidir le seiceálacha áitiúla a bheith rathúil agus ródanna tolláin fágtha fós.";
 "help_vpn_title" = "VPN agus ródanna atá fágtha";
 "helper" = "Clár cúnta";
 "helper_approvalRequired" = "Cead an chórais de dhíth";
@@ -353,10 +348,6 @@
 "state_unknown" = "Staid an líonra anaithnid";
 "state_unknown_detail" = "Rith diagnóisic le tuilleadh eolais a fháil. Níl stádas VPN deimhnithe.";
 "status" = "Stádas";
-"store_diagnostic_scope" = "Seiceálacha DNS, TCP agus Bonjour gan athruithe. Ní scrúdaíonn an leagan seo ródú ná stádas VPN agus ní athraíonn sé an líonra.";
-"store_next_step" = "Léigh na seiceálacha thíos. Ní ráthaíonn na torthaí go bhfuil gach gléas nó seirbhís áitiúil inrochtana.";
-"store_result_connected" = "D’éirigh leis na ceangail a tástáladh.";
-"store_result_incomplete" = "Níorbh fhéidir roinnt ceangal a dheimhniú.";
 "success" = "Rathúil";
 "support_permissions" = "Seiceáil ceadanna Application Support agus bain triail eile as.";
 "unknown_error" = "Níorbh fhéidir an seiceáil a chríochnú.";

@@ -29,7 +29,6 @@
 "check_bonjour" = "Lokale Geräteerkennung";
 "check_cancelled" = "Abgebrochen";
 "check_dns" = "DNS-Einstellungen";
-"check_network" = "Netzwerkpfad";
 "check_ok" = "Kein Problem gefunden";
 "check_permission" = "Berechtigung verweigert";
 "check_problem" = "Handlungsbedarf";
@@ -62,10 +61,6 @@
 "diagnosis_failed" = "Die Diagnose konnte nicht abgeschlossen oder gespeichert werden.";
 "diagnosis_hint" = "Startet schreibgeschützte Netzwerkprüfungen.";
 "diagnosis_running" = "Diagnose läuft …";
-"edition_full" = "Developer ID · Diagnose und Reparaturen";
-"edition_full_detail" = "Schreibgeschützte Prüfungen und einzeln bestätigte Reparaturen.";
-"edition_store" = "App Store · Diagnose";
-"edition_store_detail" = "Prüfungen in der Sandbox. Kein Administrator-Hilfsdienst und keine Netzwerkänderungen.";
 "export_failed" = "Bericht konnte nicht gesichert werden";
 "export_failed_detail" = "Wählen Sie einen beschreibbaren Speicherort und versuchen Sie es erneut über die Vorschau.";
 "filter" = "Filter";
@@ -82,8 +77,6 @@
 "help_device_privacy_body" = "Das Ziel wird nur für diesen Test genutzt und bleibt im aktuellen Fenster. Der Verlauf speichert Ergebniscodes und Schnittstellentypen, nicht das Ziel oder Paketinhalte.";
 "help_device_privacy_title" = "Ihre Eingabe bleibt lokal";
 "help_device_title" = "Ziel auswählen";
-"help_editions_body" = "Die App-Store-Ausgabe prüft Netzwerkpfad, DNS, eine Internetverbindung, Bonjour und ein gewähltes Gerät. Sie untersucht keine Systemrouten oder VPN-Konfiguration und kann diese nicht reparieren. Die Developer-ID-Ausgabe ergänzt Systemdiagnose und einzeln bestätigte Reparaturen.";
-"help_editions_title" = "Zwei Ausgaben";
 "help_gettingStarted" = "Erste Schritte";
 "help_helper_body" = "Das Erneuern von DHCP-Leases und Entfernen bestätigter veralteter Routen erfordert den signierten Hilfsdienst und die macOS-Genehmigung unter Anmeldeobjekte. Registrieren Sie ihn bei Bedarf unter Einstellungen und warten Sie auf seine Antwort. Nach einem App-Update kann eine bereits genehmigte Registrierung aktualisiert werden.";
 "help_helper_title" = "Administratorgenehmigung";
@@ -103,6 +96,8 @@
 "help_safety" = "Sicherheit";
 "help_safety_body" = "NetUnstick implementiert kein VPN, ändert keine FortiClient-/FortiGate-Richtlinien, deaktiviert keine Schutzfunktionen, löscht nicht alle Routen und startet den Computer nicht neu. Deaktivieren Sie weder Firewall noch verwaltete Sicherheitsrichtlinien für eine grüne Anzeige. Fragen Sie Ihre Netzwerkadministration zu verwalteten VPN-Einstellungen.";
 "help_safety_title" = "Nur gezielte Änderungen";
+"help_scope_body" = "Schreibgeschützte Prüfungen und einzeln bestätigte Reparaturen.";
+"help_scope_title" = "Diagnose und Reparaturen";
 "help_shortcuts_body" = "Befehl-D: Diagnose starten. Escape: abbrechen. Umschalt-Befehl-E: Berichtsvorschau. Befehl-?: Hilfe öffnen. Mit Tab wechseln Sie zwischen den Steuerelementen.";
 "help_shortcuts_title" = "Tastaturkurzbefehle";
 "help_start_body" = "Klicken Sie auf „Diagnose starten“. Die Prüfungen beobachten die Verbindung, ohne Netzwerkeinstellungen zu ändern. Öffnen Sie „Netzwerkdetails“, um die einzelnen Ergebnisse zu sehen. Laufende Vorgänge können Sie abbrechen.";
@@ -111,7 +106,7 @@
 "help_support_body" = "Stellen Sie das Problem nach, starten Sie die Diagnose und prüfen Sie die betreffende Sitzung unter Aktivität. Teilen Sie einen bereinigten Bericht mit Ihrer Administration oder wenden Sie sich an kr@itorg.pl. Beschreiben Sie, was wann fehlgeschlagen ist; lassen Sie private Netzwerkdaten weg.";
 "help_support_title" = "Effektive Unterstützung";
 "help_title" = "NetUnstick-Hilfe";
-"help_vpn_body" = "In der Vollversion blockiert ein aktives oder ungewisses VPN normale Netzwerkänderungen. Erfolgreiche lokale Prüfungen schließen verbliebene Tunnelrouten nicht aus. Die App-Store-Ausgabe bestimmt den VPN-Status nicht.";
+"help_vpn_body" = "In der Vollversion blockiert ein aktives oder ungewisses VPN normale Netzwerkänderungen. Erfolgreiche lokale Prüfungen schließen verbliebene Tunnelrouten nicht aus.";
 "help_vpn_title" = "VPN und verbliebene Routen";
 "helper" = "Hilfsdienst";
 "helper_approvalRequired" = "Systemgenehmigung erforderlich";
@@ -353,10 +348,6 @@
 "state_unknown" = "Netzwerkstatus unbekannt";
 "state_unknown_detail" = "Starten Sie die Diagnose. Der VPN-Status ist nicht bestätigt.";
 "status" = "Status";
-"store_diagnostic_scope" = "Schreibgeschützte DNS-, TCP- und Bonjour-Prüfungen. Diese Ausgabe prüft keine Routen oder VPN-Zustände und verändert das Netzwerk nicht.";
-"store_next_step" = "Prüfen Sie die folgenden Ergebnisse. Sie garantieren nicht, dass alle lokalen Geräte oder Dienste erreichbar sind.";
-"store_result_connected" = "Die getesteten Verbindungen funktionieren.";
-"store_result_incomplete" = "Einige Verbindungen konnten nicht bestätigt werden.";
 "success" = "Erfolgreich";
 "support_permissions" = "Prüfen Sie die Zugriffsrechte auf Application Support und versuchen Sie es erneut.";
 "unknown_error" = "Die Prüfung konnte nicht abgeschlossen werden.";

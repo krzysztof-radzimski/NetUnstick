@@ -1,10 +1,6 @@
 import SwiftUI
 import NetUnstickCore
-#if APP_STORE
-import NetUnstickStoreNetwork
-#else
 import NetUnstickNetwork
-#endif
 
 @main
 struct NetUnstickApp: App {

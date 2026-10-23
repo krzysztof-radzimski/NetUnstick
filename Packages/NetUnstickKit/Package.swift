@@ -8,13 +8,11 @@ let package = Package(
     products: [
         .library(name: "NetUnstickCore", type: .static, targets: ["NetUnstickCore"]),
         .library(name: "NetUnstickNetwork", type: .static, targets: ["NetUnstickNetwork"]),
-        .library(name: "NetUnstickStoreNetwork", type: .static, targets: ["NetUnstickStoreNetwork"]),
         .library(name: "NetUnstickRepair", type: .static, targets: ["NetUnstickRepair"]),
     ],
     targets: [
         .target(name: "NetUnstickCore", resources: [.process("Resources")]),
-        .target(name: "NetUnstickStoreNetwork", dependencies: ["NetUnstickCore"]),
-        .target(name: "NetUnstickNetwork", dependencies: ["NetUnstickCore", "NetUnstickStoreNetwork"]),
+        .target(name: "NetUnstickNetwork", dependencies: ["NetUnstickCore"]),
         .target(name: "NetUnstickRepair", dependencies: ["NetUnstickCore", "NetUnstickNetwork"]),
         .testTarget(name: "NetUnstickCoreTests", dependencies: ["NetUnstickCore"]),
         .testTarget(name: "NetUnstickNetworkTests", dependencies: ["NetUnstickNetwork"], resources: [

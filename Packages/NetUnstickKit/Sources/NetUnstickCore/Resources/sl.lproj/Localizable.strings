@@ -29,7 +29,6 @@
 "check_bonjour" = "Krajevno odkrivanje";
 "check_cancelled" = "Preklicano";
 "check_dns" = "Nastavitve DNS";
-"check_network" = "Omrežna pot";
 "check_ok" = "Brez odkrite težave";
 "check_permission" = "Dostop zavrnjen";
 "check_problem" = "Zahteva pozornost";
@@ -62,10 +61,6 @@
 "diagnosis_failed" = "Diagnostike ni mogoče dokončati ali shraniti.";
 "diagnosis_hint" = "Zažene omrežna preverjanja samo za branje.";
 "diagnosis_running" = "Diagnostika poteka…";
-"edition_full" = "Developer ID · diagnostika in popravila";
-"edition_full_detail" = "Preverjanja samo za branje in posamično potrjena popravila.";
-"edition_store" = "App Store · diagnostika";
-"edition_store_detail" = "Preverjanja v peskovniku. Brez skrbniške pomožne storitve ali omrežnih sprememb.";
 "export_failed" = "Poročila ni mogoče shraniti";
 "export_failed_detail" = "Izberite mesto z dovoljenjem za pisanje in poskusite znova iz predogleda.";
 "filter" = "Filter";
@@ -82,8 +77,6 @@
 "help_device_privacy_body" = "Cilj se uporabi le za ta preizkus in ostane v trenutnem oknu. Zgodovina shranjuje kode rezultatov in vrste vmesnikov, ne cilja ali vsebine paketov.";
 "help_device_privacy_title" = "Vnos ostane krajevno";
 "help_device_title" = "Izberite cilj";
-"help_editions_body" = "Izdaja App Store preverja omrežno pot, DNS, internet, Bonjour in izbrano napravo. Ne pregleduje sistemskih poti ali nastavitev VPN in jih ne more popravljati. Izdaja Developer ID dodaja sistemsko diagnostiko in posamično potrjena popravila.";
-"help_editions_title" = "Dve izdaji";
 "help_gettingStarted" = "Prvi koraki";
 "help_helper_body" = "Obnovitev DHCP in odstranitev preverjenih preostalih poti zahtevata podpisano pomožno storitev in odobritev macOS v Prijavnih elementih. Po potrebi jo registrirajte v Nastavitvah in počakajte na odgovor. Po posodobitvi se prej odobrena registracija lahko osveži.";
 "help_helper_title" = "Odobritev skrbnika";
@@ -103,6 +96,8 @@
 "help_safety" = "Varnost";
 "help_safety_body" = "NetUnstick ne ustvarja VPN, ne spreminja pravil FortiClient/FortiGate, ne izklaplja zaščite, ne briše vseh poti in ne zaganja računalnika znova. Za zelen rezultat ne izklapljajte požarnega zidu ali upravljane zaščite. O upravljanih nastavitvah VPN vprašajte skrbnika.";
 "help_safety_title" = "Le omejene spremembe";
+"help_scope_body" = "Preverjanja samo za branje in posamično potrjena popravila.";
+"help_scope_title" = "Diagnostika in popravila";
 "help_shortcuts_body" = "Command-D: diagnostika. Escape: preklic. Shift-Command-E: predogled poročila. Command-?: pomoč. S tipko Tab se pomikate med kontrolniki.";
 "help_shortcuts_title" = "Bližnjice na tipkovnici";
 "help_start_body" = "Kliknite Zaženi diagnostiko. Preverjanja opazujejo povezavo in ne spreminjajo omrežnih nastavitev. Za posamezne rezultate odprite Podrobnosti omrežja. Postopek lahko prekličete.";
@@ -111,7 +106,7 @@
 "help_support_body" = "Ponovite težavo, zaženite diagnostiko in preglejte ustrezno sejo v Dejavnosti. Očiščeno poročilo posredujte skrbniku ali podpori na kr@itorg.pl. Opišite, kaj in kdaj ni delovalo; izpustite zasebne omrežne podrobnosti.";
 "help_support_title" = "Pridobite koristno pomoč";
 "help_title" = "Pomoč NetUnstick";
-"help_vpn_body" = "V polni izdaji dejaven ali negotov VPN blokira običajne omrežne spremembe. Uspešna krajevna preverjanja lahko spremljajo preostale tunelske poti. Izdaja App Store ne ugotavlja stanja VPN.";
+"help_vpn_body" = "V polni izdaji dejaven ali negotov VPN blokira običajne omrežne spremembe. Uspešna krajevna preverjanja lahko spremljajo preostale tunelske poti.";
 "help_vpn_title" = "VPN in preostale poti";
 "helper" = "Pomožna storitev";
 "helper_approvalRequired" = "Potrebna je sistemska odobritev";
@@ -353,10 +348,6 @@
 "state_unknown" = "Stanje omrežja ni znano";
 "state_unknown_detail" = "Za več informacij zaženite diagnostiko. Stanje VPN ni potrjeno.";
 "status" = "Stanje";
-"store_diagnostic_scope" = "Preverjanja DNS, TCP in Bonjour samo za branje. Ta izdaja ne pregleduje usmerjanja ali stanja VPN in ne spreminja omrežja.";
-"store_next_step" = "Preglejte spodnja preverjanja. Rezultati ne zagotavljajo dosegljivosti vseh krajevnih naprav ali storitev.";
-"store_result_connected" = "Preizkušene povezave delujejo.";
-"store_result_incomplete" = "Nekaterih povezav ni mogoče potrditi.";
 "success" = "Uspešno";
 "support_permissions" = "Preverite dovoljenja za Application Support in poskusite znova.";
 "unknown_error" = "Preverjanja ni bilo mogoče dokončati.";

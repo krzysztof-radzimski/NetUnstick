@@ -29,7 +29,6 @@
 "check_bonjour" = "Local discovery";
 "check_cancelled" = "Cancelled";
 "check_dns" = "DNS settings";
-"check_network" = "Network path";
 "check_ok" = "No issue found";
 "check_permission" = "Permission denied";
 "check_problem" = "Needs attention";
@@ -62,10 +61,6 @@
 "diagnosis_failed" = "Diagnostics could not be completed or saved.";
 "diagnosis_hint" = "Starts read-only network checks.";
 "diagnosis_running" = "Diagnostics in progress…";
-"edition_full" = "Developer ID · diagnostics and repairs";
-"edition_full_detail" = "Read-only checks and individually confirmed repairs.";
-"edition_store" = "App Store · diagnostics";
-"edition_store_detail" = "Sandboxed checks. No administrator helper or network changes.";
 "export_failed" = "The report could not be saved";
 "export_failed_detail" = "Choose a writable location and try again from the preview.";
 "filter" = "Filter";
@@ -82,8 +77,6 @@
 "help_device_privacy_body" = "The endpoint is used only for this test and remains in the current window. History records outcome codes and interface types, not the endpoint or packet contents.";
 "help_device_privacy_title" = "Your input stays local";
 "help_device_title" = "Choose an endpoint";
-"help_editions_body" = "The App Store edition checks the network path, DNS, an internet connection, Bonjour and a chosen device. It does not inspect system routes or VPN configuration and cannot repair them. The Developer ID edition adds system diagnostics and individually confirmed repairs.";
-"help_editions_title" = "Two editions";
 "help_gettingStarted" = "Getting started";
 "help_helper_body" = "DHCP renewal and removal of validated stale routes require the signed helper and macOS approval in Login Items. If needed, register it in Settings and wait for its response. An already approved registration may be refreshed after an app update.";
 "help_helper_title" = "Administrator approval";
@@ -103,6 +96,8 @@
 "help_safety" = "Safety";
 "help_safety_body" = "NetUnstick does not implement a VPN, change FortiClient/FortiGate policy, disable protections, flush all routes or reboot. Do not disable a firewall or managed security policy to obtain a green status. Ask your network administrator about managed VPN settings.";
 "help_safety_title" = "Narrow changes only";
+"help_scope_body" = "Read-only checks and individually confirmed repairs.";
+"help_scope_title" = "Diagnostics and repairs";
 "help_shortcuts_body" = "Command-D: run diagnostics. Escape: cancel. Shift-Command-E: preview a report. Command-?: open Help. Use Tab to move between controls.";
 "help_shortcuts_title" = "Keyboard shortcuts";
 "help_start_body" = "Click Run diagnostics. Checks observe the connection; they do not change network settings. Open Network details to see each result. You can cancel an operation in progress.";
@@ -111,7 +106,7 @@
 "help_support_body" = "Reproduce the issue, run diagnostics and preview the relevant session in Activity. Share a redacted report with your administrator or contact support at kr@itorg.pl. Include what failed and when; omit private network details.";
 "help_support_title" = "Get useful help";
 "help_title" = "NetUnstick Help";
-"help_vpn_body" = "In the full edition, an active or uncertain VPN blocks ordinary network changes. Working local checks can coexist with residual tunnel routes. The App Store edition does not determine VPN state.";
+"help_vpn_body" = "An active or uncertain VPN blocks ordinary network changes. Working local checks can coexist with residual tunnel routes.";
 "help_vpn_title" = "VPN and residual routes";
 "helper" = "Helper";
 "helper_approvalRequired" = "System approval required";
@@ -353,10 +348,6 @@
 "state_unknown" = "Network state unknown";
 "state_unknown_detail" = "Run diagnostics to learn more. VPN status is not confirmed.";
 "status" = "Status";
-"store_diagnostic_scope" = "Read-only DNS, TCP and Bonjour checks. This edition does not inspect routing or VPN state and does not change the network.";
-"store_next_step" = "Review the checks below. These results do not guarantee that every local device or service is reachable.";
-"store_result_connected" = "The tested connections passed.";
-"store_result_incomplete" = "Some connections could not be confirmed.";
 "success" = "Successful";
 "support_permissions" = "Check Application Support permissions and try again.";
 "unknown_error" = "The check could not finish.";

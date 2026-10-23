@@ -273,99 +273,32 @@ Końcowy build z poprawionym oczekiwaniem na wyrejestrowanie zainstalowano w `/A
 
 Zapis zawiera wyłącznie zredagowane kody i liczniki. Nie utrwalono nazw urządzeń, adresów sieciowych, domen, kont, sekretów ani prywatnych zrzutów ekranu.
 
-## Dwa wydania, lokalizacja i przygotowanie publikacji — 21 października 2026
+## Lokalizacja i pełne wydanie — 21 października 2026
 
-Na hoście macOS arm64 zbudowano wersję **0.3.0 (13)** w dwóch wariantach: pełny `NetUnstick` z podpisem Developer ID oraz osobny, sandboxowany `NetUnstickAppStore`. Wydanie sklepowe korzysta z publicznych API do odczytowej diagnozy i testu TCP; nie zawiera helpera, LaunchDaemona, procesów systemowych ani napraw. Wspólne modele i Bonjour wydzielono do `NetUnstickStoreNetwork`, aby binarka sklepowa nie linkowała wykonawcy poleceń pełnego wydania. Zakresy i pozostałe wymagania opisuje [przygotowanie do sklepu](app-store-readiness.md).
-
-| Weryfikacja | Wynik |
-| --- | --- |
-| `swift test` w `Packages/NetUnstickKit` | Core 23, Network 73, Repair 32: łącznie 128 testów, 7 środowiskowych pominiętych, 0 błędów. Obejmuje lokalizację wszystkich 24 języków, redakcję raportów, usuwanie historii, decyzje diagnozy i granice napraw. |
-| `xcodebuild … -scheme NetUnstick -only-testing:NetUnstickPresentationTests CODE_SIGNING_ALLOWED=NO test` | 37 testów, 0 błędów. Obejmuje serializację usuwania historii z aktywnymi operacjami, zachowanie stanu przy błędzie zapisu i neutralne wskazówki przy nieudanej sesji SMB. |
-| `xcodebuild … -scheme NetUnstickAppStore test` | 11 testów, 0 błędów. Obejmuje sondy, odmowę dostępu Bonjour oraz blokadę wszystkich ścieżek napraw w prezentacji wydania tylko do odczytu. |
-| Release obu schematów, `platform=macOS,arch=arm64` | Oba `BUILD SUCCEEDED`. Pełna aplikacja i helper przeszły `check-helper-bundle.sh --require-developer-id`; sklepowa przeszła `Tools/CheckAppStoreBundle.py`. |
-| Gotowa binarka sklepowa | Sandbox i wymagane uprawnienia obecne, brak helpera i LaunchDaemona, brak importów `NSTask`, `posix_spawn`, `SMAppService` oraz ścieżek używanych poleceń systemowych. Lokalny podpis ad hoc służy wyłącznie próbom sandboxa. |
-| `python3 Tools/Localization.py` | 378 kluczy w każdym z 24 języków UE; kompletność zasobów i zgodność placeholderów potwierdzone. Nie zastępuje redakcji językowej tłumaczeń. |
-| `python3 Tools/CheckStoreMetadata.py` | Limity opisów i słów kluczowych poprawne; brak publicznych URL jest jawnie raportowany. `--submission` zgodnie z oczekiwaniem odrzuca materiały do czasu ich uzupełnienia. |
-| Pozostałe kontrole lokalne | Składnia skryptów Python i zsh, pliki plist oraz `git diff --check` poprawne. |
-
-Łącznie zestawy obejmują **176 testów, 7 pominiętych i 0 błędów**. Końcowe kosmetyczne zmiany szerokości listy pomocy i panelu potwierdzenia objęto ponownymi buildami Release oraz oględzinami natywnymi. Nie powtarzano historycznych testów napraw na rzeczywistej sieci ani pełnej macierzy XCUITest z września.
-
-Przez `abc-desktop` uruchomiono oba zainstalowane wydania w `/Applications`; obejrzano rzeczywiste obrazy okien i drzewa dostępności oraz wykonano kliknięcia i skróty klawiaturowe. Sterownik działał, uprawnienia Dostępność i Nagrywanie ekranu były dostępne. Testy wizualne obejmowały:
-
-- Zwinięty, uproszczony ekran główny oraz postęp i rozwijane wyniki diagnozy.
-- Sklepową diagnozę ścieżki sieci, DNS, internetu i Bonjour; pierwsze trzy kontrole zakończyły się sukcesem, brak wykrytych usług Bonjour pozostał wynikiem nierozstrzygającym. Nie prezentowano globalnego stanu VPN ani propozycji napraw.
-- Ustawienia sklepowe bez zarządzania helperem, otwarcie polityki prywatności i pomocy offline oraz skrót menu Pomoc `Cmd+Shift+/`.
-- Otwarcie i anulowanie potwierdzenia usuwania historii w panelu ustawień. Nie usuwano rzeczywistej historii użytkownika. Błędy, anulowanie i poprawne usunięcie pliku sprawdzono w testach automatycznych. Oddzielny arkusz SwiftUI był niejednoznacznie mapowany przez most pulpitu, dlatego finalny panel pozostaje w oknie aplikacji.
-- Rzeczywistą niemiecką lokalizację ekranu i pomocy, uruchomioną przez tymczasową preferencję językową wyłącznie wydania sklepowego. Wcześniejszą preferencję przywrócono po teście; języka systemu nie zmieniano. Długie nazwy tematów mają dostępne pełne etykiety i podpowiedzi w rozszerzalnym panelu bocznym.
-- Pełną diagnozę Developer ID: 13 kontroli, nagłówek „Sieć lokalna i internet działają”, osiem podstawowych kontroli bez problemu i osobna informacja o blokadzie zmian ze względu na pozostałe ślady VPN. Nie wykonywano napraw ani zmian konfiguracji sieci. Okno pozostawiono otwarte z wynikiem, szczegóły zwinięto i zwolniono pulpit.
-
-Oba końcowe produkty zainstalowano lokalnie. Nie przeprowadzono nowej notaryzacji Developer ID, podpisu Apple Distribution z profilem, walidacji w Organizerze, wysyłki do App Store Connect ani publikacji. Przed wysłaniem pozostają publiczne strony prywatności i wsparcia, dane i decyzje właściciela w App Store Connect, zrzuty sklepowe oraz redakcja tłumaczeń. Przygotowane strony HTML są lokalnymi materiałami, nie działającymi publicznymi adresami.
-
-## Archiwum 1.0 (14), wydawca i wysyłka buildu — 22 października 2026
-
-Dla pierwszego wydania sklepowego ustawiono **1.0 (14)** wyłącznie w targecie `NetUnstickAppStore`, zgodnie z utworzonym rekordem macOS w App Store Connect. Pełne wydanie Developer ID i helper zachowały **0.3.0 (13)**. Dodano copyright **© 2026 ITORG Krzysztof Radzimski** oraz zasób `Credits.rtf` z nazwą wydawcy i adresem `kr@itorg.pl`, wykorzystywany przez natywne okno O aplikacji. Politykę prywatności i pomoc offline uzupełniono o te same dane we wszystkich 24 językach.
+Historyczna weryfikacja pełnego wydania Developer ID **0.3.0 (13)** na hoście macOS arm64:
 
 | Weryfikacja | Wynik |
 | --- | --- |
-| Generator i kontrola lokalizacji | 378 kluczy w każdym z 24 języków, zgodne placeholdery. Zasoby polityki i wsparcia w finalnym archiwum zawierają nazwę wydawcy i kontakt. |
-| `swift test --filter LocalizationTests` po aktualizacji danych wydawcy | 5 testów, 0 błędów, w tym odczyt rzeczywistych 24 katalogów lokalizacji. Log: `/tmp/netunstick-publisher-contact-tests.log`. |
-| Składnia narzędzi i konfiguracja | Kompilacja składniowa skryptu Python, `zsh -n` skryptu archiwizacji, `plutil` projektu i Info.plist oraz `git diff --check` zakończone poprawnie. |
-| Kontrola podpisu sklepowego | Zwykła kontrola akceptuje testową aplikację sandboxowaną; `--distribution` poprawnie odrzuca podpis ad hoc. Kontrola profilu odrzuca niewłaściwy termin ważności, platformę, team, certyfikat, App ID, profile urządzeniowe i `get-task-allow`. |
-| `xcodebuild … -scheme NetUnstickAppStore … -allowProvisioningUpdates archive` | Kod wyjścia 0, `ARCHIVE SUCCEEDED`; archiwum **1.0 (14)** utworzone ponownie po ostatecznej aktualizacji danych wydawcy. |
-| `xcodebuild -exportArchive … destination=export … -allowProvisioningUpdates` | Kod wyjścia 0, `EXPORT SUCCEEDED`; zachowano lokalny pakiet instalacyjny bez instalowania go. |
-| `pkgutil --check-signature` lokalnego pakietu | Poprawny podpis `3rd Party Mac Developer Installer` i łańcuch zaufania Apple. |
-| `Tools/CheckAppStoreBundle.py … --distribution` aplikacji wyodrębnionej z pakietu | Kontrola zakończona poprawnie: podpis Apple Distribution właściwego teamu, zgodny osadzony profil, sandbox; brak helpera, LaunchDaemona i importów uruchamiania procesów. |
+| `swift test` w `Packages/NetUnstickKit` | 128 testów, 7 środowiskowych pominiętych, 0 błędów. Obejmuje lokalizację 24 języków, redakcję raportów, usuwanie historii, decyzje diagnozy i granice napraw. |
+| `xcodebuild … -scheme NetUnstick -only-testing:NetUnstickPresentationTests CODE_SIGNING_ALLOWED=NO test` | 37 testów, 0 błędów. Obejmuje serializację usuwania historii z aktywnymi operacjami, błędy zapisu i wskazówki przy nieudanej sesji SMB. |
+| Release `NetUnstick`, `platform=macOS,arch=arm64` | `BUILD SUCCEEDED`; aplikacja i helper przeszły `check-helper-bundle.sh --require-developer-id`. |
+| `python3 Tools/Localization.py` | Kompletność zasobów 24 języków i zgodność placeholderów potwierdzone; nie zastępuje redakcji przez rodzimych użytkowników języka. |
 
-Archiwum podpisuje się jako Apple Development, a eksport App Store Connect nadaje aplikacji podpis Apple Distribution. Poprawiono wcześniejszą sprzeczność automatycznego podpisywania z wymuszoną tożsamością dystrybucyjną podczas samej archiwizacji. Profil macOS nie jest bezwarunkowo wymagany dla aplikacji bez ograniczonych uprawnień; `--distribution` sprawdza obecny profil, a `--testflight` dodatkowo wymaga jego obecności. Odpowiada to rozróżnieniu opisanemu w [Apple TN3125](https://developer.apple.com/documentation/technotes/tn3125-inside-code-signing-provisioning-profiles). W tym eksporcie Xcode dostarczył profil i przeszedł on kontrolę zgodności.
+Obejrzano pełną diagnozę Developer ID: 13 kontroli, nagłówek „Sieć lokalna i internet działają”, osiem podstawowych kontroli bez problemu i odrębną blokadę zmian ze względu na pozostałe ślady VPN. Nie wykonywano napraw ani zmian konfiguracji sieci. Nie powtarzano historycznych prób napraw na rzeczywistej awarii ani pełnej macierzy XCUITest z września.
 
-Zachowane produkty lokalne:
+## Jedno wydanie Developer ID — 23 października 2026
 
-- Archiwum: `Artifacts/Distribution/NetUnstickAppStore-1.0-14-20261022.xcarchive`.
-- Pakiet: `Artifacts/Distribution/AppStore-1.0-14/NetUnstick App Store.pkg`, **968303 bajty**.
-- SHA-256 lokalnego pakietu: `d7927d1a08e89b32784995ac9b210e534b5fe506bfe9136e81931c6275767ef9`.
+Na polecenie właściciela wycofano kanał sklepowy. Usunięto niewysłany szkic recenzji i zapisano brak dostępności na wszystkich rynkach. Ponowne otwarcie panelu recenzji pokazało pustą listę, a panel dostępności potwierdził **0 krajów lub regionów dostępnych oraz 175 niedostępnych**. Operacje wykonano w Podglądzie, bez sterowania pulpitem.
 
-Odczyt aplikacji wyodrębnionej z tego pakietu potwierdził bundle ID `org.netunstick.NetUnstick.AppStore`, wersję **1.0 (14)**, minimum **macOS 14.0** oraz architektury **arm64 i x86_64**. Testy i oględziny wykonywano na macOS arm64; wariant x86_64 jest zawarty w produkcie, lecz nie został uruchomiony ani sprawdzony na hoście Intel. Wyniki testów z 21 października pozostają odrębnym zapisem; po aktualizacji danych wydawcy powtórzono testy lokalizacji i wykonano nowe archiwum oraz eksport.
+Z projektu usunięto oddzielny target, testy i flagi wydania sklepowego, metadane publikacji, zrzuty, skrypty archiwizacji i walidacji oraz lokalne eksporty i katalogi budowy tej odmiany. Modele sieciowe i implementację Bonjour przeniesiono do `NetUnstickNetwork`; zachowano pełny mechanizm napraw, helper i lokalizacje. Pomoc, ustawienia, dokumentacja oraz źródła stron w `Distribution/Website` opisują wyłącznie Developer ID. Wygenerowanie lokalnych stron nie publikuje zmian na hostingu ITORG.
 
-Po upoważnieniu użytkownika wykonano osobny eksport z `destination=upload` tego samego finalnego archiwum do App Store Connect. **22 października 2026 o 12:42:30 według lokalnego logu Xcode** zwrócono `Upload succeeded`, `Uploaded package is processing` oraz `EXPORT SUCCEEDED` z kodem wyjścia 0. Lokalny pakiet i jego powyższy hash zachowano; hash identyfikuje eksport lokalny, nie stanowi deklaracji tożsamości bajtowej ponownego eksportu użytego do wysyłki.
+| Weryfikacja na macOS arm64 | Wynik |
+| --- | --- |
+| Release schematu `NetUnstick` z podpisem Developer ID | Kod 0, `BUILD SUCCEEDED`. |
+| `check-helper-bundle.sh … --require-developer-id` | Poprawny pakiet aplikacji i helpera, podpisy, Team ID, hardened runtime i wymaganie klienta XPC. |
+| `swift test --package-path Packages/NetUnstickKit --jobs 4` | Core 23, Network 73, Repair 32: 128 testów, 7 środowiskowych pominiętych, 0 błędów. |
+| `xcodebuild … -only-testing:NetUnstickPresentationTests CODE_SIGNING_ALLOWED=NO test` | Raport Xcode: 37 testów zaliczonych, 0 pominiętych i 0 błędów. |
+| `python3 Tools/Localization.py` | 369 kluczy × 24 języki, kompletność i placeholdery poprawne. |
+| Konfiguracja projektu, generatory i czystość zmian | Poprawny plist projektu, minimum macOS 14.0, wyłącznie targety pełnej aplikacji, helpera i jej testów; składnia generatorów oraz `git diff --check` poprawne. |
 
-Logi archiwum i eksportu są poza repozytorium: `/tmp/netunstick-appstore-archive-1.0-14-20261022.log` i `/tmp/netunstick-appstore-export-1.0-14-20261022.log`. Zredagowany zapis postępu wysyłki zapisano w `/tmp/netunstick-appstore-upload-1.0-14-20261022-sanitized.log`. Nie odczytywano sekretów z Keychain. Sukces wysyłki potwierdza przyjęcie pakietu do przetwarzania, nie zakończenie przetwarzania, zatwierdzenie przez App Review ani publikację. Ten etap nie obejmował wysłania aplikacji do recenzji ani jej udostępnienia w sklepie.
-
-## Dane rekordu i publiczny hosting — 22 października 2026
-
-Po zakończeniu przetwarzania w App Store Connect build **1.0 (14)** został przypięty do wersji w rekordzie **6825738008**. Zapisano cztery lokalizacje metadanych: en-US, pl, es-ES i es-MX, cenę bazową USA **0,99 USD** za jednorazowy zakup oraz **45 rynków**: 27 państw UE, USA i 17 hiszpańskojęzycznych państw Ameryki Łacińskiej. Azja i pozostałe rynki są wyłączone, podobnie jak automatyczne dodawanie przyszłych storefrontów. Przyszłe aktualizacje tej aplikacji są bez dopłat; NetUnstick nie wprowadza własnego limitu aktywacji ponad zasady Apple. Deklaracja App Privacy **Data Not Collected** została opublikowana. Wydanie nadal wymaga ręcznego udostępnienia po ewentualnej akceptacji; nie wysłano aplikacji do App Review ani nie rozpoczęto sprzedaży.
-
-Właściciel opublikował strony produktu [po polsku](https://itorg.pl/NetUnstick/), [po angielsku](https://itorg.pl/en/NetUnstick/) i [po hiszpańsku](https://itorg.pl/es/NetUnstick/). Kanoniczne adresy wsparcia i polityki mają postać `https://itorg.pl/NetUnstick/{pl,en,es}/{support,privacy}`, bez rozszerzenia `.html`. Odczyty stron potwierdziły HTTP 200 i właściwą treść. Ponowne uruchomienie `python3 Tools/CheckStoreMetadata.py --submission` zwróciło kod wyjścia 0, cztery lokalizacje, poprawne limity tekstu, kompletność pól publikacji, `publicURLsChecked: true` i pustą listę lokalnych blokad. Wcześniejszy wynik HTTP 404 został usunięty. Ta kontrola nie potwierdza formalności konta ani gotowości zrzutów do sklepu.
-
-W App Store Connect zapisano i ponownie odczytano końcowe adresy `supportURL`, `marketingURL` i `privacyPolicyURL` we wszystkich czterech lokalizacjach: en-US, pl, es-ES oraz es-MX. Korzystają z kanonicznych publicznych adresów bez rozszerzenia `.html`; obie hiszpańskie lokalizacje wskazują te same strony hiszpańskie.
-
-Końcowy odczyt po ponownej nawigacji w App Store Connect potwierdził wersję 1.0 z buildem 1.0 (14), brak wymaganego logowania, ręczne udostępnienie oraz zapisane angielskie adresy wsparcia i produktu. Przycisk zapisu był nieaktywny, a sekcja zrzutów pokazywała **0 z 10**. Ponowne kontrole lokalizacji (378 kluczy × 24 języki i placeholdery), metadanych `--submission` dla czterech lokalizacji oraz składni Python i różnic zakończyły się poprawnie.
-
-Paid Apps Agreement pozostaje **New** i nie został podpisany, a weryfikacja przedsiębiorcy DSA ma stan **In Review**. Próbę aktualizacji adresu Legal Entity wykonano z potwierdzonymi danymi właściciela i uwierzytelnieniem dwuskładnikowym, lecz po odświeżeniu formularza Apple nadal wyświetlał poprzednie dane, a edycja nie była dostępna. Nie potwierdzono trwałego zapisu nowego adresu; nie utrwalono go w tym raporcie. Danych podatkowych ani bankowych nie zmieniano.
-
-Następnie, po jawnej zgodzie właściciela „Wyślij zgłoszenie do Apple”, wysłano oficjalny [Membership Information Update](https://developer.apple.com/contact/request/update-individual-information/) dotyczący wyłącznie adresu. Strona Apple potwierdziła otrzymanie zgłoszenia i zapowiedziała jego weryfikację oraz odpowiedź; nie wyświetliła numeru sprawy. Nie wnioskowano o zmianę nazwy prawnej ani typu konta Individual. Kontakt pozostawiono domyślny dla konta Apple, bez utrwalania prywatnego adresu e-mail i adresu pocztowego w repozytorium. Zmiana nadal oczekuje na Apple; potwierdzenie formularza nie jest dowodem jej zatwierdzenia. Wymóg akceptacji aktualizacji danych członkostwa opisuje [dokumentacja Apple](https://developer.apple.com/help/account/membership/updating-your-account-information).
-
-Na zakończenie tego etapu nie wykonano nowych zrzutów sklepowych. Pulpit był zajęty inną sesją, a późniejsze sterowanie zostało przerwane; nie ponawiano go ani nie zastępowano innym sterownikiem. Istniejący zrzut na stronie produktu miał **1800 × 1208** i nie spełniał obsługiwanych wymiarów zrzutu Mac App Store. Ten zapis opisuje wcześniejszy etap; nowe obrazy wykonane w następnym przebiegu opisano poniżej.
-
-## Zrzuty wszystkich języków i zapis lokalizacji — 22 października 2026
-
-Na macOS 27.0.1 arm64 uruchomiono rzeczywistą aplikację sklepową **1.0 (14)** z finalnego archiwum. Do oględzin i akcji użyto **abc-desktop**, drzewa dostępności i obrazów natywnego okna. Uprawnienia Dostępność i Nagrywanie ekranu były dostępne. Systemowe pytanie o dostęp nowo podpisanej aplikacji do danych wcześniejszej wersji użytkownik zaakceptował sam; nie zmieniano uprawnień ani zabezpieczeń kontenera. Sprawdzenie ścisłego podpisu aplikacji z archiwum i zainstalowanej kopii zakończyło się poprawnie.
-
-Dla każdego z 24 języków ustawiono język aplikacji, uruchomiono odczytową diagnostykę i potwierdzono cztery poprawne kontrole na aktualnej sieci. Rozwinięto wyniki, zapisano obraz, następnie otwarto Ustawienia i zapisano drugi obraz: zakres wydania tylko do odczytu, prywatność i przyciski pomocy. Obejrzano oba ujęcia każdego języka pod kątem poprawnego języka, mieszczenia tekstu oraz braku prywatnych danych. Nie wykonywano napraw sieci ani testów na innej platformie. Obrazy nie dowodzą obsługi każdej możliwej awarii; pokazują rzeczywisty udany przebieg bieżącej diagnostyki.
-
-Okno 1280 × 800 punktów przechwycono natywnym `screencapture` jako **JPEG RGB 2560 × 1600 bez alfa**, bez cienia i kursora. Nie skalowano ani nie retuszowano obrazów. Pliki, mapowania i sumy SHA-256 zawiera [manifest](../Distribution/AppStore/Screenshots/manifest.json), a wszystkie obrazy udostępnia [wykaz 24 języków](../Distribution/AppStore/Screenshots/README.md). Przywrócono wcześniejsze preferencje językowe, rozmiar okna i zachowaną historię aplikacji; dodatkowe sesje z macierzy językowej nie wypchnęły historii użytkownika. Po ostatniej akcji zwolniono pulpit.
-
-W Podglądzie zapisano 15 dodatkowych lokalizacji opisów i podtytułów; rekord obejmuje teraz **19 lokalizacji App Store Connect**. Każda otrzymała dwa własne zrzuty — **38 przypięć obrazów**. Ponowne otwarcie wszystkich lokalizacji potwierdziło licznik „2 of 10”, dwie miniatury HTTPS, brak „Using Existing Assets”, zgodne opisy, promocje, słowa kluczowe, nazwy, podtytuły i adresy WWW. Polski ma kod ASC `pl-PL`; es-ES i es-MX korzystają z tych samych hiszpańskich zrzutów. Sześć języków UI (bg, et, ga, lt, lv, mt) nie ma lokalizacji w ASC; ich pełne zestawy są zachowane lokalnie. [Zapis odczytu](../Distribution/AppStore/localization-verification.json) identyfikuje zweryfikowane lokalizacje i miniatury. Redakcja przez rodzimych użytkowników języków pozostaje osobnym zadaniem.
-
-`python3 Tools/CheckStoreScreenshots.py` potwierdził 48 plików, 24 języki, 19 mapowań ASC, wymiary, format, kolory, brak alfa i SHA-256. Pięć odseparowanych prób negatywnych odrzuciło brak języka, błędne mapowanie es-MX, uszkodzony hash, brak obrazu i PNG udający JPEG. `python3 Tools/CheckStoreMetadata.py --submission` przeszedł dla wszystkich 19 lokalizacji, z poprawnymi limitami tekstu i publicznymi adresami HTTPS oraz bez lokalnych blokad. W tej części nie zmieniano kodu aplikacji ani ponownie nie budowano binarki; obrazy pochodzą z opisanego wyżej archiwum 1.0 (14).
-
-Zrzuty są gotowe i zapisane w Apple. Stan **Prepare for Submission**, ręczne udostępnienie i wcześniejsze formalności konta pozostają bez zmian: aplikacji nie wysłano do App Review i nie opublikowano do sprzedaży.
-
-## Potwierdzenie zgłoszenia wsparcia i szkic recenzji — 22 października 2026
-
-Przeanalizowano załączoną wiadomość Apple Developer Program Support z 11:23:25 UTC. Potwierdza otrzymanie prośby i nadanie numeru sprawy; nie potwierdza akceptacji zmiany adresu. Nie skopiowano korespondencji, numeru sprawy ani prywatnych danych konta do repozytorium. W Podglądzie ponownie odczytano Business: nadal poprzednie dane adresowe, **Paid Apps Agreement: New** i **DSA: In Review**. Nie podpisywano umowy ani nie zmieniano danych bankowych i podatkowych.
-
-Odczyt bieżącego harmonogramu cen potwierdził USA **0,99 USD** i Polskę **4,99 PLN**, dostępność **45 Available / 130 Not Available**, kategorię podatkową **App Store software** i dystrybucję publiczną. Archiwum **1.0 (14)** zawiera `ITSAppUsesNonExemptEncryption=false`; nie wymaga zmiany buildu z powodu brakującej deklaracji. Ponowne `CheckStoreMetadata.py --submission` i `CheckStoreScreenshots.py` przeszły odpowiednio dla 19 lokalizacji oraz 48 obrazów.
-
-W App Store Connect wykonano **Add for Review**. Operacja zakończyła się poprawnie: wersja ma teraz **Ready for Review**, panel szkicu pokazał **Item Ready to Submit**, a ponowne otwarcie App Review potwierdziło szkic z jednym elementem macOS 1.0 / build 14. To potwierdzenie przyjęcia danych do szkicu, nie zatwierdzenie formalności konta ani aplikacji przez Apple. Przycisku **Submit for Review** nie użyto. Ręczne udostępnienie pozostało wybrane; nie rozpoczęto recenzji ani sprzedaży. [Dokumentacja Apple rozdziela te dwa etapy](https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-an-app).
-
-Dobrowolnych [deklaracji App Accessibility](https://developer.apple.com/help/app-store-connect/manage-app-accessibility/overview-of-accessibility-nutrition-labels) nie uzupełniano bez pełnej weryfikacji wymaganych scenariuszy. Nie stanowiły przeszkody w zapisaniu szkicu. Ten etap obejmował formularze i dokumentację; kod aplikacji i gotowy build pozostały bez zmian. Pracę w App Store Connect wykonano w Podglądzie, bez sterowania pulpitem.
+Łącznie: **165 testów, 7 pominiętych, 0 błędów**. Zbudowanie i testy nie stanowią nowej próby naprawy rzeczywistej awarii. Nie uruchamiano napraw ani nie zmieniano konfiguracji sieci hosta; nie wykonywano nowej notaryzacji ani dystrybucji DMG.

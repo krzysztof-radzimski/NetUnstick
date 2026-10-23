@@ -29,7 +29,6 @@
 "check_bonjour" = "Paikallinen haku";
 "check_cancelled" = "Peruttu";
 "check_dns" = "DNS-asetukset";
-"check_network" = "Verkkoreitti";
 "check_ok" = "Ei havaittu ongelmaa";
 "check_permission" = "Lupa evätty";
 "check_problem" = "Vaatii huomiota";
@@ -62,10 +61,6 @@
 "diagnosis_failed" = "Vianmääritystä ei voitu suorittaa loppuun tai tallentaa.";
 "diagnosis_hint" = "Käynnistää verkon tarkistukset muuttamatta asetuksia.";
 "diagnosis_running" = "Vianmääritys käynnissä…";
-"edition_full" = "Developer ID · vianmääritys ja korjaukset";
-"edition_full_detail" = "Vain lukevat tarkistukset ja erikseen vahvistettavat korjaukset.";
-"edition_store" = "App Store · vianmääritys";
-"edition_store_detail" = "Hiekkalaatikossa tehtävät tarkistukset. Ei ylläpitäjän apupalvelua tai verkkomuutoksia.";
 "export_failed" = "Raporttia ei voitu tallentaa";
 "export_failed_detail" = "Valitse kirjoitettava sijainti ja yritä uudelleen esikatselusta.";
 "filter" = "Suodatin";
@@ -82,8 +77,6 @@
 "help_device_privacy_body" = "Kohdetta käytetään vain tähän testiin, ja se säilyy nykyisessä ikkunassa. Historia tallentaa tuloskoodit ja liitäntätyypit, ei kohdetta tai pakettien sisältöä.";
 "help_device_privacy_title" = "Syötteesi pysyy paikallisena";
 "help_device_title" = "Valitse kohde";
-"help_editions_body" = "App Store -versio tarkistaa verkkopolun, DNS:n, internetyhteyden, Bonjourin ja valitun laitteen. Se ei tutki järjestelmän reittejä tai VPN-asetuksia eikä korjaa niitä. Developer ID -versio lisää järjestelmän vianmäärityksen ja erikseen vahvistettavat korjaukset.";
-"help_editions_title" = "Kaksi versiota";
 "help_gettingStarted" = "Aloittaminen";
 "help_helper_body" = "DHCP:n uudistaminen ja vahvistettujen jäännösreittien poistaminen vaativat allekirjoitetun apupalvelun ja macOS-hyväksynnän kirjautumiskohteissa. Rekisteröi se tarvittaessa Asetuksissa ja odota vastausta. Aiemmin hyväksytty rekisteröinti voidaan päivittää sovelluspäivityksen jälkeen.";
 "help_helper_title" = "Ylläpitäjän hyväksyntä";
@@ -103,6 +96,8 @@
 "help_safety" = "Turvallisuus";
 "help_safety_body" = "NetUnstick ei toteuta VPN:ää, muuta FortiClient/FortiGate-käytäntöjä, poista suojauksia käytöstä, tyhjennä kaikkia reittejä tai käynnistä konetta uudelleen. Älä poista palomuuria tai hallittua suojausta käytöstä saadaksesi vihreän tilan. Kysy hallituista VPN-asetuksista verkon ylläpitäjältä.";
 "help_safety_title" = "Vain rajattuja muutoksia";
+"help_scope_body" = "Vain lukevat tarkistukset ja erikseen vahvistettavat korjaukset.";
+"help_scope_title" = "Diagnostiikka ja korjaukset";
 "help_shortcuts_body" = "Komento-D: suorita vianmääritys. Escape: peru. Vaihto-Komento-E: esikatsele raporttia. Komento-?: avaa ohje. Siirry ohjainten välillä sarkaimella.";
 "help_shortcuts_title" = "Näppäinoikotiet";
 "help_start_body" = "Valitse Suorita vianmääritys. Tarkistukset havainnoivat yhteyttä eivätkä muuta verkkoasetuksia. Katso yksittäiset tulokset kohdasta Verkon tiedot. Voit perua käynnissä olevan toiminnon.";
@@ -111,7 +106,7 @@
 "help_support_body" = "Toista ongelma, suorita vianmääritys ja esikatsele vastaavaa istuntoa Toiminta-näkymässä. Jaa siivottu raportti ylläpitäjälle tai ota yhteyttä tukeen osoitteessa kr@itorg.pl. Kuvaile, mikä epäonnistui ja milloin; jätä yksityiset verkkotiedot pois.";
 "help_support_title" = "Hanki hyödyllistä apua";
 "help_title" = "NetUnstickin ohje";
-"help_vpn_body" = "Täysversiossa aktiivinen tai epävarma VPN estää tavalliset verkkomuutokset. Paikalliset tarkistukset voivat onnistua, vaikka tunnelireittejä on jäljellä. App Store -versio ei määritä VPN:n tilaa.";
+"help_vpn_body" = "Täysversiossa aktiivinen tai epävarma VPN estää tavalliset verkkomuutokset. Paikalliset tarkistukset voivat onnistua, vaikka tunnelireittejä on jäljellä.";
 "help_vpn_title" = "VPN ja jäljelle jääneet reitit";
 "helper" = "Apuohjelma";
 "helper_approvalRequired" = "Järjestelmän hyväksyntä vaaditaan";
@@ -353,10 +348,6 @@
 "state_unknown" = "Verkon tila ei ole tiedossa";
 "state_unknown_detail" = "Suorita vianmääritys. VPN-yhteyden tilaa ei ole vahvistettu.";
 "status" = "Tila";
-"store_diagnostic_scope" = "Vain lukevat DNS-, TCP- ja Bonjour-testit. Tämä versio ei tarkista reititystä tai VPN-tilaa eikä muuta verkkoa.";
-"store_next_step" = "Tarkista tulokset alla. Ne eivät takaa kaikkien paikallisten laitteiden tai palvelujen tavoitettavuutta.";
-"store_result_connected" = "Testatut yhteydet toimivat.";
-"store_result_incomplete" = "Joitakin yhteyksiä ei voitu vahvistaa.";
 "success" = "Onnistuneet";
 "support_permissions" = "Tarkista Application Support -oikeudet ja yritä uudelleen.";
 "unknown_error" = "Tarkistusta ei voitu suorittaa loppuun.";

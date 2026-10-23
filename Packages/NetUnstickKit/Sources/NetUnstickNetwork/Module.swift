@@ -1,3 +1,2 @@
-@_exported import NetUnstickStoreNetwork
-/// Read-only network observation will live here.
+/// Network observation, diagnostic checks and stable presentation models.
 public enum NetUnstickNetworkModule {}

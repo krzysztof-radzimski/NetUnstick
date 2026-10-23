@@ -1,4 +1,3 @@
-import NetUnstickStoreNetwork
 import Foundation
 
 /// Parses the fixed, read-only output of `scutil --nc list`. Service names and IDs never

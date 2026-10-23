@@ -29,7 +29,6 @@
 "check_bonjour" = "Skoperta lokali";
 "check_cancelled" = "Ikkanċellat";
 "check_dns" = "Settings tad-DNS";
-"check_network" = "Passaġġ tan-netwerk";
 "check_ok" = "Ma nstabet ebda problema";
 "check_permission" = "Permess miċħud";
 "check_problem" = "Jeħtieġ attenzjoni";
@@ -62,10 +61,6 @@
 "diagnosis_failed" = "Id-dijanjostika ma setgħetx titlesta jew tiġi ssejvjata.";
 "diagnosis_hint" = "Jibda kontrolli tan-netwerk mingħajr bidliet.";
 "diagnosis_running" = "Dijanjostika għaddejja…";
-"edition_full" = "Developer ID · dijanjostika u tiswijiet";
-"edition_full_detail" = "Kontrolli mingħajr bidliet u tiswijiet ikkonfermati separatament.";
-"edition_store" = "App Store · dijanjostika";
-"edition_store_detail" = "Kontrolli f’ambjent iżolat. Ebda programm ta’ amministratur jew bidla fin-netwerk.";
 "export_failed" = "Ir-rapport ma setax jiġi ssejvjat";
 "export_failed_detail" = "Agħżel post li tista’ tikteb fih u erġa’ pprova mill-previżjoni.";
 "filter" = "Filtru";
@@ -82,8 +77,6 @@
 "help_device_privacy_body" = "Id-destinazzjoni tintuża biss għal dan it-test u tibqa’ fit-tieqa attwali. L-istorja żżomm kodiċijiet tar-riżultat u tipi ta’ interfaċċi, mhux id-destinazzjoni jew il-kontenut tal-pakketti.";
 "help_device_privacy_title" = "Id-data mdaħħla tibqa’ lokali";
 "help_device_title" = "Agħżel destinazzjoni";
-"help_editions_body" = "L-edizzjoni tal-App Store tiċċekkja l-passaġġ tan-netwerk, id-DNS, konnessjoni tal-internet, Bonjour u apparat magħżul. Ma tispezzjonax rotot tas-sistema jew konfigurazzjoni VPN u ma ssewwihomx. L-edizzjoni Developer ID żżid dijanjostika tas-sistema u tiswijiet ikkonfermati separatament.";
-"help_editions_title" = "Żewġ edizzjonijiet";
 "help_gettingStarted" = "Bidu";
 "help_helper_body" = "It-tiġdid tal-kirja DHCP u t-tneħħija ta’ rotot residwi vverifikati jeħtieġu l-programm iffirmat u l-approvazzjoni ta’ macOS fl-Oġġetti tal-Login. Jekk hemm bżonn, irreġistrah fis-settings u stenna t-tweġiba. Reġistrazzjoni diġà approvata tista’ tiġġedded wara aġġornament tal-app.";
 "help_helper_title" = "Approvazzjoni tal-amministratur";
@@ -103,6 +96,8 @@
 "help_safety" = "Sigurtà";
 "help_safety_body" = "NetUnstick ma jimplimentax VPN, ma jbiddilx il-politika FortiClient/FortiGate, ma jitfix protezzjonijiet, ma jħassarx ir-rotot kollha u ma jerġax jibda l-Mac. Titfix firewall jew politika tas-sigurtà ġestita biex tikseb stat aħdar. Staqsi lill-amministratur tan-netwerk dwar VPN ġestit.";
 "help_safety_title" = "Bidliet limitati biss";
+"help_scope_body" = "Kontrolli mingħajr bidliet u tiswijiet ikkonfermati separatament.";
+"help_scope_title" = "Dijanjostika u tiswijiet";
 "help_shortcuts_body" = "Command-D: ħaddem id-dijanjostika. Escape: ikkanċella. Shift-Command-E: previżjoni tar-rapport. Command-?: iftaħ l-Għajnuna. Uża Tab biex timxi bejn il-kontrolli.";
 "help_shortcuts_title" = "Shortcuts tat-tastiera";
 "help_start_body" = "Ikklikkja Ħaddem id-dijanjostika. Il-kontrolli josservaw il-konnessjoni mingħajr ma jbiddlu s-settings tan-netwerk. Iftaħ id-dettalji tan-netwerk biex tara kull riżultat. Tista’ tikkanċella operazzjoni għaddejja.";
@@ -111,7 +106,7 @@
 "help_support_body" = "Irriproduċi l-problema, ħaddem id-dijanjostika u ara s-sessjoni rilevanti fl-Attività. Aqsam rapport imnaddaf mal-amministratur jew ikkuntattja l-appoġġ fuq kr@itorg.pl. Għid x’falla u meta; tħallix dettalji privati tan-netwerk.";
 "help_support_title" = "Ikseb għajnuna utli";
 "help_title" = "Għajnuna ta’ NetUnstick";
-"help_vpn_body" = "Fl-edizzjoni sħiħa, VPN attiv jew mhux ċert jimblokka l-bidliet normali tan-netwerk. Kontrolli lokali jistgħu jgħaddu anki meta baqgħu rotot tal-mina. L-edizzjoni tal-App Store ma tiddeterminax l-istat tal-VPN.";
+"help_vpn_body" = "Fl-edizzjoni sħiħa, VPN attiv jew mhux ċert jimblokka l-bidliet normali tan-netwerk. Kontrolli lokali jistgħu jgħaddu anki meta baqgħu rotot tal-mina.";
 "help_vpn_title" = "VPN u rotot li baqgħu";
 "helper" = "Programm awżiljarju";
 "helper_approvalRequired" = "Meħtieġa approvazzjoni tas-sistema";
@@ -353,10 +348,6 @@
 "state_unknown" = "Stat tan-netwerk mhux magħruf";
 "state_unknown_detail" = "Ħaddem id-dijanjostika. L-istat tal-VPN mhux ikkonfermat.";
 "status" = "Stat";
-"store_diagnostic_scope" = "Kontrolli DNS, TCP u Bonjour mingħajr bidliet. Din l-edizzjoni ma tispezzjonax rotot jew l-istat tal-VPN u ma tbiddilx in-netwerk.";
-"store_next_step" = "Ara l-kontrolli hawn taħt. Ir-riżultati ma jiggarantixxux li kull apparat jew servizz lokali jintlaħaq.";
-"store_result_connected" = "Il-konnessjonijiet ittestjati għaddew.";
-"store_result_incomplete" = "Xi konnessjonijiet ma setgħux jiġu kkonfermati.";
 "success" = "B’suċċess";
 "support_permissions" = "Iċċekkja l-permessi ta’ Application Support u erġa’ pprova.";
 "unknown_error" = "Il-kontroll ma setax jitlesta.";

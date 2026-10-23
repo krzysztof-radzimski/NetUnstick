@@ -187,10 +187,6 @@
       "en": "The check could not finish.",
       "pl": "Nie udało się zakończyć kontroli."
     },
-    "check_network": {
-      "en": "Network path",
-      "pl": "Ścieżka sieci"
-    },
     "check_dns": {
       "en": "DNS settings",
       "pl": "Ustawienia DNS"
@@ -943,22 +939,6 @@
       "en": "no error code",
       "pl": "bez kodu"
     },
-    "store_diagnostic_scope": {
-      "en": "Read-only DNS, TCP and Bonjour checks. This edition does not inspect routing or VPN state and does not change the network.",
-      "pl": "Odczytowe kontrole DNS, TCP i Bonjour. To wydanie nie sprawdza routingu ani stanu VPN i nie zmienia sieci."
-    },
-    "store_result_connected": {
-      "en": "The tested connections passed.",
-      "pl": "Sprawdzone połączenia działają."
-    },
-    "store_result_incomplete": {
-      "en": "Some connections could not be confirmed.",
-      "pl": "Nie udało się potwierdzić części połączeń."
-    },
-    "store_next_step": {
-      "en": "Review the checks below. These results do not guarantee that every local device or service is reachable.",
-      "pl": "Przejrzyj wyniki poniżej. Nie potwierdzają one dostępności każdego urządzenia ani usługi w sieci lokalnej."
-    },
     "helper_ready": {
       "en": "The helper is ready.",
       "pl": "Helper jest gotowy."
@@ -1299,14 +1279,6 @@
       "en": "Click Run diagnostics. Checks observe the connection; they do not change network settings. Open Network details to see each result. You can cancel an operation in progress.",
       "pl": "Kliknij Uruchom diagnostykę. Kontrole obserwują połączenie i nie zmieniają ustawień sieci. Rozwiń Szczegóły sieci, aby zobaczyć wyniki. Trwającą operację możesz anulować."
     },
-    "help_editions_title": {
-      "en": "Two editions",
-      "pl": "Dwa wydania"
-    },
-    "help_editions_body": {
-      "en": "The App Store edition checks the network path, DNS, an internet connection, Bonjour and a chosen device. It does not inspect system routes or VPN configuration and cannot repair them. The Developer ID edition adds system diagnostics and individually confirmed repairs.",
-      "pl": "Wydanie App Store sprawdza ścieżkę sieci, DNS, połączenie z internetem, Bonjour i wybrane urządzenie. Nie bada systemowych tras ani konfiguracji VPN i nie może ich naprawiać. Wydanie Developer ID dodaje diagnostykę systemową i osobno potwierdzane naprawy."
-    },
     "help_shortcuts_title": {
       "en": "Keyboard shortcuts",
       "pl": "Skróty klawiaturowe"
@@ -1336,8 +1308,8 @@
       "pl": "VPN i pozostałe trasy"
     },
     "help_vpn_body": {
-      "en": "In the full edition, an active or uncertain VPN blocks ordinary network changes. Working local checks can coexist with residual tunnel routes. The App Store edition does not determine VPN state.",
-      "pl": "W pełnym wydaniu aktywny lub niepewny VPN blokuje zwykłe zmiany sieci. Poprawne kontrole lokalne mogą współistnieć z pozostałymi trasami tunelowymi. Wydanie App Store nie ustala stanu VPN."
+      "en": "An active or uncertain VPN blocks ordinary network changes. Working local checks can coexist with residual tunnel routes.",
+      "pl": "Aktywny lub niepewny VPN blokuje zwykłe zmiany sieci. Poprawne kontrole lokalne mogą współistnieć z pozostałymi trasami tunelowymi."
     },
     "help_device_title": {
       "en": "Choose an endpoint",
@@ -1455,22 +1427,6 @@
       "en": "Edition",
       "pl": "Wydanie"
     },
-    "edition_full": {
-      "en": "Developer ID · diagnostics and repairs",
-      "pl": "Developer ID · diagnostyka i naprawy"
-    },
-    "edition_store": {
-      "en": "App Store · diagnostics",
-      "pl": "App Store · diagnostyka"
-    },
-    "edition_full_detail": {
-      "en": "Read-only checks and individually confirmed repairs.",
-      "pl": "Kontrole odczytowe i osobno potwierdzane naprawy."
-    },
-    "edition_store_detail": {
-      "en": "Sandboxed checks. No administrator helper or network changes.",
-      "pl": "Kontrole w sandboxie. Bez helpera administratora i zmian sieci."
-    },
     "settings_helper_details": {
       "en": "Details and permissions",
       "pl": "Szczegóły i uprawnienia"
@@ -1538,6 +1494,14 @@
     "local_network_usage_description": {
       "en": "NetUnstick checks DNS, discovers local devices and tests connections to devices you choose.",
       "pl": "NetUnstick sprawdza DNS, wykrywa urządzenia lokalne i testuje połączenia z wybranymi urządzeniami."
+    },
+    "help_scope_title": {
+      "en": "Diagnostics and repairs",
+      "pl": "Diagnostyka i naprawy"
+    },
+    "help_scope_body": {
+      "en": "Read-only checks and individually confirmed repairs.",
+      "pl": "Kontrole odczytowe i osobno potwierdzane naprawy."
     }
   }
 }

@@ -29,7 +29,6 @@
 "check_bonjour" = "Découverte locale";
 "check_cancelled" = "Annulé";
 "check_dns" = "Réglages DNS";
-"check_network" = "Chemin réseau";
 "check_ok" = "Aucun problème détecté";
 "check_permission" = "Autorisation refusée";
 "check_problem" = "À examiner";
@@ -62,10 +61,6 @@
 "diagnosis_failed" = "Le diagnostic n’a pas pu être terminé ou enregistré.";
 "diagnosis_hint" = "Lance des vérifications du réseau sans le modifier.";
 "diagnosis_running" = "Diagnostic en cours…";
-"edition_full" = "Developer ID · diagnostics et réparations";
-"edition_full_detail" = "Vérifications sans modification et réparations confirmées individuellement.";
-"edition_store" = "App Store · diagnostics";
-"edition_store_detail" = "Vérifications en environnement sandbox. Aucun service auxiliaire administrateur ni modification du réseau.";
 "export_failed" = "Impossible d’enregistrer le rapport";
 "export_failed_detail" = "Choisissez un emplacement accessible en écriture et réessayez depuis l’aperçu.";
 "filter" = "Filtre";
@@ -82,8 +77,6 @@
 "help_device_privacy_body" = "La destination sert uniquement à ce test et reste dans la fenêtre actuelle. L’historique conserve les codes de résultat et les types d’interface, pas la destination ni le contenu des paquets.";
 "help_device_privacy_title" = "Votre saisie reste locale";
 "help_device_title" = "Choisir une destination";
-"help_editions_body" = "L’édition App Store vérifie le chemin réseau, le DNS, une connexion Internet, Bonjour et un appareil choisi. Elle n’inspecte ni les routes système ni la configuration VPN et ne peut pas les réparer. L’édition Developer ID ajoute les diagnostics système et les réparations confirmées individuellement.";
-"help_editions_title" = "Deux éditions";
 "help_gettingStarted" = "Premiers pas";
 "help_helper_body" = "Le renouvellement DHCP et la suppression de routes obsolètes validées nécessitent le service auxiliaire signé et l’autorisation macOS dans Ouverture. Si nécessaire, enregistrez-le dans Réglages et attendez sa réponse. Un enregistrement déjà autorisé peut être actualisé après une mise à jour de l’app.";
 "help_helper_title" = "Autorisation de l’administrateur";
@@ -103,6 +96,8 @@
 "help_safety" = "Sécurité";
 "help_safety_body" = "NetUnstick n’implémente pas de VPN, ne modifie pas les politiques FortiClient/FortiGate, ne désactive pas les protections, ne supprime pas toutes les routes et ne redémarre pas le Mac. Ne désactivez pas un coupe-feu ou une politique de sécurité gérée pour obtenir un état vert. Consultez votre administrateur réseau pour les réglages VPN gérés.";
 "help_safety_title" = "Modifications ciblées uniquement";
+"help_scope_body" = "Vérifications sans modification et réparations confirmées individuellement.";
+"help_scope_title" = "Diagnostic et réparations";
 "help_shortcuts_body" = "Commande-D : lancer le diagnostic. Échap : annuler. Maj-Commande-E : aperçu du rapport. Commande-? : ouvrir l’aide. Utilisez Tab pour passer d’une commande à l’autre.";
 "help_shortcuts_title" = "Raccourcis clavier";
 "help_start_body" = "Cliquez sur Lancer le diagnostic. Les vérifications observent la connexion sans modifier les réglages du réseau. Ouvrez Détails du réseau pour voir chaque résultat. Vous pouvez annuler une opération en cours.";
@@ -111,7 +106,7 @@
 "help_support_body" = "Reproduisez le problème, lancez le diagnostic et prévisualisez la session concernée dans Activité. Partagez un rapport expurgé avec votre administrateur ou contactez l’assistance à l’adresse kr@itorg.pl. Précisez ce qui a échoué et quand ; omettez les détails privés du réseau.";
 "help_support_title" = "Obtenir une aide utile";
 "help_title" = "Aide NetUnstick";
-"help_vpn_body" = "Dans l’édition complète, un VPN actif ou incertain bloque les modifications ordinaires du réseau. Des vérifications locales réussies peuvent coexister avec des routes tunnel résiduelles. L’édition App Store ne détermine pas l’état du VPN.";
+"help_vpn_body" = "Dans l’édition complète, un VPN actif ou incertain bloque les modifications ordinaires du réseau. Des vérifications locales réussies peuvent coexister avec des routes tunnel résiduelles.";
 "help_vpn_title" = "VPN et routes résiduelles";
 "helper" = "Service auxiliaire";
 "helper_approvalRequired" = "Autorisation du système requise";
@@ -353,10 +348,6 @@
 "state_unknown" = "État du réseau inconnu";
 "state_unknown_detail" = "Lancez le diagnostic. L’état du VPN n’est pas confirmé.";
 "status" = "État";
-"store_diagnostic_scope" = "Vérifications DNS, TCP et Bonjour sans modification. Cette édition n’inspecte ni le routage ni l’état du VPN et ne modifie pas le réseau.";
-"store_next_step" = "Consultez les vérifications ci-dessous. Ces résultats ne garantissent pas que tous les appareils ou services locaux sont accessibles.";
-"store_result_connected" = "Les connexions testées ont réussi.";
-"store_result_incomplete" = "Certaines connexions n’ont pas pu être confirmées.";
 "success" = "Réussites";
 "support_permissions" = "Vérifiez les autorisations d’Application Support et réessayez.";
 "unknown_error" = "La vérification n’a pas pu se terminer.";

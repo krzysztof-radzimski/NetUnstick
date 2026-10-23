@@ -29,7 +29,6 @@
 "check_bonjour" = "Lokālā atklāšana";
 "check_cancelled" = "Atcelts";
 "check_dns" = "DNS iestatījumi";
-"check_network" = "Tīkla ceļš";
 "check_ok" = "Problēmas nav atrastas";
 "check_permission" = "Atļauja liegta";
 "check_problem" = "Nepieciešama uzmanība";
@@ -62,10 +61,6 @@
 "diagnosis_failed" = "Diagnostiku nevarēja pabeigt vai saglabāt.";
 "diagnosis_hint" = "Sāk tīkla pārbaudes bez izmaiņām.";
 "diagnosis_running" = "Notiek diagnostika…";
-"edition_full" = "Developer ID · diagnostika un labojumi";
-"edition_full_detail" = "Pārbaudes bez izmaiņām un atsevišķi apstiprināmi labojumi.";
-"edition_store" = "App Store · diagnostika";
-"edition_store_detail" = "Pārbaudes izolētā vidē. Nav administratora palīgprogrammas vai tīkla izmaiņu.";
 "export_failed" = "Pārskatu neizdevās saglabāt";
 "export_failed_detail" = "Izvēlieties rakstāmu vietu un mēģiniet vēlreiz priekšskatījumā.";
 "filter" = "Filtrs";
@@ -82,8 +77,6 @@
 "help_device_privacy_body" = "Galamērķi izmanto tikai šim testam; tas paliek pašreizējā logā. Vēsturē saglabā rezultātu kodus un saskarņu veidus, nevis galamērķi vai pakešu saturu.";
 "help_device_privacy_title" = "Ievadītie dati paliek lokāli";
 "help_device_title" = "Izvēlieties galamērķi";
-"help_editions_body" = "App Store izdevums pārbauda tīkla ceļu, DNS, interneta savienojumu, Bonjour un izvēlētu ierīci. Tas nepārbauda sistēmas maršrutus vai VPN konfigurāciju un tos nelabo. Developer ID izdevums papildus nodrošina sistēmas diagnostiku un atsevišķi apstiprināmus labojumus.";
-"help_editions_title" = "Divi izdevumi";
 "help_gettingStarted" = "Darba sākšana";
 "help_helper_body" = "DHCP nomas atjaunošanai un pārbaudītu novecojušu maršrutu noņemšanai vajadzīga parakstīta palīgprogramma un macOS atļauja pieteikšanās vienumos. Vajadzības gadījumā reģistrējiet to iestatījumos un gaidiet atbildi. Pēc lietotnes atjaunināšanas agrāk apstiprināto reģistrāciju var atjaunot.";
 "help_helper_title" = "Administratora atļauja";
@@ -103,6 +96,8 @@
 "help_safety" = "Drošība";
 "help_safety_body" = "NetUnstick neīsteno VPN, nemaina FortiClient/FortiGate politikas, neizslēdz aizsardzību, nedzēš visus maršrutus un nepārstartē datoru. Neizslēdziet ugunsmūri vai pārvaldītas drošības politikas, lai iegūtu zaļu statusu. Par pārvaldīto VPN jautājiet tīkla administratoram.";
 "help_safety_title" = "Tikai šauras izmaiņas";
+"help_scope_body" = "Pārbaudes bez izmaiņām un atsevišķi apstiprināmi labojumi.";
+"help_scope_title" = "Diagnostika un labojumi";
 "help_shortcuts_body" = "Command-D: palaist diagnostiku. Escape: atcelt. Shift-Command-E: pārskata priekšskatījums. Command-?: atvērt palīdzību. Ar Tab pārvietojieties starp vadīklām.";
 "help_shortcuts_title" = "Tastatūras saīsnes";
 "help_start_body" = "Noklikšķiniet uz “Palaist diagnostiku”. Pārbaudes novēro savienojumu, nemainot tīkla iestatījumus. Atveriet tīkla informāciju, lai redzētu visus rezultātus. Darbību tās laikā var atcelt.";
@@ -111,7 +106,7 @@
 "help_support_body" = "Atkārtojiet problēmu, palaidiet diagnostiku un priekšskatiet attiecīgo sesiju darbību skatā. Nosūtiet attīrītu pārskatu administratoram vai sazinieties ar atbalstu, rakstot uz kr@itorg.pl. Norādiet, kas un kad neizdevās; izlaidiet privātu tīkla informāciju.";
 "help_support_title" = "Saņemiet noderīgu palīdzību";
 "help_title" = "NetUnstick palīdzība";
-"help_vpn_body" = "Pilnajā izdevumā aktīvs vai neskaidrs VPN bloķē parastās tīkla izmaiņas. Veiksmīgas lokālās pārbaudes var pastāvēt kopā ar tuneļa maršrutu paliekām. App Store izdevums nenosaka VPN statusu.";
+"help_vpn_body" = "Pilnajā izdevumā aktīvs vai neskaidrs VPN bloķē parastās tīkla izmaiņas. Veiksmīgas lokālās pārbaudes var pastāvēt kopā ar tuneļa maršrutu paliekām.";
 "help_vpn_title" = "VPN un atlikušie maršruti";
 "helper" = "Palīgprogramma";
 "helper_approvalRequired" = "Vajadzīga sistēmas atļauja";
@@ -353,10 +348,6 @@
 "state_unknown" = "Tīkla statuss nav zināms";
 "state_unknown_detail" = "Palaidiet diagnostiku. VPN statuss nav apstiprināts.";
 "status" = "Statuss";
-"store_diagnostic_scope" = "DNS, TCP un Bonjour pārbaudes bez izmaiņām. Šis izdevums nepārbauda maršrutus vai VPN statusu un nemaina tīklu.";
-"store_next_step" = "Apskatiet pārbaudes zemāk. Rezultāti negarantē visu lokālo ierīču un pakalpojumu sasniedzamību.";
-"store_result_connected" = "Pārbaudītie savienojumi darbojas.";
-"store_result_incomplete" = "Dažus savienojumus nevarēja apstiprināt.";
 "success" = "Veiksmīgi";
 "support_permissions" = "Pārbaudiet Application Support atļaujas un mēģiniet vēlreiz.";
 "unknown_error" = "Pārbaudi neizdevās pabeigt.";

@@ -29,7 +29,6 @@
 "check_bonjour" = "Helyi felderítés";
 "check_cancelled" = "Megszakítva";
 "check_dns" = "DNS-beállítások";
-"check_network" = "Hálózati elérési út";
 "check_ok" = "Nem találtunk hibát";
 "check_permission" = "Engedély megtagadva";
 "check_problem" = "Figyelmet igényel";
@@ -62,10 +61,6 @@
 "diagnosis_failed" = "A diagnosztika nem fejezhető be vagy nem menthető.";
 "diagnosis_hint" = "Módosítás nélküli hálózati ellenőrzéseket indít.";
 "diagnosis_running" = "Diagnosztika folyamatban…";
-"edition_full" = "Developer ID · diagnosztika és javítás";
-"edition_full_detail" = "Módosítás nélküli ellenőrzések és egyenként megerősített javítások.";
-"edition_store" = "App Store · diagnosztika";
-"edition_store_detail" = "Ellenőrzések sandboxban. Nincs rendszergazdai segédszolgáltatás vagy hálózati módosítás.";
 "export_failed" = "A jelentés nem menthető";
 "export_failed_detail" = "Válasszon írható helyet, majd próbálja újra az előnézetből.";
 "filter" = "Szűrő";
@@ -82,8 +77,6 @@
 "help_device_privacy_body" = "A végpont csak ehhez a teszthez használatos, és az aktuális ablakban marad. Az előzmények eredménykódokat és csatolótípusokat rögzítenek, nem a végpontot vagy a csomagok tartalmát.";
 "help_device_privacy_title" = "A bevitt adatok helyben maradnak";
 "help_device_title" = "Végpont kiválasztása";
-"help_editions_body" = "Az App Store-kiadás a hálózati utat, a DNS-t, egy internetkapcsolatot, a Bonjourt és egy kiválasztott eszközt ellenőriz. Nem vizsgál rendszerútvonalakat vagy VPN-konfigurációt, és nem javítja ezeket. A Developer ID-kiadás rendszerdiagnosztikát és egyenként megerősített javításokat ad hozzá.";
-"help_editions_title" = "Két kiadás";
 "help_gettingStarted" = "Első lépések";
 "help_helper_body" = "A DHCP megújításához és az igazolt elavult útvonalak eltávolításához az aláírt segédszolgáltatás és macOS-jóváhagyás szükséges a Bejelentkezési elemekben. Szükség esetén regisztrálja a Beállításokban, és várja meg a válaszát. Egy már jóváhagyott regisztráció appfrissítés után frissülhet.";
 "help_helper_title" = "Rendszergazdai jóváhagyás";
@@ -103,6 +96,8 @@
 "help_safety" = "Biztonság";
 "help_safety_body" = "A NetUnstick nem valósít meg VPN-t, nem módosít FortiClient-/FortiGate-házirendet, nem kapcsol ki védelmet, nem töröl minden útvonalat és nem indít újra. A zöld állapotért ne kapcsoljon ki tűzfalat vagy felügyelt biztonsági házirendet. A felügyelt VPN-beállításokról kérdezze hálózati rendszergazdáját.";
 "help_safety_title" = "Csak célzott módosítások";
+"help_scope_body" = "Módosítás nélküli ellenőrzések és egyenként megerősített javítások.";
+"help_scope_title" = "Diagnosztika és javítások";
 "help_shortcuts_body" = "Command-D: diagnosztika indítása. Escape: megszakítás. Shift-Command-E: jelentés előnézete. Command-?: súgó megnyitása. A vezérlők között a Tab billentyűvel lépkedhet.";
 "help_shortcuts_title" = "Billentyűparancsok";
 "help_start_body" = "Kattintson a Diagnosztika indítása gombra. Az ellenőrzések megfigyelik a kapcsolatot, nem módosítják a hálózati beállításokat. Az egyes eredményekhez nyissa meg a Hálózati részleteket. A folyamatban lévő művelet megszakítható.";
@@ -111,7 +106,7 @@
 "help_support_body" = "Idézze elő a hibát, futtassa a diagnosztikát, majd tekintse át az érintett munkamenetet a Tevékenységben. Osszon meg megtisztított jelentést a rendszergazdával, vagy írjon az ügyfélszolgálatnak a kr@itorg.pl címre. Adja meg, mi és mikor hibázott; a privát hálózati adatokat hagyja ki.";
 "help_support_title" = "Hasznos segítség kérése";
 "help_title" = "NetUnstick súgó";
-"help_vpn_body" = "A teljes kiadásban az aktív vagy bizonytalan VPN tiltja a szokásos hálózati módosításokat. A helyi ellenőrzések hátramaradt alagútútvonalak mellett is sikeresek lehetnek. Az App Store-kiadás nem állapítja meg a VPN állapotát.";
+"help_vpn_body" = "A teljes kiadásban az aktív vagy bizonytalan VPN tiltja a szokásos hálózati módosításokat. A helyi ellenőrzések hátramaradt alagútútvonalak mellett is sikeresek lehetnek.";
 "help_vpn_title" = "VPN és hátramaradt útvonalak";
 "helper" = "Segédszolgáltatás";
 "helper_approvalRequired" = "Rendszerjóváhagyás szükséges";
@@ -353,10 +348,6 @@
 "state_unknown" = "Ismeretlen hálózati állapot";
 "state_unknown_detail" = "További információért indítsa el a diagnosztikát. A VPN állapota nem igazolt.";
 "status" = "Állapot";
-"store_diagnostic_scope" = "Módosítás nélküli DNS-, TCP- és Bonjour-ellenőrzések. Ez a kiadás nem vizsgál útvonalakat vagy VPN-állapotot, és nem módosítja a hálózatot.";
-"store_next_step" = "Tekintse át az alábbi ellenőrzéseket. Az eredmények nem garantálják minden helyi eszköz vagy szolgáltatás elérhetőségét.";
-"store_result_connected" = "A tesztelt kapcsolatok működnek.";
-"store_result_incomplete" = "Néhány kapcsolat nem igazolható.";
 "success" = "Sikeres";
 "support_permissions" = "Ellenőrizze az Application Support jogosultságait, majd próbálja újra.";
 "unknown_error" = "Az ellenőrzés nem fejezhető be.";

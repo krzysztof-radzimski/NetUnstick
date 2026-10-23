@@ -1,6 +1,6 @@
 # Bezpieczeństwo NetUnstick
 
-NetUnstick obserwuje stan sieci i przechowuje ograniczoną, oczyszczoną historię lokalną. Wydanie Mac App Store jest sandboxowe i odczytowe, bez helpera administratora i uruchamiania poleceń systemowych. Pełne wydanie Developer ID ma osobno potwierdzane, ograniczone naprawy i uwierzytelniony kanał XPC. Włączenie helpera samo nie zmienia sieci.
+NetUnstick jest rozwijany wyłącznie jako pełna aplikacja Developer ID. Obserwuje stan sieci, przechowuje ograniczoną, oczyszczoną historię lokalną i udostępnia osobno potwierdzane, ograniczone naprawy przez uwierzytelniony kanał XPC. Włączenie helpera samo nie zmienia sieci.
 
 Nie wyłączaj zabezpieczeń, zapory ani zarządzanej polityki VPN, aby uzyskać pomyślny wynik. Aplikacja nie zmienia polityk FortiClient/FortiGate, nie usuwa wszystkich tras i nie restartuje komputera. Sukces wymaga ponownej kontroli po zmianie. Wyniki nie gwarantują sprawności dowolnego urządzenia lub całej infrastruktury.
 

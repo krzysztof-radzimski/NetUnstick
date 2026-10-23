@@ -29,7 +29,6 @@
 "check_bonjour" = "Kohalik avastamine";
 "check_cancelled" = "Tühistatud";
 "check_dns" = "DNS-i seaded";
-"check_network" = "Võrgutee";
 "check_ok" = "Vigu ei leitud";
 "check_permission" = "Õigusest keelduti";
 "check_problem" = "Vajab tähelepanu";
@@ -62,10 +61,6 @@
 "diagnosis_failed" = "Diagnostikat ei saanud lõpetada või salvestada.";
 "diagnosis_hint" = "Käivitab võrgu kontrollid ilma muudatusteta.";
 "diagnosis_running" = "Diagnostika käib…";
-"edition_full" = "Developer ID · diagnostika ja parandused";
-"edition_full_detail" = "Kirjutuskaitstud kontrollid ja eraldi kinnitatavad parandused.";
-"edition_store" = "App Store · diagnostika";
-"edition_store_detail" = "Kontrollid liivakastis. Administraatori abiteenust ega võrgumuudatusi pole.";
 "export_failed" = "Aruannet ei saanud salvestada";
 "export_failed_detail" = "Vali kirjutatav asukoht ja proovi eelvaatest uuesti.";
 "filter" = "Filter";
@@ -82,8 +77,6 @@
 "help_device_privacy_body" = "Sihti kasutatakse ainult selleks testiks ja see jääb praegusesse aknasse. Ajalugu salvestab tulemuste koodid ja liideste tüübid, mitte sihti ega pakettide sisu.";
 "help_device_privacy_title" = "Sinu sisend jääb kohalikuks";
 "help_device_title" = "Vali siht";
-"help_editions_body" = "App Store'i väljaanne kontrollib võrguteed, DNS-i, internetiühendust, Bonjouri ja valitud seadet. See ei uuri süsteemimarsruute ega VPN-i seadistust ega saa neid parandada. Developer ID väljaanne lisab süsteemidiagnostika ja eraldi kinnitatavad parandused.";
-"help_editions_title" = "Kaks väljaannet";
 "help_gettingStarted" = "Alustamine";
 "help_helper_body" = "DHCP uuendamine ja kinnitatud allesjäänud marsruutide eemaldamine vajavad allkirjastatud abiteenust ning macOS-i kinnitust sisselogimisüksustes. Vajaduse korral registreeri see Seadetes ja oota vastust. Varem kinnitatud registreeringut võidakse pärast rakenduse uuendust värskendada.";
 "help_helper_title" = "Administraatori kinnitus";
@@ -103,6 +96,8 @@
 "help_safety" = "Turvalisus";
 "help_safety_body" = "NetUnstick ei loo VPN-i, ei muuda FortiClienti/FortiGate'i reegleid, ei keela kaitset, ei kustuta kõiki marsruute ega taaskäivita arvutit. Ära keela tulemüüri või hallatud turvareegleid rohelise oleku saamiseks. Hallatud VPN-seadete kohta küsi võrguadministraatorilt.";
 "help_safety_title" = "Ainult piiratud muudatused";
+"help_scope_body" = "Kirjutuskaitstud kontrollid ja eraldi kinnitatavad parandused.";
+"help_scope_title" = "Diagnostika ja parandused";
 "help_shortcuts_body" = "Command-D: käivita diagnostika. Escape: tühista. Shift-Command-E: aruande eelvaade. Command-?: ava abi. Tab-klahv liigub juhtelementide vahel.";
 "help_shortcuts_title" = "Klaviatuuri otseteed";
 "help_start_body" = "Klõpsa Käivita diagnostika. Kontrollid jälgivad ühendust ega muuda võrguseadeid. Iga tulemuse vaatamiseks ava Võrgu üksikasjad. Käimasoleva toimingu saab tühistada.";
@@ -111,7 +106,7 @@
 "help_support_body" = "Korda probleemi, käivita diagnostika ja vaata vastavat seanssi jaotises Tegevus. Jaga puhastatud aruannet administraatoriga või kirjuta kasutajatoele aadressil kr@itorg.pl. Kirjelda, mis ja millal nurjus; jäta privaatsed võrguandmed välja.";
 "help_support_title" = "Saa kasulikku abi";
 "help_title" = "NetUnsticki abi";
-"help_vpn_body" = "Täisväljaandes blokeerib aktiivne või ebaselge VPN tavalised võrgumuudatused. Edukad kohalikud kontrollid võivad esineda koos allesjäänud tunnelimarsruutidega. App Store'i väljaanne ei määra VPN-i olekut.";
+"help_vpn_body" = "Täisväljaandes blokeerib aktiivne või ebaselge VPN tavalised võrgumuudatused. Edukad kohalikud kontrollid võivad esineda koos allesjäänud tunnelimarsruutidega.";
 "help_vpn_title" = "VPN ja allesjäänud marsruudid";
 "helper" = "Abiprogramm";
 "helper_approvalRequired" = "Vaja on süsteemi kinnitust";
@@ -353,10 +348,6 @@
 "state_unknown" = "Võrgu olek teadmata";
 "state_unknown_detail" = "Lisateabe saamiseks käivita diagnostika. VPN-i olek pole kinnitatud.";
 "status" = "Olek";
-"store_diagnostic_scope" = "DNS-i, TCP ja Bonjouri kontrollid ilma muudatusteta. See väljaanne ei uuri marsruute ega VPN-i olekut ega muuda võrku.";
-"store_next_step" = "Vaata allolevaid kontrolle. Tulemused ei taga kõigi kohalike seadmete ja teenuste kättesaadavust.";
-"store_result_connected" = "Testitud ühendused toimisid.";
-"store_result_incomplete" = "Mõnda ühendust ei saanud kinnitada.";
 "success" = "Õnnestunud";
 "support_permissions" = "Kontrolli Application Supporti õigusi ja proovi uuesti.";
 "unknown_error" = "Kontrolli ei saanud lõpetada.";

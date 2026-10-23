@@ -10,10 +10,6 @@ import NetUnstickCore
         #endif
     }
     static func makeStore() -> PresentationStore {
-        #if APP_STORE
-        do { return PresentationStore(service: try AppStoreEnvironment()) }
-        catch { return PresentationStore(service: UnavailableEnvironment()) }
-        #else
         #if DEBUG
         if let scenario = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix("--integration-scenario=") })?
             .replacingOccurrences(of: "--integration-scenario=", with: ""),
@@ -26,16 +22,12 @@ import NetUnstickCore
         #endif
         do { return PresentationStore(service: try AppEnvironment()) }
         catch { return PresentationStore(service: UnavailableEnvironment()) }
-        #endif
     }
 }
 
 @MainActor private struct UnavailableEnvironment: PresentationService {
     let scenario = "unavailable"
     let helper = HelperPresentationState.unavailable
-    #if APP_STORE
-    let supportsRepairs = false
-    #endif
     func diagnose() async throws -> [OperationResult] { throw SessionStoreError.ioFailure }
     func repairCandidate() -> RepairCandidatePresentation? { nil }
 }

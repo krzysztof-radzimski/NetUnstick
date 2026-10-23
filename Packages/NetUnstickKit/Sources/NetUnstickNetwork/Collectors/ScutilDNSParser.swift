@@ -1,4 +1,3 @@
-import NetUnstickStoreNetwork
 import Foundation
 
 /// Parses only resolver fields needed for VPN correlation; never retains full command output.

@@ -8,6 +8,10 @@ Nazwa produktu: **NetUnstick**, krótka nazwa angielska. W rozmowie przeprowadzo
 
 Proponowane tematy repozytorium z rozmowy: `macos`, `swift`, `swiftui`, `vpn`, `forticlient`, `network-diagnostics`, `network-troubleshooting`, `bonjour`. Nie używać `vpn-client`, ponieważ produkt nie jest klientem VPN.
 
+## Dystrybucja
+
+Rozwijane i utrzymywane jest wyłącznie pełne wydanie Developer ID, dystrybuowane poza sklepem. Diagnostyka i jawnie potwierdzane naprawy pozostają częścią jednego produktu.
+
 ## Zakres MVP
 
 1. Standardowe okno macOS i widoczna ikona Dock. Stan Wi-Fi i VPN, bieżąca czynność, jej wynik oraz następny krok są czytelne w głównym widoku. Skrót w pasku menu może być dodatkiem.

@@ -29,7 +29,6 @@
 "check_bonjour" = "Lokal identifiering";
 "check_cancelled" = "Avbruten";
 "check_dns" = "DNS-inställningar";
-"check_network" = "Nätverkssökväg";
 "check_ok" = "Inga problem hittades";
 "check_permission" = "Behörighet nekad";
 "check_problem" = "Behöver åtgärdas";
@@ -62,10 +61,6 @@
 "diagnosis_failed" = "Diagnostiken kunde inte slutföras eller sparas.";
 "diagnosis_hint" = "Startar nätverkskontroller utan att göra ändringar.";
 "diagnosis_running" = "Diagnostik pågår…";
-"edition_full" = "Developer ID · diagnostik och reparationer";
-"edition_full_detail" = "Kontroller utan ändringar och individuellt bekräftade reparationer.";
-"edition_store" = "App Store · diagnostik";
-"edition_store_detail" = "Kontroller i sandlåda. Ingen administratörshjälptjänst eller nätverksändring.";
 "export_failed" = "Rapporten kunde inte sparas";
 "export_failed_detail" = "Välj en plats där du kan skriva och försök igen från förhandsvisningen.";
 "filter" = "Filter";
@@ -82,8 +77,6 @@
 "help_device_privacy_body" = "Slutpunkten används bara för testet och stannar i det aktuella fönstret. Historiken sparar resultatkoder och gränssnittstyper, inte slutpunkten eller paketinnehållet.";
 "help_device_privacy_title" = "Din inmatning stannar lokalt";
 "help_device_title" = "Välj en slutpunkt";
-"help_editions_body" = "App Store-utgåvan kontrollerar nätverkssökvägen, DNS, en internetanslutning, Bonjour och en vald enhet. Den granskar inte systemrutter eller VPN-konfiguration och kan inte reparera dem. Developer ID-utgåvan lägger till systemdiagnostik och individuellt bekräftade reparationer.";
-"help_editions_title" = "Två utgåvor";
 "help_gettingStarted" = "Kom igång";
 "help_helper_body" = "DHCP-förnyelse och borttagning av verifierade inaktuella rutter kräver den signerade hjälptjänsten och macOS-godkännande i Inloggningsobjekt. Registrera den vid behov i Inställningar och vänta på svar. En redan godkänd registrering kan uppdateras efter en appuppdatering.";
 "help_helper_title" = "Administratörsgodkännande";
@@ -103,6 +96,8 @@
 "help_safety" = "Säkerhet";
 "help_safety_body" = "NetUnstick implementerar inget VPN, ändrar inte FortiClient-/FortiGate-policy, inaktiverar inga skydd, raderar inte alla rutter och startar inte om. Inaktivera inte en brandvägg eller hanterad säkerhetspolicy för att få grön status. Fråga nätverksadministratören om hanterade VPN-inställningar.";
 "help_safety_title" = "Endast avgränsade ändringar";
+"help_scope_body" = "Kontroller utan ändringar och individuellt bekräftade reparationer.";
+"help_scope_title" = "Diagnostik och reparationer";
 "help_shortcuts_body" = "Kommando-D: starta diagnostik. Escape: avbryt. Skift-Kommando-E: förhandsvisa rapport. Kommando-?: öppna Hjälp. Använd Tabb för att flytta mellan reglagen.";
 "help_shortcuts_title" = "Kortkommandon";
 "help_start_body" = "Klicka på Starta diagnostik. Kontrollerna observerar anslutningen utan att ändra nätverksinställningar. Öppna Nätverksinformation för att se varje resultat. Du kan avbryta en pågående åtgärd.";
@@ -111,7 +106,7 @@
 "help_support_body" = "Återskapa problemet, kör diagnostiken och förhandsvisa den relevanta sessionen i Aktivitet. Dela en maskerad rapport med administratören eller kontakta supporten på kr@itorg.pl. Ange vad som misslyckades och när; utelämna privata nätverksuppgifter.";
 "help_support_title" = "Få användbar hjälp";
 "help_title" = "NetUnstick-hjälp";
-"help_vpn_body" = "I den fullständiga utgåvan blockerar aktivt eller osäkert VPN vanliga nätverksändringar. Lokala kontroller kan fungera trots kvarvarande tunnelrutter. App Store-utgåvan bedömer inte VPN-status.";
+"help_vpn_body" = "I den fullständiga utgåvan blockerar aktivt eller osäkert VPN vanliga nätverksändringar. Lokala kontroller kan fungera trots kvarvarande tunnelrutter.";
 "help_vpn_title" = "VPN och kvarvarande rutter";
 "helper" = "Hjälptjänst";
 "helper_approvalRequired" = "Systemgodkännande krävs";
@@ -353,10 +348,6 @@
 "state_unknown" = "Nätverksstatus okänd";
 "state_unknown_detail" = "Starta diagnostiken. VPN-statusen är inte bekräftad.";
 "status" = "Status";
-"store_diagnostic_scope" = "DNS-, TCP- och Bonjour-kontroller utan ändringar. Denna utgåva granskar inte rutter eller VPN-status och ändrar inte nätverket.";
-"store_next_step" = "Granska kontrollerna nedan. Resultaten garanterar inte att alla lokala enheter eller tjänster kan nås.";
-"store_result_connected" = "De testade anslutningarna fungerade.";
-"store_result_incomplete" = "Vissa anslutningar kunde inte bekräftas.";
 "success" = "Lyckade";
 "support_permissions" = "Kontrollera behörigheterna för Application Support och försök igen.";
 "unknown_error" = "Kontrollen kunde inte slutföras.";

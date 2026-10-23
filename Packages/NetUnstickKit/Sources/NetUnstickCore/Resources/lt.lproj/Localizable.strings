@@ -29,7 +29,6 @@
 "check_bonjour" = "Vietinių įrenginių paieška";
 "check_cancelled" = "Atšaukta";
 "check_dns" = "DNS nustatymai";
-"check_network" = "Tinklo kelias";
 "check_ok" = "Problemų nerasta";
 "check_permission" = "Leidimas nesuteiktas";
 "check_problem" = "Reikia dėmesio";
@@ -62,10 +61,6 @@
 "diagnosis_failed" = "Diagnostikos užbaigti arba išsaugoti nepavyko.";
 "diagnosis_hint" = "Pradeda tinklo patikras be pakeitimų.";
 "diagnosis_running" = "Vykdoma diagnostika…";
-"edition_full" = "Developer ID · diagnostika ir taisymai";
-"edition_full_detail" = "Tik skaitomos patikros ir atskirai patvirtinami taisymai.";
-"edition_store" = "App Store · diagnostika";
-"edition_store_detail" = "Patikros izoliuotoje aplinkoje. Nėra administratoriaus pagalbinės programos ar tinklo pakeitimų.";
 "export_failed" = "Ataskaitos išsaugoti nepavyko";
 "export_failed_detail" = "Pasirinkite vietą su rašymo teise ir bandykite iš peržiūros dar kartą.";
 "filter" = "Filtras";
@@ -82,8 +77,6 @@
 "help_device_privacy_body" = "Galinis taškas naudojamas tik šiam testui ir lieka dabartiniame lange. Istorijoje saugomi rezultatų kodai ir sąsajų tipai, o ne galinis taškas ar paketų turinys.";
 "help_device_privacy_title" = "Jūsų įvestis lieka vietoje";
 "help_device_title" = "Pasirinkite galinį tašką";
-"help_editions_body" = "„App Store“ leidimas tikrina tinklo kelią, DNS, interneto ryšį, „Bonjour“ ir pasirinktą įrenginį. Jis netikrina sistemos maršrutų ar VPN konfigūracijos ir negali jų taisyti. „Developer ID“ leidimas papildomai teikia sistemos diagnostiką ir atskirai patvirtinamus taisymus.";
-"help_editions_title" = "Du leidimai";
 "help_gettingStarted" = "Darbo pradžia";
 "help_helper_body" = "DHCP nuomai atnaujinti ir patikrintiems likusiems maršrutams pašalinti reikia pasirašytos pagalbinės programos ir „macOS“ leidimo prisijungimo elementuose. Jei reikia, registruokite ją nustatymuose ir palaukite atsako. Atnaujinus programą jau patvirtinta registracija gali būti atnaujinta.";
 "help_helper_title" = "Administratoriaus leidimas";
@@ -103,6 +96,8 @@
 "help_safety" = "Sauga";
 "help_safety_body" = "„NetUnstick“ neįgyvendina VPN, nekeičia „FortiClient“ ar „FortiGate“ politikos, neišjungia apsaugos, nešalina visų maršrutų ir nepaleidžia kompiuterio iš naujo. Neišjunkite užkardos ar valdomos saugos politikos vien dėl žalios būsenos. Dėl valdomo VPN kreipkitės į tinklo administratorių.";
 "help_safety_title" = "Tik tiksliniai pakeitimai";
+"help_scope_body" = "Tik skaitomos patikros ir atskirai patvirtinami taisymai.";
+"help_scope_title" = "Diagnostika ir taisymai";
 "help_shortcuts_body" = "Command-D: vykdyti diagnostiką. Escape: atšaukti. Shift-Command-E: ataskaitos peržiūra. Command-?: atverti pagalbą. Tab: pereiti tarp valdiklių.";
 "help_shortcuts_title" = "Spartieji klavišai";
 "help_start_body" = "Spustelėkite „Vykdyti diagnostiką“. Patikros stebi ryšį ir nekeičia tinklo nustatymų. Atverkite tinklo duomenis, kad matytumėte kiekvieną rezultatą. Vykdomą operaciją galite atšaukti.";
@@ -111,7 +106,7 @@
 "help_support_body" = "Atkurkite problemą, vykdykite diagnostiką ir peržiūrėkite atitinkamą sesiją veiklos skiltyje. Pasidalykite išvalyta ataskaita su administratoriumi arba kreipkitės į pagalbą adresu kr@itorg.pl. Nurodykite, kas ir kada nepavyko; privačius tinklo duomenis praleiskite.";
 "help_support_title" = "Gaukite naudingą pagalbą";
 "help_title" = "„NetUnstick“ pagalba";
-"help_vpn_body" = "Visame leidime aktyvus ar neaiškios būsenos VPN blokuoja įprastus tinklo pakeitimus. Vietinės patikros gali būti sėkmingos net likus tunelio maršrutų. „App Store“ leidimas nenustato VPN būsenos.";
+"help_vpn_body" = "Visame leidime aktyvus ar neaiškios būsenos VPN blokuoja įprastus tinklo pakeitimus. Vietinės patikros gali būti sėkmingos net likus tunelio maršrutų.";
 "help_vpn_title" = "VPN ir likę maršrutai";
 "helper" = "Pagalbinė programa";
 "helper_approvalRequired" = "Reikia sistemos leidimo";
@@ -353,10 +348,6 @@
 "state_unknown" = "Tinklo būsena nežinoma";
 "state_unknown_detail" = "Vykdykite diagnostiką. VPN būsena nepatvirtinta.";
 "status" = "Būsena";
-"store_diagnostic_scope" = "Tik skaitomos DNS, TCP ir „Bonjour“ patikros. Šis leidimas netikrina maršrutų ar VPN būsenos ir nekeičia tinklo.";
-"store_next_step" = "Peržiūrėkite patikras žemiau. Rezultatai negarantuoja visų vietinių įrenginių ir paslaugų pasiekiamumo.";
-"store_result_connected" = "Patikrinti ryšiai veikia.";
-"store_result_incomplete" = "Kai kurių ryšių patvirtinti nepavyko.";
 "success" = "Sėkmingi";
 "support_permissions" = "Patikrinkite „Application Support“ teises ir bandykite dar kartą.";
 "unknown_error" = "Patikros nepavyko užbaigti.";

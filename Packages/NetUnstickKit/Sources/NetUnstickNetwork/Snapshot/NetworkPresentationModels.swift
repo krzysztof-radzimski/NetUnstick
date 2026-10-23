@@ -1,8 +1,7 @@
 import Foundation
 import NetUnstickCore
 
-// Shared value types only. Both editions use the same stable codes and presentation labels.
-// System collectors, subprocesses, configuration readers and repair APIs are in other targets.
+// Stable value types and presentation labels shared by diagnostics and repair planning.
 
 public enum NetworkCheckReason: String, Sendable, CaseIterable {
     case healthy, dataIncomplete, environmentLimited, cancelled, timedOut

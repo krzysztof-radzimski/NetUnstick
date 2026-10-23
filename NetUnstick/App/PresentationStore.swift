@@ -1,11 +1,7 @@
 import Foundation
 import SwiftUI
 import NetUnstickCore
-#if APP_STORE
-import NetUnstickStoreNetwork
-#else
 import NetUnstickNetwork
-#endif
 
 enum NetworkPresentationState: String {
     /// `residual`: the checks pass and the VPN service reports disconnected, but the VPN
@@ -111,7 +107,6 @@ struct RepairCandidatePresentation {
 
 @MainActor protocol PresentationService {
     var scenario: String { get }
-    var supportsRepairs: Bool { get }
     var helper: HelperPresentationState { get }
     var helperRegistrationIssue: String? { get }
     /// Aggregate status of the configured VPN services from the latest observation.
@@ -136,7 +131,6 @@ struct RepairCandidatePresentation {
 }
 
 extension PresentationService {
-    var supportsRepairs: Bool { true }
     var helperRegistrationIssue: String? { nil }
     var vpnServices: VPNServiceStatus { .unknown }
     func repairCandidates() -> [RepairCandidatePresentation] { repairCandidate().map { [$0] } ?? [] }
@@ -195,13 +189,12 @@ extension PresentationService {
     private var candidateValue: RepairCandidatePresentation?
     @Published private(set) var candidates: [RepairCandidatePresentation] = []
     var helper: HelperPresentationState { helperState }
-    var supportsRepairs: Bool { service.supportsRepairs }
-    private var isPersistentService: Bool { ["production", "app-store"].contains(service.scenario) }
+    private var isPersistentService: Bool { service.scenario == "production" }
     var candidate: RepairCandidatePresentation? {
         vpn.state == .inactive || candidateValue?.allowsWhenResidualRoute == true ? candidateValue : nil
     }
     var canConfirmRepair: Bool {
-        guard supportsRepairs, !isRunning, !historyClearRunning, let candidate else { return false }
+        guard !isRunning, !historyClearRunning, let candidate else { return false }
         if !candidate.requiresHelper { return true }
         guard helperState == .available, !helperSetupRunning else { return false }
         if case .failed = helperHandshake { return false }
@@ -234,7 +227,6 @@ extension PresentationService {
         vpn.state == .unknown && vpn.reasonCode == .residualTunnel && vpnServices == .disconnected
     }
     var vpnStatus: String {
-        if !supportsRepairs { return L10n.text("store_diagnostic_scope") }
         switch vpn.state {
         case .active:
             if candidateValue?.allowsWhenResidualRoute == true {
@@ -282,7 +274,6 @@ extension PresentationService {
         if isPersistentService {
             watcher = Task { [weak self] in
                 await self?.refreshSessions()
-                guard self?.supportsRepairs == true else { return }
                 await self?.verifyHelperNow()
                 while !Task.isCancelled {
                     await self?.observeVPN()
@@ -328,19 +319,19 @@ extension PresentationService {
         candidates = []; candidateValue = nil
     }
     func registerHelper() {
-        guard supportsRepairs, !isRunning, !helperSetupRunning else { return }
+        guard !isRunning, !helperSetupRunning else { return }
         helperState = service.registerHelper()
         helperHandshake = .notRun
         if helperState == .available { verifyHelper() }
         nextStep = helperSetupGuidance
     }
     func unregisterHelper() {
-        guard supportsRepairs, !isRunning, !helperSetupRunning else { return }
+        guard !isRunning, !helperSetupRunning else { return }
         helperState = service.unregisterHelper()
         helperHandshake = .notRun
     }
     func verifyHelper() {
-        guard supportsRepairs, !isRunning, !helperSetupRunning else { return }
+        guard !isRunning, !helperSetupRunning else { return }
         helperSetupRunning = true
         Task { [weak self] in
             guard let self else { return }
@@ -460,7 +451,7 @@ extension PresentationService {
                     }
                 })
                 guard !Task.isCancelled, operationGeneration == generation else { return }
-                candidates = supportsRepairs ? service.repairCandidates() : []
+                candidates = service.repairCandidates()
                 candidateValue = candidates.first
                 let assessment = await service.refreshVPN(stabilize: false)
                 guard !Task.isCancelled, operationGeneration == generation else { return }
@@ -509,7 +500,7 @@ extension PresentationService {
         }
     }
     func confirmRepair() {
-        guard supportsRepairs, !isRunning, !historyClearRunning, let selectedCandidate = candidate else { return }
+        guard !isRunning, !historyClearRunning, let selectedCandidate = candidate else { return }
         helperState = service.helper
         guard !selectedCandidate.requiresHelper || canConfirmRepair else {
             lastResultText = L10n.text("repair_waiting_helper")
@@ -583,7 +574,7 @@ extension PresentationService {
             guard operationGeneration == generation else { return }
             vpn = assessment
             vpnServices = service.vpnServices
-            candidates = supportsRepairs ? service.repairCandidates() : []
+            candidates = service.repairCandidates()
             candidateValue = candidates.first
             accept(results)
             lastResultText = L10n.text("repair_verified") + " " + lastResultText
@@ -610,15 +601,6 @@ extension PresentationService {
     private func accept(_ results: [OperationResult]) {
         checks = results.map(Self.present)
         let failing = results.filter { $0.outcome == .failure || $0.outcome == .permissionDenied || $0.outcome == .timedOut }
-        if !supportsRepairs {
-            // A sandboxed observation cannot establish the machine's routing or VPN state.
-            let required = ["physical_link", "unicast_dns_resolution", "internet_path"]
-            let passed = required.allSatisfy { id in results.contains { $0.operationID == id && $0.outcome == .success } }
-            state = failing.isEmpty ? (passed ? .healthy : .unknown) : .problem
-            lastResultText = L10n.text(passed && failing.isEmpty ? "store_result_connected" : "store_result_incomplete")
-            nextStep = L10n.text("store_next_step")
-            return
-        }
         // Leftover tunnel devices after a confirmed disconnect are a nuisance, not an unknown network.
         let leftoverTunnels = failing.filter {
             $0.operationID == "interface_consistency" && $0.after.values[.errorCode] == NetworkCheckReason.orphanedTunnel.rawValue
@@ -695,10 +677,6 @@ extension PresentationService {
                      symbol: result.outcome == .success ? "checkmark.circle" : result.outcome == .skipped ? "minus.circle" : "exclamationmark.triangle")
     }
     static func operationTitle(_ stableName: String) -> String {
-        #if APP_STORE
-        // NWPath observes this sandbox's path; it does not inspect physical interfaces.
-        if stableName == "physical_link" { return L10n.text("check_network") }
-        #endif
         return L10n.operationTitle(stableName)
     }
     /// Plain-language labels for the executor's phase names shown while a repair runs.

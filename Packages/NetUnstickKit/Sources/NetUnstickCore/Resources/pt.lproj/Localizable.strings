@@ -29,7 +29,6 @@
 "check_bonjour" = "Deteção local";
 "check_cancelled" = "Cancelado";
 "check_dns" = "Definições de DNS";
-"check_network" = "Percurso de rede";
 "check_ok" = "Sem problemas detetados";
 "check_permission" = "Permissão recusada";
 "check_problem" = "Requer atenção";
@@ -62,10 +61,6 @@
 "diagnosis_failed" = "Não foi possível concluir ou guardar o diagnóstico.";
 "diagnosis_hint" = "Inicia verificações da rede sem a alterar.";
 "diagnosis_running" = "Diagnóstico em curso…";
-"edition_full" = "Developer ID · diagnóstico e reparações";
-"edition_full_detail" = "Verificações sem alterações e reparações confirmadas individualmente.";
-"edition_store" = "App Store · diagnóstico";
-"edition_store_detail" = "Verificações em sandbox. Sem serviço auxiliar de administrador nem alterações da rede.";
 "export_failed" = "Não foi possível guardar o relatório";
 "export_failed_detail" = "Escolha uma localização com permissão de escrita e tente novamente na pré-visualização.";
 "filter" = "Filtro";
@@ -82,8 +77,6 @@
 "help_device_privacy_body" = "O destino é usado apenas neste teste e permanece na janela atual. O histórico regista códigos de resultado e tipos de interface, não o destino nem o conteúdo dos pacotes.";
 "help_device_privacy_title" = "O que introduz fica no Mac";
 "help_device_title" = "Escolher um destino";
-"help_editions_body" = "A edição da App Store verifica o percurso de rede, DNS, uma ligação à Internet, Bonjour e um dispositivo escolhido. Não analisa rotas do sistema nem a configuração VPN e não as pode reparar. A edição Developer ID acrescenta diagnóstico do sistema e reparações confirmadas individualmente.";
-"help_editions_title" = "Duas edições";
 "help_gettingStarted" = "Primeiros passos";
 "help_helper_body" = "Renovar DHCP e remover rotas obsoletas validadas exige o serviço auxiliar assinado e aprovação do macOS nos elementos de início de sessão. Se necessário, registe-o nas Definições e aguarde a resposta. Um registo já aprovado pode ser atualizado após uma atualização da aplicação.";
 "help_helper_title" = "Aprovação do administrador";
@@ -103,6 +96,8 @@
 "help_safety" = "Segurança";
 "help_safety_body" = "O NetUnstick não implementa uma VPN, não altera políticas FortiClient/FortiGate, não desativa proteções, não apaga todas as rotas nem reinicia. Não desative uma firewall ou uma política de segurança gerida para obter um estado verde. Consulte o administrador da rede sobre as definições VPN geridas.";
 "help_safety_title" = "Apenas alterações específicas";
+"help_scope_body" = "Verificações sem alterações e reparações confirmadas individualmente.";
+"help_scope_title" = "Diagnóstico e reparações";
 "help_shortcuts_body" = "Comando-D: iniciar diagnóstico. Escape: cancelar. Shift-Comando-E: pré-visualizar relatório. Comando-?: abrir Ajuda. Use Tab para percorrer os controlos.";
 "help_shortcuts_title" = "Atalhos de teclado";
 "help_start_body" = "Clique em Iniciar diagnóstico. As verificações observam a ligação sem alterar as definições da rede. Abra Detalhes da rede para ver cada resultado. Pode cancelar uma operação em curso.";
@@ -111,7 +106,7 @@
 "help_support_body" = "Reproduza o problema, execute o diagnóstico e pré-visualize a sessão relevante em Atividade. Partilhe um relatório sem dados sensíveis com o administrador ou contacte o suporte através de kr@itorg.pl. Indique o que falhou e quando; omita os detalhes privados da rede.";
 "help_support_title" = "Obter ajuda útil";
 "help_title" = "Ajuda do NetUnstick";
-"help_vpn_body" = "Na edição completa, uma VPN ativa ou incerta bloqueia as alterações normais da rede. Verificações locais bem-sucedidas podem coexistir com rotas de túnel residuais. A edição da App Store não determina o estado da VPN.";
+"help_vpn_body" = "Na edição completa, uma VPN ativa ou incerta bloqueia as alterações normais da rede. Verificações locais bem-sucedidas podem coexistir com rotas de túnel residuais.";
 "help_vpn_title" = "VPN e rotas residuais";
 "helper" = "Serviço auxiliar";
 "helper_approvalRequired" = "É necessária aprovação do sistema";
@@ -353,10 +348,6 @@
 "state_unknown" = "Estado da rede desconhecido";
 "state_unknown_detail" = "Inicie o diagnóstico. O estado da VPN não está confirmado.";
 "status" = "Estado";
-"store_diagnostic_scope" = "Verificações DNS, TCP e Bonjour sem alterações. Esta edição não analisa rotas nem o estado da VPN e não altera a rede.";
-"store_next_step" = "Consulte as verificações abaixo. Estes resultados não garantem que todos os dispositivos ou serviços locais estejam acessíveis.";
-"store_result_connected" = "As ligações testadas funcionam.";
-"store_result_incomplete" = "Não foi possível confirmar algumas ligações.";
 "success" = "Com êxito";
 "support_permissions" = "Verifique as permissões de Application Support e tente novamente.";
 "unknown_error" = "Não foi possível concluir a verificação.";

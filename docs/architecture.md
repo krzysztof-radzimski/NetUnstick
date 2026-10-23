@@ -2,7 +2,7 @@
 
 ## Stan i kierunek
 
-Obecny kod ma okno SwiftUI i trzy rozdzielone moduły. `NetUnstickCore` implementuje wspólne kontrakty wyników, redakcję, historię i renderer raportu. `NetUnstickNetwork` dostarcza podłączone do UI odczyt stanu, konserwatywną ocenę VPN i kontrole sieci. `NetUnstickRepair` zawiera planowanie, wykonanie jawnych napraw oraz opcjonalny helper. Zwykłe uruchomienie korzysta z rzeczywistych usług; atrapy są dostępne wyłącznie w trybach testowych Debug. Grupowe usunięcie tras pozostałych po VPN potwierdzono 29 września 2026 na rzeczywistym incydencie z porównaniem przed/po (`docs/verification.md`); pozostałe kandydaci nadal czekają na realny przypadek.
+Rozwijane jest jedno pełne wydanie Developer ID. Obecny kod ma okno SwiftUI i trzy rozdzielone moduły. `NetUnstickCore` implementuje wspólne kontrakty wyników, redakcję, historię i renderer raportu. `NetUnstickNetwork` dostarcza modele wyników sieciowych, Bonjour, podłączony do UI odczyt stanu, konserwatywną ocenę VPN i kontrole sieci. `NetUnstickRepair` zawiera planowanie, wykonanie jawnych napraw oraz opcjonalny helper. Zwykłe uruchomienie korzysta z rzeczywistych usług; atrapy są dostępne wyłącznie w trybach testowych Debug. Grupowe usunięcie tras pozostałych po VPN potwierdzono 29 września 2026 na rzeczywistym incydencie z porównaniem przed/po (`docs/verification.md`); pozostałe kandydaci nadal czekają na realny przypadek.
 
 | Odpowiedzialność | Miejsce | Kontrakt |
 | --- | --- | --- |

@@ -10,44 +10,41 @@ struct SettingsView: View {
     var body: some View {
         Form {
             Section(L10n.text("settings_edition")) {
-                Label(L10n.text(store.supportsRepairs ? "edition_full" : "edition_store"),
-                      systemImage: store.supportsRepairs ? "wrench.adjustable" : "magnifyingglass")
-                Text(L10n.text(store.supportsRepairs ? "edition_full_detail" : "edition_store_detail"))
+                Label("Developer ID", systemImage: "wrench.adjustable")
+                Text(L10n.text("help_scope_body"))
                     .foregroundStyle(.secondary)
             }
-            if store.supportsRepairs {
-                Section(L10n.text("helper")) {
-                    Label(store.helper.title, systemImage: store.helper.symbol)
-                        .accessibilityIdentifier("settings.helper")
-                    if store.helperSetupRunning {
-                        ProgressView(L10n.text("helper_checking")).controlSize(.small)
+            Section(L10n.text("helper")) {
+                Label(store.helper.title, systemImage: store.helper.symbol)
+                    .accessibilityIdentifier("settings.helper")
+                if store.helperSetupRunning {
+                    ProgressView(L10n.text("helper_checking")).controlSize(.small)
+                }
+                if store.helper == .available {
+                    Label(store.helperHandshake.text, systemImage: store.helperHandshake.symbol)
+                        .accessibilityIdentifier("settings.helperHandshake")
+                }
+                DisclosureGroup(L10n.text("settings_helper_details")) {
+                    Text(store.helperSetupGuidance).foregroundStyle(.secondary)
+                    Button(L10n.text("help_repairs")) {
+                        HelpNavigation.shared.show(.repairs, openWindow: openWindow)
                     }
-                    if store.helper == .available {
-                        Label(store.helperHandshake.text, systemImage: store.helperHandshake.symbol)
-                            .accessibilityIdentifier("settings.helperHandshake")
-                    }
-                    DisclosureGroup(L10n.text("settings_helper_details")) {
-                        Text(store.helperSetupGuidance).foregroundStyle(.secondary)
-                        Button(L10n.text("help_repairs")) {
-                            HelpNavigation.shared.show(.repairs, openWindow: openWindow)
-                        }
-                    }
-                    if store.helper != .available {
-                        Button(L10n.text("helper_register")) { store.registerHelper() }
-                            .disabled(store.isRunning || store.helperSetupRunning)
-                            .accessibilityIdentifier("helper.register")
-                        Button(L10n.text("helper_open_settings")) { store.openHelperSettings() }
-                            .accessibilityIdentifier("helper.settings")
-                    } else {
-                        Button(L10n.text("helper_verify")) { store.verifyHelper() }
-                            .disabled(store.isRunning || store.helperSetupRunning)
-                            .accessibilityIdentifier("helper.verify")
-                    }
-                    if store.helper != .unavailable {
-                        Button(L10n.text("helper_unregister")) { store.unregisterHelper() }
-                            .disabled(store.isRunning || store.helperSetupRunning)
-                            .accessibilityIdentifier("helper.unregister")
-                    }
+                }
+                if store.helper != .available {
+                    Button(L10n.text("helper_register")) { store.registerHelper() }
+                        .disabled(store.isRunning || store.helperSetupRunning)
+                        .accessibilityIdentifier("helper.register")
+                    Button(L10n.text("helper_open_settings")) { store.openHelperSettings() }
+                        .accessibilityIdentifier("helper.settings")
+                } else {
+                    Button(L10n.text("helper_verify")) { store.verifyHelper() }
+                        .disabled(store.isRunning || store.helperSetupRunning)
+                        .accessibilityIdentifier("helper.verify")
+                }
+                if store.helper != .unavailable {
+                    Button(L10n.text("helper_unregister")) { store.unregisterHelper() }
+                        .disabled(store.isRunning || store.helperSetupRunning)
+                        .accessibilityIdentifier("helper.unregister")
                 }
             }
             Section(L10n.text("privacy")) {
