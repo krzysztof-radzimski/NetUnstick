@@ -36,7 +36,7 @@
 "check_skipped" = "Nav pārliecinošs";
 "check_timeout" = "Noildze";
 "checks" = "Atsevišķas pārbaudes";
-"dashboard_changes_paused" = "Tīkla labojumi ir apturēti VPN statusa dēļ.";
+"dashboard_changes_paused" = "VPN statuss neļauj sākt labojumus, kas maina tīkla iestatījumus. Diagnostika joprojām ir pieejama.";
 "dashboard_check_count %lld" = "%lld pārbaudes";
 "dashboard_network_details" = "Tīkla informācija";
 "dashboard_technical_details" = "Tehniskā informācija";

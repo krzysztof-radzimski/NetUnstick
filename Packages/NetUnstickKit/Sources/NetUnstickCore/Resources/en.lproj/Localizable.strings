@@ -36,7 +36,7 @@
 "check_skipped" = "Not conclusive";
 "check_timeout" = "Timed out";
 "checks" = "Independent checks";
-"dashboard_changes_paused" = "Network repairs are paused because of VPN status.";
+"dashboard_changes_paused" = "Repairs that change network settings cannot be started because of VPN status. Diagnostics remain available.";
 "dashboard_check_count %lld" = "%lld checks";
 "dashboard_network_details" = "Network details";
 "dashboard_technical_details" = "Technical details";

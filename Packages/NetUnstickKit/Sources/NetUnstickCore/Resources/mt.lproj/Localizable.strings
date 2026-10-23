@@ -36,7 +36,7 @@
 "check_skipped" = "Mhux konklużiv";
 "check_timeout" = "Skada l-ħin";
 "checks" = "Kontrolli separati";
-"dashboard_changes_paused" = "It-tiswijiet tan-netwerk huma sospiżi minħabba l-istat tal-VPN.";
+"dashboard_changes_paused" = "L-istat tal-VPN jipprevjeni li jinbdew tiswijiet li jibdlu s-settings tan-netwerk. Id-dijanjostika tibqa’ disponibbli.";
 "dashboard_check_count %lld" = "%lld kontrolli";
 "dashboard_network_details" = "Dettalji tan-netwerk";
 "dashboard_technical_details" = "Dettalji tekniċi";

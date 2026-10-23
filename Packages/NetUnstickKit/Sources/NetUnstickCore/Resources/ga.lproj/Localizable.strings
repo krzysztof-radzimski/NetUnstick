@@ -36,7 +36,7 @@
 "check_skipped" = "Neamhchinntitheach";
 "check_timeout" = "Am istigh";
 "checks" = "Seiceálacha ar leith";
-"dashboard_changes_paused" = "Tá deisiúcháin líonra ar sos mar gheall ar stádas VPN.";
+"dashboard_changes_paused" = "Cuireann stádas VPN cosc ar dheisiúcháin a athraíonn socruithe an líonra a thosú. Tá diagnóisic fós ar fáil.";
 "dashboard_check_count %lld" = "%lld seiceáil";
 "dashboard_network_details" = "Sonraí líonra";
 "dashboard_technical_details" = "Sonraí teicniúla";

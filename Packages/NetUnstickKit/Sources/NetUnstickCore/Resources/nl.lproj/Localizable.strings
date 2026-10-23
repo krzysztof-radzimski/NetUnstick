@@ -36,7 +36,7 @@
 "check_skipped" = "Niet doorslaggevend";
 "check_timeout" = "Time-out";
 "checks" = "Afzonderlijke controles";
-"dashboard_changes_paused" = "Netwerkreparaties gepauzeerd vanwege de VPN-status.";
+"dashboard_changes_paused" = "Door de VPN-status kunnen reparaties die netwerkinstellingen wijzigen niet worden gestart. Diagnostiek blijft beschikbaar.";
 "dashboard_check_count %lld" = "%lld controles";
 "dashboard_network_details" = "Netwerkdetails";
 "dashboard_technical_details" = "Technische details";

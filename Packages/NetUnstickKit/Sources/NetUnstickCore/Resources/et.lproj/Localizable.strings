@@ -36,7 +36,7 @@
 "check_skipped" = "Ebaselge";
 "check_timeout" = "Aegus";
 "checks" = "Eraldi kontrollid";
-"dashboard_changes_paused" = "Võrguparandused on VPN-i oleku tõttu peatatud.";
+"dashboard_changes_paused" = "VPN-i olek takistab võrguseadeid muutvate paranduste käivitamist. Diagnostika on endiselt saadaval.";
 "dashboard_check_count %lld" = "Kontrollide arv: %lld";
 "dashboard_network_details" = "Võrgu üksikasjad";
 "dashboard_technical_details" = "Tehnilised üksikasjad";

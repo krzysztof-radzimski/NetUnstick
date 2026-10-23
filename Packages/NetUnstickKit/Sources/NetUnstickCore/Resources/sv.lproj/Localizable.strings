@@ -36,7 +36,7 @@
 "check_skipped" = "Inte entydigt";
 "check_timeout" = "Tidsgränsen överskreds";
 "checks" = "Enskilda kontroller";
-"dashboard_changes_paused" = "Nätverksreparationer pausade på grund av VPN-status.";
+"dashboard_changes_paused" = "VPN-statusen förhindrar att reparationer som ändrar nätverksinställningar startas. Diagnostik är fortfarande tillgänglig.";
 "dashboard_check_count %lld" = "%lld kontroller";
 "dashboard_network_details" = "Nätverksinformation";
 "dashboard_technical_details" = "Tekniska detaljer";

@@ -1490,8 +1490,8 @@
       "pl": "VPN rozłączony"
     },
     "dashboard_changes_paused": {
-      "en": "Network repairs are paused because of VPN status.",
-      "pl": "Naprawy sieci wstrzymane ze względu na stan VPN."
+      "en": "Repairs that change network settings cannot be started because of VPN status. Diagnostics remain available.",
+      "pl": "Stan VPN blokuje uruchamianie napraw zmieniających ustawienia sieci. Diagnostyka nadal działa."
     },
     "dashboard_network_details": {
       "en": "Network details",

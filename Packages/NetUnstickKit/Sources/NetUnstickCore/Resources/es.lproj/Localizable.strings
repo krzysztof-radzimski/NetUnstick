@@ -36,7 +36,7 @@
 "check_skipped" = "No concluyente";
 "check_timeout" = "Tiempo agotado";
 "checks" = "Comprobaciones independientes";
-"dashboard_changes_paused" = "Reparaciones de red en pausa por el estado de la VPN.";
+"dashboard_changes_paused" = "El estado de la VPN impide iniciar reparaciones que cambien la configuración de red. El diagnóstico sigue disponible.";
 "dashboard_check_count %lld" = "%lld comprobaciones";
 "dashboard_network_details" = "Detalles de la red";
 "dashboard_technical_details" = "Detalles técnicos";

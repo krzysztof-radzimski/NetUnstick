@@ -36,7 +36,7 @@
 "check_skipped" = "Wynik niejednoznaczny";
 "check_timeout" = "Przekroczono czas";
 "checks" = "Niezależne kontrole";
-"dashboard_changes_paused" = "Naprawy sieci wstrzymane ze względu na stan VPN.";
+"dashboard_changes_paused" = "Stan VPN blokuje uruchamianie napraw zmieniających ustawienia sieci. Diagnostyka nadal działa.";
 "dashboard_check_count %lld" = "Liczba kontroli: %lld";
 "dashboard_network_details" = "Szczegóły sieci";
 "dashboard_technical_details" = "Szczegóły techniczne";

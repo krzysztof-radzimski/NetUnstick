@@ -36,7 +36,7 @@
 "check_skipped" = "Неубедително";
 "check_timeout" = "Времето изтече";
 "checks" = "Самостоятелни проверки";
-"dashboard_changes_paused" = "Мрежовите поправки са спрени заради състоянието на VPN.";
+"dashboard_changes_paused" = "Състоянието на VPN блокира стартирането на поправки, които променят мрежовите настройки. Диагностиката остава достъпна.";
 "dashboard_check_count %lld" = "Проверки: %lld";
 "dashboard_network_details" = "Подробности за мрежата";
 "dashboard_technical_details" = "Технически подробности";

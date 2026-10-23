@@ -36,7 +36,7 @@
 "check_skipped" = "Ikke entydig";
 "check_timeout" = "Tiden udløb";
 "checks" = "Særskilte kontroller";
-"dashboard_changes_paused" = "Netværksreparationer er sat på pause på grund af VPN-status.";
+"dashboard_changes_paused" = "VPN-status forhindrer start af reparationer, der ændrer netværksindstillinger. Diagnostik er stadig tilgængelig.";
 "dashboard_check_count %lld" = "Antal kontroller: %lld";
 "dashboard_network_details" = "Netværksoplysninger";
 "dashboard_technical_details" = "Tekniske oplysninger";

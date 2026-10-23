@@ -36,7 +36,7 @@
 "check_skipped" = "Neodločeno";
 "check_timeout" = "Čas je potekel";
 "checks" = "Neodvisna preverjanja";
-"dashboard_changes_paused" = "Popravila omrežja so ustavljena zaradi stanja VPN.";
+"dashboard_changes_paused" = "Stanje VPN preprečuje zagon popravil, ki spreminjajo omrežne nastavitve. Diagnostika je še vedno na voljo.";
 "dashboard_check_count %lld" = "Število preverjanj: %lld";
 "dashboard_network_details" = "Podrobnosti omrežja";
 "dashboard_technical_details" = "Tehnične podrobnosti";

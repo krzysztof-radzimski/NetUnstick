@@ -36,7 +36,7 @@
 "check_skipped" = "Neconcludent";
 "check_timeout" = "Timp expirat";
 "checks" = "Verificări independente";
-"dashboard_changes_paused" = "Reparațiile rețelei sunt suspendate din cauza stării VPN.";
+"dashboard_changes_paused" = "Starea VPN împiedică pornirea reparațiilor care modifică setările rețelei. Diagnosticarea rămâne disponibilă.";
 "dashboard_check_count %lld" = "%lld verificări";
 "dashboard_network_details" = "Detalii rețea";
 "dashboard_technical_details" = "Detalii tehnice";

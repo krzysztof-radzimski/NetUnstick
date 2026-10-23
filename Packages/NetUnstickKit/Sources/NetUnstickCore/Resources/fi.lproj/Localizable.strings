@@ -36,7 +36,7 @@
 "check_skipped" = "Ei ratkaiseva";
 "check_timeout" = "Aikakatkaisu";
 "checks" = "Erilliset tarkistukset";
-"dashboard_changes_paused" = "Verkon korjaukset on keskeytetty VPN:n tilan vuoksi.";
+"dashboard_changes_paused" = "VPN:n tila estää verkkoasetuksia muuttavien korjausten käynnistämisen. Vianmääritys on edelleen käytettävissä.";
 "dashboard_check_count %lld" = "Tarkistusten määrä: %lld";
 "dashboard_network_details" = "Verkon tiedot";
 "dashboard_technical_details" = "Tekniset tiedot";

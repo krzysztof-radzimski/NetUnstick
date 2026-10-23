@@ -36,7 +36,7 @@
 "check_skipped" = "Neprůkazné";
 "check_timeout" = "Časový limit překročen";
 "checks" = "Nezávislé kontroly";
-"dashboard_changes_paused" = "Opravy sítě jsou pozastavené kvůli stavu VPN.";
+"dashboard_changes_paused" = "Stav VPN blokuje spuštění oprav, které mění nastavení sítě. Diagnostika je nadále dostupná.";
 "dashboard_check_count %lld" = "Počet kontrol: %lld";
 "dashboard_network_details" = "Podrobnosti sítě";
 "dashboard_technical_details" = "Technické podrobnosti";

@@ -36,7 +36,7 @@
 "check_skipped" = "Μη οριστικό";
 "check_timeout" = "Έληξε το χρονικό όριο";
 "checks" = "Ανεξάρτητοι έλεγχοι";
-"dashboard_changes_paused" = "Οι επιδιορθώσεις δικτύου έχουν παύσει λόγω κατάστασης VPN.";
+"dashboard_changes_paused" = "Η κατάσταση του VPN εμποδίζει την έναρξη επιδιορθώσεων που αλλάζουν τις ρυθμίσεις δικτύου. Η διάγνωση παραμένει διαθέσιμη.";
 "dashboard_check_count %lld" = "%lld έλεγχοι";
 "dashboard_network_details" = "Λεπτομέρειες δικτύου";
 "dashboard_technical_details" = "Τεχνικές λεπτομέρειες";

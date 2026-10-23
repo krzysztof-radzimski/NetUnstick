@@ -36,7 +36,7 @@
 "check_skipped" = "Nicht eindeutig";
 "check_timeout" = "Zeitüberschreitung";
 "checks" = "Einzelprüfungen";
-"dashboard_changes_paused" = "Netzwerkreparaturen wegen VPN-Status pausiert.";
+"dashboard_changes_paused" = "Wegen des VPN-Status können Reparaturen, die Netzwerkeinstellungen ändern, nicht gestartet werden. Die Diagnose bleibt verfügbar.";
 "dashboard_check_count %lld" = "%lld Prüfungen";
 "dashboard_network_details" = "Netzwerkdetails";
 "dashboard_technical_details" = "Technische Details";

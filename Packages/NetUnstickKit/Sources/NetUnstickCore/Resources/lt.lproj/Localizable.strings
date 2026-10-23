@@ -36,7 +36,7 @@
 "check_skipped" = "Neaišku";
 "check_timeout" = "Baigėsi laikas";
 "checks" = "Atskiros patikros";
-"dashboard_changes_paused" = "Tinklo taisymai pristabdyti dėl VPN būsenos.";
+"dashboard_changes_paused" = "VPN būsena neleidžia pradėti taisymų, keičiančių tinklo nuostatas. Diagnostika vis dar prieinama.";
 "dashboard_check_count %lld" = "%lld patikros";
 "dashboard_network_details" = "Tinklo duomenys";
 "dashboard_technical_details" = "Techniniai duomenys";

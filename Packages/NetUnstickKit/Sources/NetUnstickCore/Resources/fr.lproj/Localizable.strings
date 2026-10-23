@@ -36,7 +36,7 @@
 "check_skipped" = "Non concluant";
 "check_timeout" = "Délai dépassé";
 "checks" = "Vérifications indépendantes";
-"dashboard_changes_paused" = "Réparations du réseau suspendues en raison de l’état du VPN.";
+"dashboard_changes_paused" = "L’état du VPN empêche de lancer les réparations qui modifient les paramètres réseau. Le diagnostic reste disponible.";
 "dashboard_check_count %lld" = "%lld vérifications";
 "dashboard_network_details" = "Détails du réseau";
 "dashboard_technical_details" = "Détails techniques";
