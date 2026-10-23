@@ -3,11 +3,13 @@ import NetUnstickCore
 import NetUnstickNetwork
 
 struct DashboardView: View {
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
     @ObservedObject var store: PresentationStore
     @State private var expandedCheckIDs: Set<String> = []
     @State private var networkDetailsExpanded = false
     @State private var deviceTestExpanded = false
-    let highContrast: Bool
+    @State private var completion = 0
+    @State private var observedDiagnosis = false
     let confirmingRepair: Bool
     let showRepair: () -> Void
     let dismissRepair: () -> Void
@@ -28,16 +30,41 @@ struct DashboardView: View {
             .frame(maxWidth: 800, alignment: .leading)
         }
         .navigationTitle(L10n.text("status"))
+        .onChange(of: store.state, initial: true) { _, state in
+            if store.isRunning, state == .investigating { observedDiagnosis = true }
+        }
         .onChange(of: store.isRunning) { wasRunning, isRunning in
+            if isRunning {
+                observedDiagnosis = store.state == .investigating
+                return
+            }
             guard wasRunning, !isRunning else { return }
             networkDetailsExpanded = needsAttention
             if needsAttention {
                 expandedCheckIDs = Set(store.checks.filter { $0.reason != nil }.map(\.id))
             }
+            // A failed repair can retain the earlier network verdict. Only celebrate a
+            // diagnosis observed in this view, never that stale verdict after a repair.
+            if observedDiagnosis, !reduceMotion, store.state == .healthy, store.progress == 1 {
+                completion += 1
+            }
+            observedDiagnosis = false
         }
         .onChange(of: store.deviceTestRunning) { _, isRunning in
             if isRunning { deviceTestExpanded = true }
         }
+    }
+
+    private var reduceMotion: Bool {
+        systemReduceMotion || CompositionRoot.testOption("--ui-reduce-motion")
+    }
+
+    private var resultAnimation: Animation? {
+        reduceMotion ? nil : .easeInOut(duration: 0.22)
+    }
+
+    private var statusTone: StatusTone {
+        store.isRunning ? .accent : StatusTone(state: store.state)
     }
 
     private var needsAttention: Bool {
@@ -58,11 +85,11 @@ struct DashboardView: View {
     private var statusCard: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .top, spacing: 14) {
-                Image(systemName: store.state.symbol)
-                    .font(.largeTitle)
-                    .foregroundStyle(.tint)
-                    .accessibilityHidden(true)
+                StatusIcon(symbol: store.isRunning ? "waveform.path" : store.state.symbol,
+                           tone: statusTone, size: 56, isWorking: store.isRunning, completion: completion)
                 Text(store.state.title).font(.title2.bold()).fixedSize(horizontal: false, vertical: true)
+                    .contentTransition(.opacity)
+                    .padding(.top, 5)
                 Spacer(minLength: 0)
             }
             .accessibilityElement(children: .combine)
@@ -70,16 +97,18 @@ struct DashboardView: View {
 
             if store.disconnectBanner {
                 Label(L10n.text("dashboard_vpn_disconnected"), systemImage: "info.circle")
-                    .foregroundStyle(.secondary)
+                    .labelStyle(StatusLabelStyle())
                     .accessibilityIdentifier("dashboard.disconnect")
             }
             if changesPaused {
                 Label(L10n.text("dashboard_changes_paused"), systemImage: "lock.shield")
-                    .font(.callout).foregroundStyle(.secondary)
+                    .labelStyle(StatusLabelStyle(tone: .attention))
+                    .font(.callout)
                     .accessibilityIdentifier("dashboard.repairGate")
             }
             if hasResult, needsAttention {
                 resultSummary
+                    .transition(.opacity)
             }
             HStack(spacing: 12) {
                 Button(L10n.text("run_diagnosis")) { store.startDiagnosis() }
@@ -97,6 +126,7 @@ struct DashboardView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     ProgressView(value: store.progress)
                         .accessibilityIdentifier("diagnosis.progress")
+                        .animation(resultAnimation, value: store.progress)
                     if store.repairPhase.isEmpty {
                         Text(L10n.text("diagnosis_running")).foregroundStyle(.secondary)
                             .accessibilityIdentifier("operation.active")
@@ -105,12 +135,25 @@ struct DashboardView: View {
                             .accessibilityIdentifier("repair.phase")
                     }
                 }
+                .transition(.opacity)
             } else if !store.repairPhase.isEmpty {
                 Text(store.repairPhase).foregroundStyle(.secondary)
                     .accessibilityIdentifier("repair.phase")
             }
         }
-        .dashboardPanel(highContrast: highContrast)
+        .statusPanel(tone: statusTone, emphasized: true)
+        .phaseAnimator([false, true, false], trigger: completion) { content, highlight in
+            content.overlay {
+                RoundedRectangle(cornerRadius: 18)
+                    .strokeBorder(statusTone.color.opacity(highlight && !reduceMotion ? 0.6 : 0), lineWidth: 2)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+        } animation: { highlight in
+            reduceMotion ? nil : .easeOut(duration: highlight ? 0.14 : 0.4)
+        }
+        .animation(resultAnimation, value: store.state)
+        .animation(resultAnimation, value: store.isRunning)
     }
 
     private var resultSummary: some View {
@@ -128,6 +171,7 @@ struct DashboardView: View {
             if store.vpn.state == .inactive || candidate.allowsWhenResidualRoute {
                 HStack(alignment: .top, spacing: 12) {
                     Label(candidate.change, systemImage: "wrench.adjustable")
+                        .labelStyle(StatusLabelStyle(tone: .attention))
                         .fixedSize(horizontal: false, vertical: true)
                     Spacer(minLength: 8)
                     Button(L10n.text("review_candidate")) {
@@ -137,7 +181,8 @@ struct DashboardView: View {
                     .disabled(store.isRunning)
                     .accessibilityIdentifier(index == 0 ? "repair.open" : "repair.open.\(index)")
                 }
-                .dashboardPanel(highContrast: highContrast)
+                .statusPanel(tone: .attention)
+                .transition(.opacity)
             }
         }
     }
@@ -147,6 +192,7 @@ struct DashboardView: View {
             VStack(alignment: .leading, spacing: 16) {
                 Text(store.state.explanation).foregroundStyle(.secondary)
                 Label(store.vpnStatus, systemImage: "network.badge.shield.half.filled")
+                    .labelStyle(StatusLabelStyle(tone: store.vpn.state == .inactive ? .information : .attention))
                     .accessibilityIdentifier("dashboard.vpn")
                 if hasResult, !needsAttention {
                     resultSummary
@@ -167,6 +213,7 @@ struct DashboardView: View {
         } label: {
             HStack {
                 Label(L10n.text("dashboard_network_details"), systemImage: "list.bullet.clipboard")
+                    .labelStyle(StatusLabelStyle())
                 Spacer()
                 if !store.checks.isEmpty {
                     Text(store.checks.count.formatted())
@@ -176,7 +223,9 @@ struct DashboardView: View {
             }
         }
         .accessibilityIdentifier("dashboard.details")
-        .dashboardPanel(highContrast: highContrast)
+        .statusPanel()
+        .animation(resultAnimation, value: networkDetailsExpanded)
+        .animation(resultAnimation, value: store.checks.map(\.id))
     }
 
     private func checkRow(_ check: CheckPresentation) -> some View {
@@ -198,13 +247,14 @@ struct DashboardView: View {
             .padding(.vertical, 6)
         } label: {
             HStack {
-                Image(systemName: check.symbol).accessibilityHidden(true)
+                StatusIcon(symbol: check.symbol, tone: StatusTone(outcome: check.resultOutcome), size: 28)
                 Text(check.title)
                 Spacer(minLength: 8)
                 Text(check.outcome).foregroundStyle(.secondary)
             }
         }
         .accessibilityIdentifier("check.\(check.id)")
+        .transition(.opacity)
     }
 
     private var deviceTest: some View {
@@ -227,12 +277,14 @@ struct DashboardView: View {
                 .padding(.top, 10)
             } label: {
                 Label(L10n.text("device_test"), systemImage: "point.3.connected.trianglepath.dotted")
+                    .labelStyle(StatusLabelStyle())
             }
             .accessibilityIdentifier("device.section")
             // Keep the last result visible even if the input section is collapsed.
             if let connection = store.deviceConnection {
                 VStack(alignment: .leading, spacing: 8) {
                     Label(connection.outcome, systemImage: connection.symbol).bold()
+                        .labelStyle(StatusLabelStyle(tone: StatusTone(outcome: connection.resultOutcome)))
                         .accessibilityIdentifier("device.outcome")
                     Text(connection.reason).foregroundStyle(.secondary)
                         .accessibilityIdentifier("device.result")
@@ -242,9 +294,12 @@ struct DashboardView: View {
                             .accessibilityIdentifier("device.detail")
                     }
                 }
+                .transition(.opacity)
             }
         }
-        .dashboardPanel(highContrast: highContrast)
+        .statusPanel()
+        .animation(resultAnimation, value: deviceTestExpanded)
+        .animation(resultAnimation, value: store.deviceConnection)
     }
 
     private var deviceHostField: some View {
@@ -275,15 +330,5 @@ struct DashboardView: View {
                 .accessibilityIdentifier("device.test")
             if store.deviceTestRunning { ProgressView().controlSize(.small) }
         }
-    }
-}
-
-private extension View {
-    func dashboardPanel(highContrast: Bool) -> some View {
-        padding(20)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
-            .overlay(RoundedRectangle(cornerRadius: 16)
-                .stroke(highContrast ? Color.primary : Color.clear, lineWidth: 2))
     }
 }

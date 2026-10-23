@@ -354,3 +354,21 @@ W Ustawieniach zastąpiono informację o wydaniu Developer ID wierszem „Wersja
 | `git diff --check` | Kod 0. |
 
 Zakres tej weryfikacji obejmuje kompilację, zasoby i podpisy; nie wykonano nowej próby wizualnej Ustawień. Wcześniejszy notaryzowany PKG pozostaje artefaktem sprzed tej zmiany interfejsu.
+
+## Kolory i animacje interfejsu — 23 października 2026
+
+Dodano wspólny styl nieprzezroczystych kart i ikon w ekranie Stan, historii, Ustawieniach i potwierdzeniu naprawy. Kolory wynikają z typowanych stanów i `OperationOutcome`, a nie z tłumaczeń tekstów. Pominięcie i anulowanie pozostają neutralne; pozostałości VPN, niepewność, odmowa uprawnienia i timeout zachowują ostrzegawczy akcent. Pulsowanie symbolu jest związane wyłącznie z aktywną operacją. Krótkie przejścia oraz jednorazowe potwierdzenie zdrowego wyniku diagnostyki respektują systemowe „Ogranicz ruch” i flagę Debug. Nieudana naprawa zachowująca poprzedni stan sieci nie uruchamia potwierdzenia sukcesu. Zwiększony kontrast wzmacnia obrysy i stosuje systemowy kolor pierwszoplanowy do ikon; tekst i symbol pozostają niezależnymi od koloru nośnikami informacji.
+
+| Weryfikacja na macOS arm64 | Wynik |
+| --- | --- |
+| Podpisane buildy Release i Debug schematu `NetUnstick` | Kod 0, `BUILD SUCCEEDED`; cel pozostaje macOS 14.0. |
+| `check-helper-bundle.sh … --require-developer-id` na końcowym Release | Kod 0; poprawne podpisy aplikacji i helpera, wymaganie klienta XPC i ustawienia wydania. |
+| `xcodebuild … -only-testing:NetUnstickPresentationTests test` z podpisem Developer ID | **37 testów, 0 błędów**, 15,1 s. Wynik w ignorowanym `Artifacts/AppearanceUnitValidation.xcresult`. Obejmuje m.in. recheck naprawy, anulowanie, blokady VPN, historię i redakcję prezentowanych danych. |
+| `python3 Tools/Localization.py` | 370 kluczy × 24 języki, zgodne placeholdery; styl korzysta z istniejących tekstów. |
+| Natywne oględziny przez `abc-desktop` | Rzeczywisty obraz i drzewo dostępności nowego Release uruchomionego z `Artifacts/ReleaseDerivedData/Build/Products/Release/NetUnstick.app`. Potwierdzono ekran stanu, postęp odczytowej diagnostyki, jej zakończenie, rozwijanie kontroli, kolory sukcesu/pominięcia i historycznej awarii, Aktywność oraz Ustawienia z `0.3.0 (13)` bez etykiety Developer ID. |
+
+Most pulpitu potwierdził backend `abc-desktop`, gotowość, zgody Dostępność/Nagrywanie ekranu i zgodę projektu. Oględziny wykonano w bieżącym ciemnym motywie hosta. Diagnoza zwróciła 13 kontroli i stan „Sieć lokalna i internet działają”; pozostałe trasy VPN nadal miały bursztynowe ostrzeżenie i blokadę zmian, a udane kontrole zielone ikony. Nie wykonywano napraw ani zmian konfiguracji sieci. Zbudowany Release pozostawiono otwarty na ekranie Stan, a pulpit zwolniono przez `computer_end_turn`.
+
+Pełna automatyczna macierz XCUITest (jasny/ciemny motyw, duży tekst, kontrast i ograniczony ruch) **nie została wykonana**: runner UI nie rozpoczynał testów, również po podpisanej kompilacji w czystym katalogu. Przerwano własne komendy `xcodebuild`; osobna próba bez podpisu także nie rozpoczęła testów, a ponowne użycie jej katalogu zgłosiło `lipo: Operation not permitted`. Odczytowe `DevToolsSecurity -status` wskazało wyłączony tryb Developer; nie ustalono, czy to przyczyna zawieszenia, i nie zmieniano zabezpieczeń systemu. Oględziny natywne zastąpiły próbę w ciemnym motywie, nie potwierdzają całej macierzy ani pełnego przebiegu animacji sukcesu. Systemowy dialog „Idź do” Findera nie dawał się powiązać z AXWindows; aplikację otwarto zwykłą nawigacją folderów, po czym przywrócono pierwotny katalog istniejącego okna Findera. Zamknięcie dodatkowego okna z tym dialogiem zostało odrzucone przez kontrolę fokusu mostu.
+
+Poprzedni notaryzowany PKG pozostaje niezmieniony; ta weryfikacja dotyczy nowych buildów aplikacji. Nie wykonano nowej notaryzacji ani instalacji na drugim Macu.

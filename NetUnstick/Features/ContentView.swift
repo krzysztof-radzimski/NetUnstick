@@ -25,12 +25,13 @@ struct ContentView: View {
                 switch section {
                 case "activity": ActivityView(store: store) { previewSheet = true }
                 case "settings": SettingsView(store: store)
-                default: DashboardView(store: store, highContrast: highContrast, confirmingRepair: repairConfirmation,
+                default: DashboardView(store: store, confirmingRepair: repairConfirmation,
                                        showRepair: { repairConfirmation = true }, dismissRepair: { repairConfirmation = false },
                                        showReport: { previewSheet = true })
                 }
             }.frame(minWidth: 560, minHeight: 500)
         }
+        .environment(\.statusHighContrast, highContrast)
         .font(dynamicTypeSize.isAccessibilitySize ? .system(size: 22) : .body)
         .sheet(isPresented: $previewSheet) { ReportPreviewView(store: store, dismiss: { previewSheet = false }) {
             report = TextReport(text: store.reportText)

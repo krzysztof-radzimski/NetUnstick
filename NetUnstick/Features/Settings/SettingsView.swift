@@ -9,21 +9,26 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
-            Section("NetUnstick") {
+            Section {
                 LabeledContent(L10n.text("settings_version")) {
                     Text(appVersion)
                         .textSelection(.enabled)
                         .accessibilityIdentifier("settings.version")
                 }
+            } header: {
+                Label("NetUnstick", systemImage: "point.3.connected.trianglepath.dotted")
+                    .labelStyle(StatusLabelStyle())
             }
-            Section(L10n.text("helper")) {
+            Section {
                 Label(store.helper.title, systemImage: store.helper.symbol)
+                    .labelStyle(StatusLabelStyle(tone: store.helper == .available ? handshakeTone : .attention))
                     .accessibilityIdentifier("settings.helper")
                 if store.helperSetupRunning {
                     ProgressView(L10n.text("helper_checking")).controlSize(.small)
                 }
                 if store.helper == .available {
                     Label(store.helperHandshake.text, systemImage: store.helperHandshake.symbol)
+                        .labelStyle(StatusLabelStyle(tone: handshakeTone))
                         .accessibilityIdentifier("settings.helperHandshake")
                 }
                 DisclosureGroup(L10n.text("settings_helper_details")) {
@@ -48,8 +53,11 @@ struct SettingsView: View {
                         .disabled(store.isRunning || store.helperSetupRunning)
                         .accessibilityIdentifier("helper.unregister")
                 }
+            } header: {
+                Label(L10n.text("helper"), systemImage: "wrench.and.screwdriver")
+                    .labelStyle(StatusLabelStyle(tone: .accent))
             }
-            Section(L10n.text("privacy")) {
+            Section {
                 Text(L10n.text("settings_privacy_summary")).foregroundStyle(.secondary)
                 Button(L10n.text("help_privacy")) {
                     HelpNavigation.shared.show(.privacy, openWindow: openWindow)
@@ -81,8 +89,11 @@ struct SettingsView: View {
                     .padding(.vertical, 8)
                     .accessibilityIdentifier("history.erase.confirmation")
                 }
+            } header: {
+                Label(L10n.text("privacy"), systemImage: "hand.raised")
+                    .labelStyle(StatusLabelStyle())
             }
-            Section(L10n.text("help_title")) {
+            Section {
                 Button(L10n.text("help_gettingStarted")) {
                     HelpNavigation.shared.show(.gettingStarted, openWindow: openWindow)
                 }.accessibilityIdentifier("help.open")
@@ -90,6 +101,9 @@ struct SettingsView: View {
                     HelpNavigation.shared.show(.safety, openWindow: openWindow)
                 }
                 Text(L10n.text("settings_language")).foregroundStyle(.secondary)
+            } header: {
+                Label(L10n.text("help_title"), systemImage: "questionmark.circle")
+                    .labelStyle(StatusLabelStyle(tone: .accent))
             }
         }
         .formStyle(.grouped)
@@ -97,6 +111,14 @@ struct SettingsView: View {
         .alert(L10n.text("history_erase_failed"), isPresented: $eraseFailed) {
             Button(L10n.text("ok"), role: .cancel) { }
         } message: { Text(L10n.text("history_erase_failed_detail")) }
+    }
+
+    private var handshakeTone: StatusTone {
+        switch store.helperHandshake {
+        case .notRun: .neutral
+        case .responding: .success
+        case .failed: .failure
+        }
     }
 
     private var appVersion: String {

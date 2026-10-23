@@ -83,6 +83,7 @@ struct DeviceConnectionPresentation: Equatable {
     let reason: String
     let technicalDetail: String
     let symbol: String
+    let resultOutcome: OperationOutcome
 }
 
 struct CheckPresentation: Identifiable {
@@ -92,6 +93,7 @@ struct CheckPresentation: Identifiable {
     let reason: String?
     let technicalDetail: String
     let symbol: String
+    let resultOutcome: OperationOutcome
 }
 
 struct RepairCandidatePresentation {
@@ -344,7 +346,7 @@ extension PresentationService {
         guard !deviceTestRunning, !historyClearRunning else { return }
         guard let port = DeviceConnectionInput.port(from: devicePort), DeviceConnectionInput.isValidHost(deviceHost) else {
             deviceConnection = .init(outcome: Self.outcomeTitle(.skipped), reason: DeviceConnectionReason.invalidInput.message,
-                                     technicalDetail: "errorCode: invalidInput", symbol: "minus.circle")
+                                     technicalDetail: "errorCode: invalidInput", symbol: "minus.circle", resultOutcome: .skipped)
             return
         }
         deviceTestRunning = true
@@ -370,7 +372,7 @@ extension PresentationService {
             .map { "\($0.key.rawValue): \($0.value)" }.joined(separator: " · ")
         return .init(outcome: outcomeTitle(result.outcome), reason: reason,
                      technicalDetail: "\(evidence) \(result.error.map { "\($0.domain)/\($0.code)" } ?? "")",
-                     symbol: result.outcome == .success ? "checkmark.circle" : result.outcome == .skipped ? "minus.circle" : "exclamationmark.triangle")
+                     symbol: result.outcome.statusSymbol, resultOutcome: result.outcome)
     }
     /// Explains a split verdict: the device answers over one address family but not the other.
     /// Explains what this Mac's own SMB client got once port 445 answered, and where a block sits.
@@ -674,7 +676,7 @@ extension PresentationService {
                      outcome: outcomeTitle(result.outcome),
                      reason: result.outcome == .success ? nil : reason,
                      technicalDetail: "\(evidence) \(result.error.map { "\($0.domain)/\($0.code)" } ?? "")",
-                     symbol: result.outcome == .success ? "checkmark.circle" : result.outcome == .skipped ? "minus.circle" : "exclamationmark.triangle")
+                     symbol: result.outcome.statusSymbol, resultOutcome: result.outcome)
     }
     static func operationTitle(_ stableName: String) -> String {
         return L10n.operationTitle(stableName)

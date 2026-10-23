@@ -6,7 +6,10 @@ struct ActivityView: View {
     let showReport: () -> Void
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(L10n.text("activity")).font(.largeTitle.bold())
+            HStack(spacing: 12) {
+                StatusIcon(symbol: "clock.arrow.circlepath")
+                Text(L10n.text("activity")).font(.largeTitle.bold())
+            }
             Picker(L10n.text("filter"), selection: $store.filter) {
                 Text(L10n.text("all")).tag("all"); Text(L10n.text("success")).tag("success"); Text(L10n.text("problems")).tag("problems")
             }.pickerStyle(.segmented).accessibilityIdentifier("activity.filter")
@@ -25,7 +28,13 @@ struct ActivityView: View {
                                     Text("\(key.rawValue): \(entry.after.values[key] ?? "")").font(.caption.monospaced())
                                 }
                             } label: {
-                                HStack { Text(PresentationStore.operationTitle(entry.name)); Spacer(); Text(PresentationStore.outcomeTitle(entry.outcome)).foregroundStyle(.secondary) }
+                                HStack(spacing: 10) {
+                                    StatusIcon(symbol: entry.outcome.statusSymbol,
+                                               tone: StatusTone(outcome: entry.outcome), size: 28)
+                                    Text(PresentationStore.operationTitle(entry.name))
+                                    Spacer()
+                                    Text(PresentationStore.outcomeTitle(entry.outcome)).foregroundStyle(.secondary)
+                                }
                             }
                         }
                     }

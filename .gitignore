@@ -4,6 +4,7 @@ Packages/NetUnstickKit/.build/
 DerivedData/
 Artifacts/SignedDerivedData/
 Artifacts/UITestDerivedData/
+Artifacts/AppearanceDerivedData/
 Artifacts/UIAttachments/
 Artifacts/UIAttachmentsLarge/
 Artifacts/UIAttachmentsFinal/

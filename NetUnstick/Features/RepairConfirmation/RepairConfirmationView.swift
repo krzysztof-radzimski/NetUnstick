@@ -9,7 +9,9 @@ struct RepairConfirmationView: View {
     let dismiss: () -> Void
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
-            Text(L10n.text("repair_candidate")).font(.title2.bold()).accessibilityIdentifier("repair.confirmation")
+            Label(L10n.text("repair_candidate"), systemImage: "wrench.adjustable")
+                .labelStyle(StatusLabelStyle(tone: .attention))
+                .font(.title2.bold()).accessibilityIdentifier("repair.confirmation")
             if let item = store.candidate {
                 LabeledContent(L10n.text("change"), value: item.change)
                 LabeledContent(L10n.text("why"), value: item.reason)
@@ -60,9 +62,7 @@ struct RepairConfirmationView: View {
                     .accessibilityIdentifier("repair.confirm")
             }
         }
-        .padding(20).frame(maxWidth: .infinity, alignment: .leading)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
-        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.accentColor, lineWidth: 2))
+        .statusPanel(tone: .attention, emphasized: true)
         .accessibilityElement(children: .contain)
     }
 
