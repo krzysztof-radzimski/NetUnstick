@@ -302,3 +302,34 @@ Z projektu usunięto oddzielny target, testy i flagi wydania sklepowego, metadan
 | Konfiguracja projektu, generatory i czystość zmian | Poprawny plist projektu, minimum macOS 14.0, wyłącznie targety pełnej aplikacji, helpera i jej testów; składnia generatorów oraz `git diff --check` poprawne. |
 
 Łącznie: **165 testów, 7 pominiętych, 0 błędów**. Zbudowanie i testy nie stanowią nowej próby naprawy rzeczywistej awarii. Nie uruchamiano napraw ani nie zmieniano konfiguracji sieci hosta; nie wykonywano nowej notaryzacji ani dystrybucji DMG.
+
+## Instalator PKG Developer ID — 23 października 2026
+
+Przygotowano standardowy instalator Apple dla wydania **0.3.0 (13), arm64, macOS 14+**. Aplikacja i osadzony helper pozostają podpisane certyfikatem Developer ID Application `D6CDD9E6748C6D2AE7D9FAF9D48D5CCAC992630E`. W portalu Apple wystawiono dodatkowy certyfikat **Developer ID Installer** zespołu `UGL4ZTH3C6`, o SHA-1 `93A07778E813EF6D7DB3A33CC934999F0B822467`, i dołączono jego publiczną część do istniejącego klucza wygenerowanego bezpośrednio w lokalnym pęku przez `certtool`. Klucza podpisu nie eksportowano.
+
+Po jawnym wyborze użytkownika włączono dostęp do App Store Connect API i utworzono klucz zespołu „NetUnstick Notary Developer” z rolą **Developer**. `notarytool store-credentials NetUnstick` potwierdził poprawne uwierzytelnienie i zapis profilu w pęku kluczy. Kopia klucza API jest przechowywana poza repozytorium w katalogu o uprawnieniach `0700`, w pliku `0600`; sekretów nie zapisano w kodzie ani logach. Operacje konta wykonano w Podglądzie, bez sterowania pulpitem.
+
+| Weryfikacja | Wynik |
+| --- | --- |
+| `Tools/BuildPKG.sh --notary-profile NetUnstick`, etap kompilacji Release | `BUILD SUCCEEDED`. Jawne `CODE_SIGN_STYLE=Manual` zapobiega konfliktowi automatycznego podpisu produktów Swift Package z podaną tożsamością Developer ID w Xcode 27.1. |
+| `check-helper-bundle.sh --require-developer-id` na aplikacji źródłowej i wyciągniętej z PKG | Kod 0; integralność podpisów, wspólny leaf, ograniczony klient XPC, Team ID, hardened runtime, timestamp i brak uprawnienia debuggera. |
+| `pkgutil --check-signature` | Certyfikat Developer ID Installer z poprawnym łańcuchem Apple i zaufanym znacznikiem czasu. |
+| `pkgutil --expand-full`, metadane i porównanie SHA-256 plików | Jedyną zawartością payloadu jest `NetUnstick.app`, z lokalizacją instalacji `/Applications`; **66 plików identycznych bajtowo** ze źródłowym Release, pliki aplikacji i helpera wykonywalne. PKG nie zawiera osobnego katalogu `/Applications`, skryptów instalacyjnych ani danych sesji. Wyłączona relokacja, kontrola wersji, zastąpienie całego bundla. |
+| Dystrybucja Instalatora | `hostArchitectures=arm64`, minimum `14.0`, wyłącznie domena systemowa; wymaganie zamknięcia `org.netunstick.NetUnstick`. Zasoby w `en.lproj` i `pl.lproj`. |
+| `installer -pkg … -target / -showChoicesXML` | Kod 0, aplikacja wybrana i dostępna do instalacji. To odczyt metadanych, bez instalowania. |
+| Błędne argumenty i typy certyfikatów | Brak wartości opcji i ID zgłoszenia bez `--resume` zatrzymują proces przed budowaniem i wysyłką. Apple Development jako certyfikat aplikacji oraz Developer ID Application jako certyfikat instalatora są odrzucane przed pakowaniem. |
+| `zsh -n`, `git diff --check`, walidacja XML i `Tools/Localization.py` | Poprawna składnia i XML; 369 kluczy × 24 języki aplikacji, bez rozbieżności placeholderów. |
+
+`pkgbuild` na tym hoście wypisuje cztery komunikaty `write: Permission denied` również przy osobnym pakowaniu kopii w katalogu tymczasowym; kończy się kodem 0. Powyższe porównanie wszystkich plików, kontrola wykonywalności, podpisów i odczyt przez systemowy Instalator przeszły. Nie traktowano samego kodu zakończenia narzędzia jako dowodu kompletności pakietu.
+
+Notaryzacja końcowego PKG: zgłoszenie **`34dfdfb4-653e-469d-8eb1-3a4313ee9025`**, wysłane 23 października 2026 o 09:53 UTC. O 10:13 UTC Apple nadal zwracało **`In Progress`**. `notarytool wait --timeout 20m` zakończyło się kodem **124** po 1200 sekundach, a skrypt zakończył się kodem 1 i zachował podpisany pakiet roboczy oraz metadane zgłoszenia. To zewnętrzne oczekiwanie na Apple; nie uzyskano akceptacji ani biletu i **nie potwierdzono Gatekeeper dla dystrybucji**. Skrypt poprawnie nie utworzył pliku o końcowej nazwie.
+
+Istniejący pakiet: `Artifacts/Distribution/NetUnstick-0.3.0-13-arm64-UNNOTARIZED.pkg`. Dokończenie tego samego zgłoszenia, z profilem już zapisanym w lokalnym pęku kluczy:
+
+```sh
+Tools/BuildPKG.sh --resume Artifacts/Distribution/NetUnstick-0.3.0-13-arm64-UNNOTARIZED.pkg --submission-id 34dfdfb4-653e-469d-8eb1-3a4313ee9025 --notary-profile NetUnstick
+```
+
+Komenda nie buduje ani nie wysyła ponownie aplikacji. Po akceptacji ma pobrać log, dołączyć i sprawdzić bilet, sprawdzić Gatekeeper oraz utworzyć `NetUnstick-0.3.0-13-arm64.pkg` i SHA-256; te etapy wymagają jeszcze rzeczywistego potwierdzenia. Odczytowe `installer -query RestartAction` zwróciło `None` (brak wymogu restartu).
+
+Próba oględzin kreatora przez `abc-desktop`: `computer_status` potwierdził gotowy sterownik, zgody Dostępność/Nagrywanie ekranu i aktywną zgodę projektu. Odczytano rzeczywisty obraz i drzewo Findera, otwarto własne okno oraz pole „Idź do” i zweryfikowano ustawioną ścieżkę PKG. Sterownik odmówił kolejnego klawisza z komunikatem „Fokus przeszedł do innego okna lub dialogu”; okna dialogowego nie udało się jednoznacznie przypisać do AXWindows. Nie otwarto kreatora Instalatora i nie deklaruje się wizualnej weryfikacji jego stron. Zwolniono pulpit przez `computer_end_turn`. Nie zmieniano zgód, zabezpieczeń ani nie obchodzono ograniczenia innym sterownikiem. Instalacji na drugim Macu ani naprawy rzeczywistej awarii nie wykonano.
