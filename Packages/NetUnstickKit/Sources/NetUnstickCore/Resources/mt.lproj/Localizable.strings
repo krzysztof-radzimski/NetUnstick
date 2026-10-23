@@ -316,6 +316,7 @@
 "settings_helper_details" = "Dettalji u permessi";
 "settings_language" = "L-app tuża l-preferenza tal-lingwa tiegħek ta’ macOS.";
 "settings_privacy_summary" = "L-istorja tibqa’ fuq dan il-Mac. Ebda telemetrija jew uploads fl-isfond.";
+"settings_version" = "Verżjoni";
 "sharing_accountNotEnabledForSMB" = "Il-qsim tal-fajls mixgħul, iżda l-kont m’għandux password SMB. Login minn Mac ieħor jiġi rrifjutat.";
 "sharing_cancelled" = "Il-kontroll ġie kkanċellat.";
 "sharing_dataIncomplete" = "L-istat tal-qsim tal-fajls ma setax jinqara.";

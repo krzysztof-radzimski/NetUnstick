@@ -316,6 +316,7 @@
 "settings_helper_details" = "Details und Berechtigungen";
 "settings_language" = "Die App verwendet Ihre macOS-Spracheinstellung.";
 "settings_privacy_summary" = "Der Verlauf bleibt auf diesem Mac. Keine Telemetrie und keine Hintergrund-Uploads.";
+"settings_version" = "Version";
 "sharing_accountNotEnabledForSMB" = "Die Dateifreigabe ist aktiv, aber für Ihr Konto ist kein SMB-Passwort gespeichert. Anmeldungen von anderen Macs werden abgewiesen.";
 "sharing_cancelled" = "Die Prüfung wurde abgebrochen.";
 "sharing_dataIncomplete" = "Der Status der Dateifreigabe konnte nicht gelesen werden.";

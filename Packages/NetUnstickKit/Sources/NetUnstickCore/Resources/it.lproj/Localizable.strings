@@ -316,6 +316,7 @@
 "settings_helper_details" = "Dettagli e autorizzazioni";
 "settings_language" = "L’app usa la lingua preferita di macOS.";
 "settings_privacy_summary" = "La cronologia rimane su questo Mac. Nessuna telemetria o caricamento in background.";
+"settings_version" = "Versione";
 "sharing_accountNotEnabledForSMB" = "Condivisione file è attiva, ma il tuo account non ha una password SMB salvata. L’accesso da un altro Mac viene rifiutato.";
 "sharing_cancelled" = "Il controllo è stato annullato.";
 "sharing_dataIncomplete" = "Impossibile leggere lo stato di Condivisione file.";

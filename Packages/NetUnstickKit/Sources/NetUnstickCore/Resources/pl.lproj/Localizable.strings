@@ -316,6 +316,7 @@
 "settings_helper_details" = "Szczegóły i uprawnienia";
 "settings_language" = "Aplikacja używa języka wybranego w macOS.";
 "settings_privacy_summary" = "Historia pozostaje na tym Macu. Bez telemetrii i wysyłki w tle.";
+"settings_version" = "Wersja";
 "sharing_accountNotEnabledForSMB" = "Udostępnianie działa, ale konto nie ma hasła SMB. Logowanie z drugiego Maca jest odrzucane.";
 "sharing_cancelled" = "Sprawdzenie zostało anulowane.";
 "sharing_dataIncomplete" = "Nie udało się odczytać stanu udostępniania plików.";

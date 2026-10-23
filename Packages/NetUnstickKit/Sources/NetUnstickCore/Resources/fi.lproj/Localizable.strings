@@ -316,6 +316,7 @@
 "settings_helper_details" = "Tiedot ja käyttöoikeudet";
 "settings_language" = "Sovellus käyttää macOS:n kieliasetustasi.";
 "settings_privacy_summary" = "Historia pysyy tällä Macilla. Ei telemetriaa tai taustalähetyksiä.";
+"settings_version" = "Versio";
 "sharing_accountNotEnabledForSMB" = "Tiedostonjako on päällä, mutta tilillä ei ole SMB-salasanaa. Kirjautuminen toisesta Macista estetään.";
 "sharing_cancelled" = "Tarkistus peruttiin.";
 "sharing_dataIncomplete" = "Tiedostonjaon tilaa ei voitu lukea.";

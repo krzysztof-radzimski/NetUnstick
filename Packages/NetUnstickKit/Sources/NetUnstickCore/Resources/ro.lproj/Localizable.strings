@@ -316,6 +316,7 @@
 "settings_helper_details" = "Detalii și permisiuni";
 "settings_language" = "Aplicația folosește preferința de limbă macOS.";
 "settings_privacy_summary" = "Istoricul rămâne pe acest Mac. Fără telemetrie sau încărcări în fundal.";
+"settings_version" = "Versiune";
 "sharing_accountNotEnabledForSMB" = "Partajarea fișierelor este activă, dar contul dvs. nu are o parolă SMB salvată. Autentificarea de pe alt Mac este refuzată.";
 "sharing_cancelled" = "Verificarea a fost anulată.";
 "sharing_dataIncomplete" = "Starea partajării fișierelor nu a putut fi citită.";

@@ -316,6 +316,7 @@
 "settings_helper_details" = "Sonraí agus ceadanna";
 "settings_language" = "Úsáideann an aip do rogha teanga macOS.";
 "settings_privacy_summary" = "Fanann an stair ar an Mac seo. Gan teiliméadracht ná uaslódálacha cúlra.";
+"settings_version" = "Leagan";
 "sharing_accountNotEnabledForSMB" = "Tá Comhroinnt Comhad ar siúl, ach níl pasfhocal SMB don chuntas. Diúltaítear do logáil isteach ó Mac eile.";
 "sharing_cancelled" = "Cealaíodh an seiceáil.";
 "sharing_dataIncomplete" = "Níorbh fhéidir staid Comhroinnt Comhad a léamh.";

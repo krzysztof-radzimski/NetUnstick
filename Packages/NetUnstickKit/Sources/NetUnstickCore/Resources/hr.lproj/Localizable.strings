@@ -316,6 +316,7 @@
 "settings_helper_details" = "Detalji i dozvole";
 "settings_language" = "Aplikacija koristi jezik odabran u macOS-u.";
 "settings_privacy_summary" = "Povijest ostaje na ovom Macu. Bez telemetrije ili slanja u pozadini.";
+"settings_version" = "Verzija";
 "sharing_accountNotEnabledForSMB" = "Dijeljenje radi, ali račun nema SMB lozinku. Prijava s drugog Maca je odbijena.";
 "sharing_cancelled" = "Provjera je otkazana.";
 "sharing_dataIncomplete" = "Stanje dijeljenja datoteka ne može se pročitati.";

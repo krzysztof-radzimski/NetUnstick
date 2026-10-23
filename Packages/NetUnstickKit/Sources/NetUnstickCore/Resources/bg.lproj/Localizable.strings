@@ -316,6 +316,7 @@
 "settings_helper_details" = "Подробности и разрешения";
 "settings_language" = "Приложението ползва предпочитания език на macOS.";
 "settings_privacy_summary" = "Историята остава на този Mac. Без телеметрия или качване във фонов режим.";
+"settings_version" = "Версия";
 "sharing_accountNotEnabledForSMB" = "Споделянето е включено, но акаунтът ви няма запазена SMB парола. Влизането от друг Mac се отказва.";
 "sharing_cancelled" = "Проверката е отменена.";
 "sharing_dataIncomplete" = "Състоянието на споделянето не можа да се прочете.";

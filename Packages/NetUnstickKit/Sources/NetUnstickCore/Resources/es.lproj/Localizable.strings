@@ -316,6 +316,7 @@
 "settings_helper_details" = "Detalles y permisos";
 "settings_language" = "La app usa su preferencia de idioma de macOS.";
 "settings_privacy_summary" = "El historial se queda en este Mac. Sin telemetría ni envíos en segundo plano.";
+"settings_version" = "Versión";
 "sharing_accountNotEnabledForSMB" = "Compartir archivos está activado, pero su cuenta no tiene una contraseña SMB guardada. Se rechaza el inicio de sesión desde otro Mac.";
 "sharing_cancelled" = "La comprobación se canceló.";
 "sharing_dataIncomplete" = "No se pudo leer el estado de Compartir archivos.";

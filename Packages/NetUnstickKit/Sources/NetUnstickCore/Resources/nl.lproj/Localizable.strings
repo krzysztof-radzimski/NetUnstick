@@ -316,6 +316,7 @@
 "settings_helper_details" = "Details en machtigingen";
 "settings_language" = "De app gebruikt uw taalvoorkeur in macOS.";
 "settings_privacy_summary" = "De geschiedenis blijft op deze Mac. Geen telemetrie of uploads op de achtergrond.";
+"settings_version" = "Versie";
 "sharing_accountNotEnabledForSMB" = "Bestandsdeling staat aan, maar uw account heeft geen opgeslagen SMB-wachtwoord. Inloggen vanaf een andere Mac wordt geweigerd.";
 "sharing_cancelled" = "De controle is geannuleerd.";
 "sharing_dataIncomplete" = "De status van bestandsdeling kon niet worden gelezen.";

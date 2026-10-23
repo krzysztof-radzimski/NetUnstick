@@ -316,6 +316,7 @@
 "settings_helper_details" = "Részletek és engedélyek";
 "settings_language" = "Az app a macOS előnyben részesített nyelvét használja.";
 "settings_privacy_summary" = "Az előzmények ezen a Macen maradnak. Nincs telemetria vagy háttérbeli feltöltés.";
+"settings_version" = "Verzió";
 "sharing_accountNotEnabledForSMB" = "A fájlmegosztás aktív, de fiókjához nincs tárolt SMB-jelszó. A másik Macről való bejelentkezés tiltott.";
 "sharing_cancelled" = "Az ellenőrzés megszakítva.";
 "sharing_dataIncomplete" = "A fájlmegosztás állapota nem olvasható.";

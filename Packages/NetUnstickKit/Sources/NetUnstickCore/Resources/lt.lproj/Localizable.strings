@@ -316,6 +316,7 @@
 "settings_helper_details" = "Duomenys ir leidimai";
 "settings_language" = "Programa naudoja jūsų „macOS“ kalbos nuostatą.";
 "settings_privacy_summary" = "Istorija lieka šiame „Mac“. Nėra telemetrijos ar foninio siuntimo.";
+"settings_version" = "Versija";
 "sharing_accountNotEnabledForSMB" = "Failų bendrinimas įjungtas, bet paskyra neturi SMB slaptažodžio. Prisijungimas iš kito „Mac“ atmetamas.";
 "sharing_cancelled" = "Patikra atšaukta.";
 "sharing_dataIncomplete" = "Failų bendrinimo būsenos nuskaityti nepavyko.";

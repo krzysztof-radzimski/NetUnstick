@@ -343,6 +343,7 @@
     "settings_helper_details",
     "settings_language",
     "settings_privacy_summary",
+    "settings_version",
     "sharing_accountNotEnabledForSMB",
     "sharing_cancelled",
     "sharing_dataIncomplete",

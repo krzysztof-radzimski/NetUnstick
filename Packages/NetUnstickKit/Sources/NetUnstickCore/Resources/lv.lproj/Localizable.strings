@@ -316,6 +316,7 @@
 "settings_helper_details" = "Informācija un atļaujas";
 "settings_language" = "Lietotne izmanto jūsu macOS valodas preferenci.";
 "settings_privacy_summary" = "Vēsture paliek šajā Mac. Nav telemetrijas vai fona augšupielāžu.";
+"settings_version" = "Versija";
 "sharing_accountNotEnabledForSMB" = "Failu koplietošana ieslēgta, bet kontam nav SMB paroles. Pieteikšanās no cita Mac tiek noraidīta.";
 "sharing_cancelled" = "Pārbaude tika atcelta.";
 "sharing_dataIncomplete" = "Failu koplietošanas statusu nevarēja nolasīt.";

@@ -316,6 +316,7 @@
 "settings_helper_details" = "Üksikasjad ja õigused";
 "settings_language" = "Rakendus kasutab sinu macOS-i keeleeelistust.";
 "settings_privacy_summary" = "Ajalugu jääb sellesse Maci. Telemeetriat ega taustal üleslaadimist pole.";
+"settings_version" = "Versioon";
 "sharing_accountNotEnabledForSMB" = "Failijagamine on sees, kuid kontol pole SMB-parooli. Sisselogimine teisest Macist keelatakse.";
 "sharing_cancelled" = "Kontroll tühistati.";
 "sharing_dataIncomplete" = "Failijagamise olekut ei saanud lugeda.";

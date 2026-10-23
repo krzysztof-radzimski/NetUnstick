@@ -1427,6 +1427,32 @@
       "en": "Edition",
       "pl": "Wydanie"
     },
+    "settings_version": {
+      "bg": "Версия",
+      "cs": "Verze",
+      "da": "Version",
+      "de": "Version",
+      "el": "Έκδοση",
+      "en": "Version",
+      "es": "Versión",
+      "et": "Versioon",
+      "fi": "Versio",
+      "fr": "Version",
+      "ga": "Leagan",
+      "hr": "Verzija",
+      "hu": "Verzió",
+      "it": "Versione",
+      "lt": "Versija",
+      "lv": "Versija",
+      "mt": "Verżjoni",
+      "nl": "Versie",
+      "pl": "Wersja",
+      "pt": "Versão",
+      "ro": "Versiune",
+      "sk": "Verzia",
+      "sl": "Različica",
+      "sv": "Version"
+    },
     "settings_helper_details": {
       "en": "Details and permissions",
       "pl": "Szczegóły i uprawnienia"

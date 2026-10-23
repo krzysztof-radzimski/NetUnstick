@@ -9,10 +9,12 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
-            Section(L10n.text("settings_edition")) {
-                Label("Developer ID", systemImage: "wrench.adjustable")
-                Text(L10n.text("help_scope_body"))
-                    .foregroundStyle(.secondary)
+            Section("NetUnstick") {
+                LabeledContent(L10n.text("settings_version")) {
+                    Text(appVersion)
+                        .textSelection(.enabled)
+                        .accessibilityIdentifier("settings.version")
+                }
             }
             Section(L10n.text("helper")) {
                 Label(store.helper.title, systemImage: store.helper.symbol)
@@ -95,5 +97,12 @@ struct SettingsView: View {
         .alert(L10n.text("history_erase_failed"), isPresented: $eraseFailed) {
             Button(L10n.text("ok"), role: .cancel) { }
         } message: { Text(L10n.text("history_erase_failed_detail")) }
+    }
+
+    private var appVersion: String {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
+        guard let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String,
+              !build.isEmpty else { return version }
+        return "\(version) (\(build))"
     }
 }

@@ -316,6 +316,7 @@
 "settings_helper_details" = "Details and permissions";
 "settings_language" = "The app uses your macOS language preference.";
 "settings_privacy_summary" = "History stays on this Mac. No telemetry or background uploads.";
+"settings_version" = "Version";
 "sharing_accountNotEnabledForSMB" = "File Sharing is on, but your account has no SMB password stored. Sign-in from another Mac is rejected.";
 "sharing_cancelled" = "The check was cancelled.";
 "sharing_dataIncomplete" = "The File Sharing state could not be read.";

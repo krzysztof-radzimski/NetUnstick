@@ -316,6 +316,7 @@
 "settings_helper_details" = "Oplysninger og tilladelser";
 "settings_language" = "Appen bruger dit foretrukne macOS-sprog.";
 "settings_privacy_summary" = "Historikken bliver på denne Mac. Ingen telemetri eller baggrundsoverførsler.";
+"settings_version" = "Version";
 "sharing_accountNotEnabledForSMB" = "Fildeling er slået til, men kontoen mangler SMB-adgangskode. Login fra en anden Mac afvises.";
 "sharing_cancelled" = "Kontrollen blev annulleret.";
 "sharing_dataIncomplete" = "Fildelingens status kunne ikke læses.";

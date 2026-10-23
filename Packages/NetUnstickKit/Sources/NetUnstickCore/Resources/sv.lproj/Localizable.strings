@@ -316,6 +316,7 @@
 "settings_helper_details" = "Detaljer och behörigheter";
 "settings_language" = "Appen använder din språkinställning i macOS.";
 "settings_privacy_summary" = "Historiken stannar på denna Mac. Ingen telemetri eller bakgrundsuppladdning.";
+"settings_version" = "Version";
 "sharing_accountNotEnabledForSMB" = "Fildelning är aktiverad, men ditt konto har inget sparat SMB-lösenord. Inloggning från en annan Mac nekas.";
 "sharing_cancelled" = "Kontrollen avbröts.";
 "sharing_dataIncomplete" = "Fildelningens status kunde inte läsas.";

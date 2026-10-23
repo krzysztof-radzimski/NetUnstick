@@ -316,6 +316,7 @@
 "settings_helper_details" = "Podrobnosti a oprávnenia";
 "settings_language" = "Aplikácia používa jazyk zvolený v macOS.";
 "settings_privacy_summary" = "História zostáva na tomto Macu. Bez telemetrie a odosielania na pozadí.";
+"settings_version" = "Verzia";
 "sharing_accountNotEnabledForSMB" = "Zdieľanie funguje, ale účet nemá heslo SMB. Prihlásenie z iného Macu je odmietnuté.";
 "sharing_cancelled" = "Kontrola bola zrušená.";
 "sharing_dataIncomplete" = "Stav zdieľania súborov nemožno prečítať.";

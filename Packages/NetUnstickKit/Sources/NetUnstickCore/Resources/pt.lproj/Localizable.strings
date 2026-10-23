@@ -316,6 +316,7 @@
 "settings_helper_details" = "Detalhes e permissões";
 "settings_language" = "A aplicação usa a sua preferência de idioma do macOS.";
 "settings_privacy_summary" = "O histórico fica neste Mac. Sem telemetria nem envios em segundo plano.";
+"settings_version" = "Versão";
 "sharing_accountNotEnabledForSMB" = "A partilha de ficheiros está ativa, mas a sua conta não tem uma palavra-passe SMB guardada. O início de sessão de outro Mac é recusado.";
 "sharing_cancelled" = "A verificação foi cancelada.";
 "sharing_dataIncomplete" = "Não foi possível ler o estado da partilha de ficheiros.";

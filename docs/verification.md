@@ -341,3 +341,16 @@ Gotowy artefakt: **`Artifacts/Distribution/NetUnstick-0.3.0-13-arm64.pkg`**, wra
 Pełny log wznowienia pozostaje w ignorowanym `Artifacts/tmp/pkg-notarization-finish.log`; wynik i log Apple w `Artifacts/Distribution/NetUnstick-0.3.0-13-arm64-notary*.json`. Potwierdzono wymagania podpisu i notaryzacji dla dystrybucji; instalacja na drugim Macu pozostaje poza wykonaną próbą.
 
 Próba oględzin kreatora przez `abc-desktop`: `computer_status` potwierdził gotowy sterownik, zgody Dostępność/Nagrywanie ekranu i aktywną zgodę projektu. Odczytano rzeczywisty obraz i drzewo Findera, otwarto własne okno oraz pole „Idź do” i zweryfikowano ustawioną ścieżkę PKG. Sterownik odmówił kolejnego klawisza z komunikatem „Fokus przeszedł do innego okna lub dialogu”; okna dialogowego nie udało się jednoznacznie przypisać do AXWindows. Nie otwarto kreatora Instalatora i nie deklaruje się wizualnej weryfikacji jego stron. Zwolniono pulpit przez `computer_end_turn`. Nie zmieniano zgód, zabezpieczeń ani nie obchodzono ograniczenia innym sterownikiem. Instalacji na drugim Macu ani naprawy rzeczywistej awarii nie wykonano.
+
+## Wersja aplikacji w Ustawieniach — 23 października 2026
+
+W Ustawieniach zastąpiono informację o wydaniu Developer ID wierszem „Wersja”. Numer wersji i buildu pochodzi z `CFBundleShortVersionString` i `CFBundleVersion` uruchomionej aplikacji. Etykieta ma tłumaczenia we wszystkich 24 obsługiwanych językach.
+
+| Weryfikacja na macOS arm64 | Wynik |
+| --- | --- |
+| Podpisany Release schematu `NetUnstick` | Kod 0, `BUILD SUCCEEDED`. Metadane zbudowanej aplikacji: `0.3.0 (13)`, minimum macOS `14.0`. |
+| `check-helper-bundle.sh … --require-developer-id` | Kod 0; poprawny pakiet helpera, podpisy i wymaganie klienta XPC. |
+| `python3 Tools/Localization.py` | 370 kluczy × 24 języki; zasoby i placeholdery zgodne ze źródłem. |
+| `git diff --check` | Kod 0. |
+
+Zakres tej weryfikacji obejmuje kompilację, zasoby i podpisy; nie wykonano nowej próby wizualnej Ustawień. Wcześniejszy notaryzowany PKG pozostaje artefaktem sprzed tej zmiany interfejsu.
