@@ -389,3 +389,29 @@ Wspólny `FullWidthDisclosureStyle` zastępuje ograniczony obszar strzałki przy
 | Wiersz kontroli w Aktywności | Klik w pustym środku wiersza otworzył szczegóły, a ponowny klik je zamknął. |
 
 Próby wykonano na nowym Release z `Artifacts/ReleaseDerivedData/Build/Products/Release/NetUnstick.app` przez rzeczywiste wejścia `abc-desktop`, z obrazem okna i odczytem dostępności, w ciemnym motywie hosta. Most potwierdził gotowość, zgody Dostępność/Nagrywanie ekranu i zgodę projektu. Nie uruchamiano diagnostyki, napraw ani eksportu raportu. Nie powtarzano pełnej macierzy XCUITest z opisanym wyżej ograniczeniem runnera; powyższe wyniki są osobnym, wykonanym testem interakcji natywnej. Przywrócono pierwotny katalog istniejącego okna Findera, pozostawiono nowy build na ekranie Stan ze zwiniętymi kartami i zwolniono pulpit przez `computer_end_turn`.
+
+## Notaryzowane wydanie 0.3.1 (14) — 23 października 2026
+
+Po akceptacji działania interfejsu przez użytkownika przygotowano nowy instalator zawierający numer wersji w Ustawieniach, kolory i animacje oraz rozwijanie paneli całym nagłówkiem. Wersję aplikacji i helpera ustawiono na **0.3.1 (14)** we wszystkich konfiguracjach projektu. Wydanie zbudowano na macOS arm64, Xcode 27.1 (`27A9275`), poleceniem:
+
+```sh
+Tools/BuildPKG.sh --notary-profile NetUnstick
+```
+
+| Weryfikacja | Wynik |
+| --- | --- |
+| Kompilacja Release i kontrola aplikacji oraz helpera przed i po spakowaniu | `BUILD SUCCEEDED`; `check-helper-bundle.sh --require-developer-id` zakończony kodem 0. Zachowano Developer ID Application zespołu `UGL4ZTH3C6`, hardened runtime, timestamp i brak `get-task-allow`. |
+| Podpis PKG | Developer ID Installer tego samego zespołu, prawidłowy łańcuch Apple i zaufany znacznik czasu. |
+| Rozpakowanie payloadu i porównanie z Release | **66 plików/linków**, zgodne SHA-256 i uprawnienia; aplikacja oraz helper wykonywalne, oba `arm64`. Metadane aplikacji `0.3.1 (14)`, pakietu `0.3.1.14`, minimum macOS `14.0`, lokalizacja `/Applications`. |
+| Konfiguracja instalacji | Jedynym payloadem jest `NetUnstick.app` z helperem, bez skryptów instalacyjnych; stała lokalizacja i kontrola wersji. Odczytowe `installer -showChoicesXML` zakończone kodem 0, `RestartAction`: `None`. |
+| Notaryzacja Apple | Zgłoszenie `16b42e7e-8873-4a6b-aa3b-f2038f016aaf`, wysłane o 12:10 UTC: **`Accepted`**, `statusCode: 0`, `issues: null`. |
+| Bilet i Gatekeeper | `stapler staple` i `stapler validate` poprawne; PKG i wyodrębniona aplikacja zaakceptowane jako **`Notarized Developer ID`**. Ponowna walidacja biletu, ocena instalatora i sprawdzenie SHA-256 końcowego pliku zakończone kodem 0. |
+| Lokalizacje i konfiguracja projektu | 370 kluczy × 24 języki, zgodne placeholdery; poprawny plist projektu. |
+
+Skrypt zakończył się **kodem 0**. Gotowy instalator: **`Artifacts/Distribution/NetUnstick-0.3.1-14-arm64.pkg`**, rozmiar **1 924 299 bajtów**, wraz z plikiem `.pkg.sha256`. SHA-256 pakietu z dołączonym biletem:
+
+```text
+93ce15cdebaef9b03733fd60a0290757160e1be5da4c0e27350665d3074dedb8
+```
+
+Log procesu pozostaje w ignorowanym `Artifacts/tmp/pkg-0.3.1-14.log`, a wyniki i log Apple w `Artifacts/Distribution/NetUnstick-0.3.1-14-arm64-notary*.json`. Wcześniejszy instalator `0.3.0 (13)` zachowano. Zakres tej próby obejmuje przygotowanie i weryfikację nowego wydania; nie instalowano go na drugim Macu ani nie powtarzano opisanych wyżej testów UI i napraw rzeczywistej sieci.
