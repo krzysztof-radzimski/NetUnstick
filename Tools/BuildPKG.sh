@@ -1,6 +1,6 @@
 #!/bin/zsh
 # Developer ID installer for macOS 14+, Apple Silicon. Secrets stay in Keychain.
-# Usage: Tools/BuildPKG.sh --notary-profile NetUnstick [--skip-build]
+# Usage: Tools/BuildPKG.sh --notary-profile NetUnstick [--skip-build] [--update-feed]
 #        Tools/BuildPKG.sh --prepare-only [--skip-build]
 # Resume an existing submission without rebuilding or uploading again:
 #        Tools/BuildPKG.sh --resume draft.pkg --submission-id UUID --notary-profile NetUnstick
@@ -10,6 +10,7 @@ cd "$(dirname "$0")/.."
 die() { print -u2 -- "$*"; exit 1; }
 skip_build=false
 prepare_only=false
+update_feed=false
 profile="${NETUNSTICK_NOTARY_PROFILE:-}"
 resume=''
 submission_id=''
@@ -17,6 +18,7 @@ while (( $# )); do
     case "$1" in
         --skip-build) skip_build=true; shift ;;
         --prepare-only) prepare_only=true; shift ;;
+        --update-feed) update_feed=true; shift ;;
         --notary-profile|--resume|--submission-id)
             (( $# >= 2 )) || die "Brak wartości dla $1."
             case "$1" in
@@ -31,6 +33,7 @@ done
 [[ "$prepare_only" == true || -n "$profile" ]] || die 'Podaj --notary-profile <profil z pęku kluczy> albo --prepare-only (pakiet niegotowy do dystrybucji).'
 [[ -z "$submission_id" || -n "$resume" ]] || die '--submission-id wymaga --resume.'
 [[ -z "$resume" || "$prepare_only" == false ]] || die '--resume nie łączy się z --prepare-only.'
+[[ "$prepare_only" == false || "$update_feed" == false ]] || die '--update-feed wymaga pełnej notaryzacji, bez --prepare-only.'
 [[ -z "$submission_id" || "$submission_id" =~ '^[[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{12}$' ]] || die 'Nieprawidłowy identyfikator zgłoszenia.'
 
 team='UGL4ZTH3C6'
@@ -148,7 +151,9 @@ if [[ -z "$submission_id" ]]; then
     submission_id="$(/usr/bin/python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["id"])' "$out/$name-submission.json")"
 fi
 print "Zgłoszenie Apple: $submission_id"
-print "Po przerwaniu wznów: Tools/BuildPKG.sh --resume '$draft' --submission-id '$submission_id' --notary-profile '$profile'"
+resume_suffix=''
+if [[ "$update_feed" == true ]]; then resume_suffix=' --update-feed'; fi
+print "Po przerwaniu wznów: Tools/BuildPKG.sh --resume '$draft' --submission-id '$submission_id' --notary-profile '$profile'$resume_suffix"
 wait_code=0
 /usr/bin/xcrun notarytool wait "$submission_id" --keychain-profile "$profile" --timeout 20m --output-format json > "$result" || wait_code=$?
 if (( wait_code != 0 )); then
@@ -180,3 +185,6 @@ final="$out/$name.pkg"
 (cd "$out" && /usr/bin/shasum -a 256 "$name.pkg" > "$name.pkg.sha256")
 /bin/cat "$final.sha256"
 print "Gotowy instalator Developer ID: $final"
+if [[ "$update_feed" == true ]]; then
+    Tools/BuildUpdateFeed.sh --package "$final"
+fi

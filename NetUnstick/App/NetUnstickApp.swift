@@ -4,10 +4,12 @@ import NetUnstickNetwork
 
 @main
 struct NetUnstickApp: App {
+    @StateObject private var updates = AppUpdateStore()
     @Environment(\.dynamicTypeSize) private var systemTextSize
     var body: some Scene {
         WindowGroup("NetUnstick") {
             ContentView()
+                .environmentObject(updates)
                 .preferredColorScheme(CompositionRoot.testOption("--ui-light") ? .light : CompositionRoot.testOption("--ui-dark") ? .dark : nil)
                 .environment(\.dynamicTypeSize, CompositionRoot.testOption("--ui-large-text") ? .accessibility2 : systemTextSize)
                 .transaction { transaction in

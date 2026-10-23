@@ -1,0 +1,12 @@
+# Append these rules to ITORG's existing public/_headers; preserve its CSP and other rules.
+/NetUnstick/updates/latest.json
+  Cache-Control: no-cache, max-age=0, must-revalidate
+  Content-Type: application/json; charset=utf-8
+
+/NetUnstick/updates/*.pkg
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: application/octet-stream
+
+/NetUnstick/updates/*.sha256
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: text/plain; charset=utf-8

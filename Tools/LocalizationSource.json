@@ -1364,8 +1364,8 @@
       "pl": "Ruch sieciowy"
     },
     "privacy_network_body": {
-      "en": "On your request, diagnostics resolve example.com using your resolver, connect to 1.1.1.1:443 and browse local Bonjour services. A device test contacts the endpoint you entered. DNS providers and contacted devices can see the usual network metadata, including the source address. No diagnostic report is sent to the developer.",
-      "pl": "Na Twoje polecenie diagnostyka rozwiązuje example.com przez Twój resolver, łączy się z 1.1.1.1:443 i przegląda lokalne usługi Bonjour. Test urządzenia kontaktuje się ze wskazanym celem. Dostawcy DNS i urządzenia docelowe widzą zwykłe metadane sieciowe, w tym adres źródłowy. Żaden raport diagnostyczny nie jest wysyłany twórcy."
+      "en": "On your request, diagnostics resolve example.com using your resolver, connect to 1.1.1.1:443 and browse local Bonjour services. A device test contacts the endpoint you entered. DNS providers and contacted devices can see the usual network metadata, including the source address. No diagnostic report is sent to the developer. When update checks are enabled, the app fetches a version file from itorg.pl at startup. You can turn this off. A PKG is downloaded after you click. Hosting receives normal HTTP metadata, including your IP address, but no reports or device identifier.",
+      "pl": "Na Twoje polecenie diagnostyka rozwiązuje example.com przez Twój resolver, łączy się z 1.1.1.1:443 i przegląda lokalne usługi Bonjour. Test urządzenia kontaktuje się ze wskazanym celem. Dostawcy DNS i urządzenia docelowe widzą zwykłe metadane sieciowe, w tym adres źródłowy. Żaden raport diagnostyczny nie jest wysyłany twórcy. Przy włączonym sprawdzaniu aktualizacji aplikacja przy starcie pobiera plik wersji z itorg.pl. Można to wyłączyć. Po Twoim kliknięciu pobiera PKG. Hosting otrzymuje zwykłe metadane HTTP, w tym adres IP, ale nie otrzymuje raportów ani identyfikatora urządzenia."
     },
     "privacy_retention_title": {
       "en": "Storage and deletion",
@@ -1388,8 +1388,8 @@
       "pl": "Wersja polityki"
     },
     "privacy_version_body": {
-      "en": "21 October 2026. Publisher: ITORG Krzysztof Radzimski. Privacy contact: kr@itorg.pl.",
-      "pl": "21 października 2026. Wydawca: ITORG Krzysztof Radzimski. Kontakt w sprawach prywatności: kr@itorg.pl."
+      "en": "23 October 2026. Publisher: ITORG Krzysztof Radzimski. Privacy contact: kr@itorg.pl.",
+      "pl": "23 października 2026. Wydawca: ITORG Krzysztof Radzimski. Kontakt w sprawach prywatności: kr@itorg.pl."
     },
     "help_safety_title": {
       "en": "Narrow changes only",
@@ -1528,6 +1528,90 @@
     "help_scope_body": {
       "en": "Read-only checks and individually confirmed repairs.",
       "pl": "Kontrole odczytowe i osobno potwierdzane naprawy."
+    },
+    "updates_title": {
+      "en": "Updates",
+      "pl": "Aktualizacje"
+    },
+    "updates_startup": {
+      "en": "Check at startup",
+      "pl": "Sprawdzaj przy uruchomieniu"
+    },
+    "updates_privacy": {
+      "en": "Update checks contact itorg.pl. No reports or diagnostic data are sent.",
+      "pl": "Sprawdzanie łączy się z itorg.pl. Bez wysyłania raportów i danych diagnostycznych."
+    },
+    "updates_idle": {
+      "en": "Updates have not been checked yet.",
+      "pl": "Nie sprawdzono jeszcze aktualizacji."
+    },
+    "updates_checking": {
+      "en": "Checking for updates…",
+      "pl": "Sprawdzanie aktualizacji…"
+    },
+    "updates_current": {
+      "en": "Your version is up to date.",
+      "pl": "Masz aktualną wersję."
+    },
+    "updates_available %@": {
+      "en": "Version %@ is available.",
+      "pl": "Dostępna jest wersja %@."
+    },
+    "updates_downloading": {
+      "en": "Downloading update…",
+      "pl": "Pobieranie aktualizacji…"
+    },
+    "updates_verifying": {
+      "en": "Verifying package authenticity…",
+      "pl": "Sprawdzanie autentyczności pakietu…"
+    },
+    "updates_ready": {
+      "en": "Package downloaded and verified.",
+      "pl": "Pakiet pobrany i zweryfikowany."
+    },
+    "updates_opening_installer": {
+      "en": "Opening Installer…",
+      "pl": "Uruchamianie Instalatora…"
+    },
+    "updates_installer_opened": {
+      "en": "Finish the update in the system Installer, then reopen NetUnstick.",
+      "pl": "Dokończ aktualizację w systemowym Instalatorze, potem uruchom NetUnstick ponownie."
+    },
+    "updates_failed": {
+      "en": "Unable to check or download updates. Check your connection and try again.",
+      "pl": "Nie można sprawdzić lub pobrać aktualizacji. Sprawdź połączenie i spróbuj ponownie."
+    },
+    "updates_rejected": {
+      "en": "The update could not be verified. Installation is blocked. Try again later.",
+      "pl": "Nie można potwierdzić poprawności aktualizacji. Instalacja jest zablokowana. Spróbuj ponownie później."
+    },
+    "updates_download": {
+      "en": "Download update",
+      "pl": "Pobierz aktualizację"
+    },
+    "updates_install": {
+      "en": "Open Installer…",
+      "pl": "Uruchom instalator…"
+    },
+    "updates_operation_busy": {
+      "en": "Finish the active operation before installing.",
+      "pl": "Zakończ aktywną operację przed instalacją."
+    },
+    "updates_install_hint": {
+      "en": "Installer will ask you to close NetUnstick and authorize installation as an administrator. Your history is preserved.",
+      "pl": "Instalator poprosi o zamknięcie NetUnstick i zgodę administratora. Historia pozostanie zachowana."
+    },
+    "updates_check": {
+      "en": "Check for updates",
+      "pl": "Sprawdź aktualizacje"
+    },
+    "updates_details": {
+      "en": "View update",
+      "pl": "Zobacz aktualizację"
+    },
+    "updates_incompatible": {
+      "en": "The new release is not compatible with this system. You can keep using the current app.",
+      "pl": "Nowe wydanie nie jest zgodne z tym systemem. Obecna aplikacja nadal działa."
     }
   }
 }

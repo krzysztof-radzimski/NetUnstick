@@ -23,3 +23,4 @@ xcuserdata/
 *.log
 Artifacts/ReleaseDerivedData/
 Artifacts/Distribution/
+Artifacts/UpdatePublication/

@@ -3,6 +3,7 @@ import NetUnstickCore
 import UniformTypeIdentifiers
 
 struct ContentView: View {
+    @EnvironmentObject private var updates: AppUpdateStore
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @StateObject private var store = CompositionRoot.makeStore()
     @State private var section = "status"
@@ -32,6 +33,20 @@ struct ContentView: View {
             }.frame(minWidth: 560, minHeight: 500)
         }
         .environment(\.statusHighContrast, highContrast)
+        .safeAreaInset(edge: .top) {
+            if updates.hasUpdate, section != "settings" {
+                HStack {
+                    Label(L10n.format("updates_available %@", updates.release.map { "\($0.version) (\($0.build))" } ?? ""),
+                          systemImage: "arrow.down.circle")
+                    Spacer()
+                    Button(L10n.text("updates_details")) { section = "settings" }
+                }
+                .padding(12)
+                .background(.bar)
+                .accessibilityIdentifier("updates.banner")
+            }
+        }
+        .task { updates.checkAtStartup() }
         .disclosureGroupStyle(FullWidthDisclosureStyle())
         .font(dynamicTypeSize.isAccessibilitySize ? .system(size: 22) : .body)
         .sheet(isPresented: $previewSheet) { ReportPreviewView(store: store, dismiss: { previewSheet = false }) {

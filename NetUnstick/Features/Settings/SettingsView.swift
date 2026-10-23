@@ -20,6 +20,12 @@ struct SettingsView: View {
                     .labelStyle(StatusLabelStyle())
             }
             Section {
+                AppUpdateView(store: store)
+            } header: {
+                Label(L10n.text("updates_title"), systemImage: "arrow.down.circle")
+                    .labelStyle(StatusLabelStyle(tone: .accent))
+            }
+            Section {
                 Label(store.helper.title, systemImage: store.helper.symbol)
                     .labelStyle(StatusLabelStyle(tone: store.helper == .available ? handshakeTone : .attention))
                     .accessibilityIdentifier("settings.helper")

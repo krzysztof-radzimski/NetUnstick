@@ -9,11 +9,13 @@ let package = Package(
         .library(name: "NetUnstickCore", type: .static, targets: ["NetUnstickCore"]),
         .library(name: "NetUnstickNetwork", type: .static, targets: ["NetUnstickNetwork"]),
         .library(name: "NetUnstickRepair", type: .static, targets: ["NetUnstickRepair"]),
+        .executable(name: "NetUnstickUpdateFeed", targets: ["NetUnstickRelease"]),
     ],
     targets: [
         .target(name: "NetUnstickCore", resources: [.process("Resources")]),
         .target(name: "NetUnstickNetwork", dependencies: ["NetUnstickCore"]),
         .target(name: "NetUnstickRepair", dependencies: ["NetUnstickCore", "NetUnstickNetwork"]),
+        .executableTarget(name: "NetUnstickRelease", dependencies: ["NetUnstickCore", "NetUnstickNetwork"]),
         .testTarget(name: "NetUnstickCoreTests", dependencies: ["NetUnstickCore"]),
         .testTarget(name: "NetUnstickNetworkTests", dependencies: ["NetUnstickNetwork"], resources: [
             .copy("Fixtures/netstat-ipv4.txt"),

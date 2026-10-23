@@ -415,3 +415,31 @@ Skrypt zakończył się **kodem 0**. Gotowy instalator: **`Artifacts/Distributio
 ```
 
 Log procesu pozostaje w ignorowanym `Artifacts/tmp/pkg-0.3.1-14.log`, a wyniki i log Apple w `Artifacts/Distribution/NetUnstick-0.3.1-14-arm64-notary*.json`. Wcześniejszy instalator `0.3.0 (13)` zachowano. Zakres tej próby obejmuje przygotowanie i weryfikację nowego wydania; nie instalowano go na drugim Macu ani nie powtarzano opisanych wyżej testów UI i napraw rzeczywistej sieci.
+
+## Aktualizacje z ITORG i wydanie 0.4.0 (15) — 23 października 2026
+
+Repozytorium ITORG (`itorg.pl`, projekt 28) zbadano tylko odczytowo. Potwierdzono eksport Next.js do `out/`, katalog `public`, istniejące nagłówki bezpieczeństwa oraz wykluczenie `/NetUnstick/*` z Pages Functions. Nie modyfikowano plików, stanu Git ani hostingu tego projektu. Przygotowano pliki publikacyjne w repozytorium NetUnstick.
+
+| Weryfikacja na macOS arm64, Xcode 27.1 | Wynik |
+| --- | --- |
+| Podpisany Release `0.4.0 (15)` i pakiet helpera | `BUILD SUCCEEDED`; `check-helper-bundle.sh --require-developer-id` poprawny. Minimum macOS 14.0. |
+| Pełne testy pakietu po implementacji | Core 28, Network 77, Repair 32: **137 testów, 7 pominiętych środowiskowo, 0 błędów**. Log: `Artifacts/tmp/update-all-package-tests.log`. |
+| Testy prezentacji | **41 testów, 0 błędów**, w tym 4 nowe testy aktualizacji: brak automatycznego otwierania Instalatora, blokada przy zmianie cache, anulowanie i ustawienie startowe. Wynik: `Artifacts/UpdatesUnitValidation.xcresult`. |
+| Końcowe testy `AppUpdate` z `NETUNSTICK_UPDATE_PUBLICATION` | **10 testów, 0 błędów**. Podpis Ed25519, odrzucenie obcego klucza i zmienionych metadanych, wersje i buildy, adresy HTTPS, limity, brak/błąd JSON oraz sprzątanie niepełnych pobrań. Dodatkowy test używa prawdziwego przygotowanego manifestu `0.4.0 (15)` i notaryzowanego PKG, kontrolowanej odpowiedzi HTTP przez `URLProtocol`, strumieniowego pobrania, zgodności bajtów i realnej walidacji Gatekeeper. Nie instaluje oprogramowania. Log: `Artifacts/tmp/update-publication-integration-tests.log`. |
+| Lokalizacje i prywatność | 391 kluczy × 24 języki, zgodne placeholdery. Uzupełniono opis kontaktu z ITORG i metadanych HTTP; odtworzono materiały polityki PL/EN/ES. |
+| Narzędzie publikacyjne | Metadane odczytane z rzeczywistego notaryzowanego PKG, weryfikacja helpera, podpisany JSON i niezmienny wersjonowany plik. Narzędzie podpisane stabilnym Developer ID; ponowne odczyty jego klucza po przebudowie zakończone bez interakcji i bez eksportu sekretu. |
+| Notaryzacja nowego PKG | Zgłoszenie **`ef6f893c-6f45-4b72-bf6a-9210ab419355`**: **`Accepted`**, kod 0, brak uwag Apple. Bilet dołączony i zweryfikowany; instalator i wyodrębniona aplikacja zaakceptowane przez Gatekeeper jako `Notarized Developer ID`. |
+
+W pierwszej próbie narzędzie wydawnicze utworzone z podpisem ad hoc zatrzymało się przy odczycie własnego roboczego klucza po przebudowie. Próbkowanie własnego procesu wskazało `SecItemCopyMatching`; zakończono wyłącznie ten proces. Przed publikacją zastąpiono nieopublikowany klucz roboczy kluczem wydawniczym, a wrapper dostał stabilny podpis `org.netunstick.UpdateFeedTool`. Odczyt korzysta z `LAContext.interactionNotAllowed`, żeby niedostępny pęk kończył zadanie błędem zamiast ukrytego dialogu. Nie odczytywano cudzych sekretów ani nie zmieniano systemowych zabezpieczeń.
+
+Oględziny natywne przez skill `desktop-app-testing` i backend **`abc-desktop`**: sterownik gotowy, zgody Dostępność/Nagrywanie ekranu i zgoda projektu aktywne. Otworzono rzeczywisty Release z `Artifacts/ReleaseDerivedData/Build/Products/Release/NetUnstick.app`, potwierdzono w Ustawieniach **`0.4.0 (15)`**, panel aktualizacji, informację o prywatności i postęp ręcznego sprawdzania. Wyłączenie sprawdzania przy starcie dało stan dostępności checkboxa `0`; ręczny przycisk nadal działał. Przywrócono checkbox do `1`, pierwotny katalog Findera i pozostawiono nowe okno Ustawień. Zwolniono pulpit przez `computer_end_turn`. Nie uruchamiano napraw ani instalacji na hoście.
+
+Produkcyjny `https://itorg.pl/NetUnstick/updates/latest.json` zwrócił podczas weryfikacji **HTTP 404**: kanał nie został jeszcze opublikowany. Aplikacja pokazała obsłużony błąd aktualizacji i pozostała dostępna. Publikacja w ITORG oraz rzeczywista instalacja aktualizacji z publicznego kanału pozostają poza wykonaną próbą; test z kontrolowanym HTTP nie jest deklarowany jako wdrożenie produkcyjne ani próba instalacji na drugim Macu.
+
+Gotowy instalator: **`Artifacts/Distribution/NetUnstick-0.4.0-15-arm64.pkg`**, **2 079 118 bajtów**, SHA-256:
+
+```text
+9760e36773a1bd637809c84ee75eb61034e493f9759b757f87c847a86150b432
+```
+
+Paczka dla strony: `Artifacts/UpdatePublication/` oraz ZIP w `Artifacts/Distribution/NetUnstick-Updates-0.4.0-15.zip`. Instrukcja publikacji: [updates-itorg.md](updates-itorg.md). Klucze prywatne nie należą do tych katalogów ani do repozytorium.
