@@ -288,7 +288,7 @@ Obejrzano pełną diagnozę Developer ID: 13 kontroli, nagłówek „Sieć lokal
 
 ## Jedno wydanie Developer ID — 23 października 2026
 
-Na polecenie właściciela wycofano kanał sklepowy. Usunięto niewysłany szkic recenzji i zapisano brak dostępności na wszystkich rynkach. Ponowne otwarcie panelu recenzji pokazało pustą listę, a panel dostępności potwierdził **0 krajów lub regionów dostępnych oraz 175 niedostępnych**. Operacje wykonano w Podglądzie, bez sterowania pulpitem.
+Na polecenie właściciela wycofano kanał sklepowy. Usunięto niewysłany szkic recenzji i zapisano brak dostępności na wszystkich rynkach. Ponowne otwarcie panelu recenzji pokazało pustą listę, a panel dostępności potwierdził **0 krajów lub regionów dostępnych oraz 175 niedostępnych**. Samo wyłączenie dostępności pozostawiło rekord na głównej liście aplikacji. Następnie w informacjach NetUnstick wykonano **Remove App** i potwierdzono usunięcie: panel pokazał **Restore App**, a po ponownym otwarciu głównej listy NetUnstick już na niej nie było. Zgodnie z komunikatem Apple rekord trafia do **Removed Apps**, a nazwa sklepowa zostaje zwolniona. Operacje wykonano w Podglądzie, bez sterowania pulpitem.
 
 Z projektu usunięto oddzielny target, testy i flagi wydania sklepowego, metadane publikacji, zrzuty, skrypty archiwizacji i walidacji oraz lokalne eksporty i katalogi budowy tej odmiany. Modele sieciowe i implementację Bonjour przeniesiono do `NetUnstickNetwork`; zachowano pełny mechanizm napraw, helper i lokalizacje. Pomoc, ustawienia, dokumentacja oraz źródła stron w `Distribution/Website` opisują wyłącznie Developer ID. Wygenerowanie lokalnych stron nie publikuje zmian na hostingu ITORG.
 
