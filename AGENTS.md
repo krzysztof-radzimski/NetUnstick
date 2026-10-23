@@ -1,6 +1,6 @@
 # NetUnstick contributor guidance
 
-This repository is for a native macOS utility. Read `README.md` for the product scope and keep it aligned with implemented behavior. The app does not exist yet; do not present planned checks or repairs as working features.
+This repository contains a native macOS app for diagnosing connectivity problems and restoring access to local devices after a VPN disconnect. Develop the single Developer ID edition with its bundled privileged helper. Read `README.md` for the implemented product scope; do not present planned checks or unverified repairs as working features.
 
 ## Architecture
 
@@ -8,14 +8,14 @@ This repository is for a native macOS utility. Read `README.md` for the product 
 - Keep these responsibilities separate: network state collection, diagnosis, individual repair actions, session logging/export, and presentation.
 - A diagnostic check must be read-only. A repair must be explicit, narrowly scoped, and independently testable.
 - Do not add a full VPN implementation or modify FortiClient/FortiGate-managed settings.
-- Choose a minimum macOS deployment target when creating the project, record it in `README.md`, and verify it in the build configuration.
+- Keep the minimum deployment target at macOS 14.0 and consistent across the Xcode project, Swift package, and `README.md`.
 
 ## Diagnostic and repair contract
 
 - Every check and repair returns a structured result with start/end time, outcome, sanitized evidence, and a stable error code when it fails. Do not use an unstructured console message as the only result.
 - Show progress in the app during operations; show failure reasons and a next step in plain language. Maintain an expandable technical detail view.
 - Capture relevant state before and after a repair and rerun the check it was meant to fix. Never report a repair as successful solely because a command exited with code 0.
-- If VPN state is active or unknown, skip network-changing actions and explain why. Add timeouts and avoid repeating a failing action indefinitely.
+- If VPN state is active or unknown, block ordinary network-changing actions and explain why. Preserve the existing residual-LAN-route exception in `RepairPolicy`: independently confirmed VPN-service disconnection, a healthy physical path, and the exact, freshly revalidated set of at most 24 eligible local tunnel routes. Both the executor and helper must validate it; do not broaden this exception. Add timeouts and avoid repeating a failing action indefinitely.
 - Never indiscriminately flush routes, DNS settings, firewall rules, or network services. Do not change FortiClient policy, disable protections, or reboot automatically.
 - For a system command, use a fixed executable path and argument array; never interpolate user input into a shell string. Check the exit code and sanitize captured output. Document any privilege requirement before adding it.
 
@@ -39,4 +39,5 @@ This repository is for a native macOS utility. Read `README.md` for the product 
 - Build the macOS target after code changes. Add focused tests for diagnosis decisions, redaction/export, and repair success/failure paths; do not write tests that simply restate implementation.
 - A repair is validated only after an observed failure is resolved and the before/after check confirms it. Until then, describe it as a candidate.
 - Update `README.md` when behavior, permissions, supported macOS versions, export format, or known limitations change.
+- Keep `README.md` focused on current behavior and usage. Keep dated test results and historical investigations in `docs/verification.md`, and implementation boundaries in `docs/architecture.md`.
 - Do not commit credentials, private network reports, or unredacted diagnostic exports.
