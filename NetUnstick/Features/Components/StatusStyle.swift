@@ -109,11 +109,12 @@ private struct StatusPanel: ViewModifier {
     @Environment(\.statusHighContrast) private var contrastOverride
     let tone: StatusTone
     let emphasized: Bool
+    let contentPadding: CGFloat?
 
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: 18, style: .continuous)
         content
-            .padding(emphasized ? 24 : 20)
+            .padding(contentPadding ?? (emphasized ? 24 : 20))
             .frame(maxWidth: .infinity, alignment: .leading)
             // An opaque system surface also respects Reduce Transparency, without a blur.
             .background {
@@ -140,7 +141,7 @@ private struct StatusPanel: ViewModifier {
 }
 
 extension View {
-    func statusPanel(tone: StatusTone = .information, emphasized: Bool = false) -> some View {
-        modifier(StatusPanel(tone: tone, emphasized: emphasized))
+    func statusPanel(tone: StatusTone = .information, emphasized: Bool = false, contentPadding: CGFloat? = nil) -> some View {
+        modifier(StatusPanel(tone: tone, emphasized: emphasized, contentPadding: contentPadding))
     }
 }

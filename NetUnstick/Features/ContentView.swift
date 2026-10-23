@@ -32,6 +32,7 @@ struct ContentView: View {
             }.frame(minWidth: 560, minHeight: 500)
         }
         .environment(\.statusHighContrast, highContrast)
+        .disclosureGroupStyle(FullWidthDisclosureStyle())
         .font(dynamicTypeSize.isAccessibilitySize ? .system(size: 22) : .body)
         .sheet(isPresented: $previewSheet) { ReportPreviewView(store: store, dismiss: { previewSheet = false }) {
             report = TextReport(text: store.reportText)

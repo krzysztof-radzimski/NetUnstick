@@ -209,7 +209,6 @@ struct DashboardView: View {
                     .disabled(store.sessions.isEmpty)
                     .accessibilityIdentifier("report.preview.open")
             }
-            .padding(.top, 12)
         } label: {
             HStack {
                 Label(L10n.text("dashboard_network_details"), systemImage: "list.bullet.clipboard")
@@ -223,7 +222,8 @@ struct DashboardView: View {
             }
         }
         .accessibilityIdentifier("dashboard.details")
-        .statusPanel()
+        .disclosureGroupStyle(FullWidthDisclosureStyle(headerInsets: EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20)))
+        .statusPanel(contentPadding: 0)
         .animation(resultAnimation, value: networkDetailsExpanded)
         .animation(resultAnimation, value: store.checks.map(\.id))
     }
@@ -258,7 +258,7 @@ struct DashboardView: View {
     }
 
     private var deviceTest: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 0) {
             DisclosureGroup(isExpanded: $deviceTestExpanded) {
                 VStack(alignment: .leading, spacing: 10) {
                     Text(L10n.text("device_test_hint")).foregroundStyle(.secondary)
@@ -274,12 +274,12 @@ struct DashboardView: View {
                         }
                     }
                 }
-                .padding(.top, 10)
             } label: {
                 Label(L10n.text("device_test"), systemImage: "point.3.connected.trianglepath.dotted")
                     .labelStyle(StatusLabelStyle())
             }
             .accessibilityIdentifier("device.section")
+            .disclosureGroupStyle(FullWidthDisclosureStyle(headerInsets: EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20)))
             // Keep the last result visible even if the input section is collapsed.
             if let connection = store.deviceConnection {
                 VStack(alignment: .leading, spacing: 8) {
@@ -294,10 +294,12 @@ struct DashboardView: View {
                             .accessibilityIdentifier("device.detail")
                     }
                 }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 20)
                 .transition(.opacity)
             }
         }
-        .statusPanel()
+        .statusPanel(contentPadding: 0)
         .animation(resultAnimation, value: deviceTestExpanded)
         .animation(resultAnimation, value: store.deviceConnection)
     }

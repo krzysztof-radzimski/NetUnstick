@@ -372,3 +372,20 @@ Most pulpitu potwierdził backend `abc-desktop`, gotowość, zgody Dostępność
 Pełna automatyczna macierz XCUITest (jasny/ciemny motyw, duży tekst, kontrast i ograniczony ruch) **nie została wykonana**: runner UI nie rozpoczynał testów, również po podpisanej kompilacji w czystym katalogu. Przerwano własne komendy `xcodebuild`; osobna próba bez podpisu także nie rozpoczęła testów, a ponowne użycie jej katalogu zgłosiło `lipo: Operation not permitted`. Odczytowe `DevToolsSecurity -status` wskazało wyłączony tryb Developer; nie ustalono, czy to przyczyna zawieszenia, i nie zmieniano zabezpieczeń systemu. Oględziny natywne zastąpiły próbę w ciemnym motywie, nie potwierdzają całej macierzy ani pełnego przebiegu animacji sukcesu. Systemowy dialog „Idź do” Findera nie dawał się powiązać z AXWindows; aplikację otwarto zwykłą nawigacją folderów, po czym przywrócono pierwotny katalog istniejącego okna Findera. Zamknięcie dodatkowego okna z tym dialogiem zostało odrzucone przez kontrolę fokusu mostu.
 
 Poprzedni notaryzowany PKG pozostaje niezmieniony; ta weryfikacja dotyczy nowych buildów aplikacji. Nie wykonano nowej notaryzacji ani instalacji na drugim Macu.
+
+## Klikanie całego nagłówka panelu — 23 października 2026
+
+Wspólny `FullWidthDisclosureStyle` zastępuje ograniczony obszar strzałki przyciskiem obejmującym cały nagłówek. W kartach „Szczegóły sieci” i „Test połączenia z urządzeniem” również odstępy przy brzegach należą do przycisku. Rozwinięta zawartość jest osobnym obszarem, dzięki czemu pola tekstowe, selektor portu, przyciski i zaznaczanie tekstu zachowują własne działanie. Styl obowiązuje również w kontrolach diagnozy, Aktywności i Ustawieniach. Reprezentacja dostępności wykorzystuje systemowy `DisclosureGroup` w stylu automatycznym, zachowując jego rolę, stan rozwinięcia i lokalizację; przejścia respektują „Ogranicz ruch”.
+
+| Weryfikacja | Wynik |
+| --- | --- |
+| Podpisany Release `NetUnstick`, `platform=macOS,arch=arm64` | Kod 0, `BUILD SUCCEEDED`; minimum macOS 14.0. |
+| `check-helper-bundle.sh … --require-developer-id` | Kod 0, poprawny pakiet aplikacji i helpera oraz wymaganie klienta XPC. |
+| `python3 Tools/Localization.py` i `git diff --check` | Kod 0; 370 kluczy × 24 języki, poprawne placeholdery. |
+| Natywny klik w puste miejsce po prawej stronie „Szczegółów sieci” | Panel otwarty; rzeczywiste drzewo dostępności pokazało `AXDisclosureTriangle … = 1` i widoczną treść. Klik przy prawej krawędzi nagłówka zwinął go (`= 0`). |
+| Natywny klik w dolny i prawy odstęp zwiniętej karty testu urządzenia | Formularz otwarty (`= 1`); klik w tekst nagłówka zwinął go (`= 0`). |
+| Pole nazwy urządzenia w otwartym formularzu | Klik i wpisanie testowej nazwy zakończone `verified: true`; panel pozostał rozwinięty. Pole następnie wyczyszczono. Nie uruchamiano połączenia. |
+| Nagłówek „Szczegóły i uprawnienia” w Ustawieniach | Klik w pustym obszarze po prawej rozwinął wskazówkę helpera i zachował stan dostępności `= 1`. |
+| Wiersz kontroli w Aktywności | Klik w pustym środku wiersza otworzył szczegóły, a ponowny klik je zamknął. |
+
+Próby wykonano na nowym Release z `Artifacts/ReleaseDerivedData/Build/Products/Release/NetUnstick.app` przez rzeczywiste wejścia `abc-desktop`, z obrazem okna i odczytem dostępności, w ciemnym motywie hosta. Most potwierdził gotowość, zgody Dostępność/Nagrywanie ekranu i zgodę projektu. Nie uruchamiano diagnostyki, napraw ani eksportu raportu. Nie powtarzano pełnej macierzy XCUITest z opisanym wyżej ograniczeniem runnera; powyższe wyniki są osobnym, wykonanym testem interakcji natywnej. Przywrócono pierwotny katalog istniejącego okna Findera, pozostawiono nowy build na ekranie Stan ze zwiniętymi kartami i zwolniono pulpit przez `computer_end_turn`.
