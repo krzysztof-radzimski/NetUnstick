@@ -322,14 +322,22 @@ Po jawnym wyborze użytkownika włączono dostęp do App Store Connect API i utw
 
 `pkgbuild` na tym hoście wypisuje cztery komunikaty `write: Permission denied` również przy osobnym pakowaniu kopii w katalogu tymczasowym; kończy się kodem 0. Powyższe porównanie wszystkich plików, kontrola wykonywalności, podpisów i odczyt przez systemowy Instalator przeszły. Nie traktowano samego kodu zakończenia narzędzia jako dowodu kompletności pakietu.
 
-Notaryzacja końcowego PKG: zgłoszenie **`34dfdfb4-653e-469d-8eb1-3a4313ee9025`**, wysłane 23 października 2026 o 09:53 UTC. O 10:13 UTC Apple nadal zwracało **`In Progress`**. `notarytool wait --timeout 20m` zakończyło się kodem **124** po 1200 sekundach, a skrypt zakończył się kodem 1 i zachował podpisany pakiet roboczy oraz metadane zgłoszenia. To zewnętrzne oczekiwanie na Apple; nie uzyskano akceptacji ani biletu i **nie potwierdzono Gatekeeper dla dystrybucji**. Skrypt poprawnie nie utworzył pliku o końcowej nazwie.
+Notaryzacja końcowego PKG: zgłoszenie **`34dfdfb4-653e-469d-8eb1-3a4313ee9025`**, wysłane 23 października 2026 o 09:53 UTC. O 10:13 UTC Apple nadal zwracało **`In Progress`**. Pierwsze `notarytool wait --timeout 20m` zakończyło się kodem **124** po 1200 sekundach, a skrypt zakończył się kodem 1 i zachował podpisany pakiet roboczy oraz metadane zgłoszenia. Na tym etapie skrypt poprawnie nie utworzył pliku o końcowej nazwie.
 
-Istniejący pakiet: `Artifacts/Distribution/NetUnstick-0.3.0-13-arm64-UNNOTARIZED.pkg`. Dokończenie tego samego zgłoszenia, z profilem już zapisanym w lokalnym pęku kluczy:
+Następnie Apple zakończyło przetwarzanie statusem **`Accepted`**. O 10:38 UTC potwierdzono pełne dokończenie tego samego zgłoszenia, z profilem już zapisanym w lokalnym pęku kluczy:
 
 ```sh
 Tools/BuildPKG.sh --resume Artifacts/Distribution/NetUnstick-0.3.0-13-arm64-UNNOTARIZED.pkg --submission-id 34dfdfb4-653e-469d-8eb1-3a4313ee9025 --notary-profile NetUnstick
 ```
 
-Komenda nie buduje ani nie wysyła ponownie aplikacji. Po akceptacji ma pobrać log, dołączyć i sprawdzić bilet, sprawdzić Gatekeeper oraz utworzyć `NetUnstick-0.3.0-13-arm64.pkg` i SHA-256; te etapy wymagają jeszcze rzeczywistego potwierdzenia. Odczytowe `installer -query RestartAction` zwróciło `None` (brak wymogu restartu).
+Komenda zakończyła się **kodem 0**, bez przebudowy i ponownego wysyłania aplikacji. Pobrano log Apple: `Accepted`, kod `0`, brak uwag. `stapler staple` i `stapler validate` przeszły; `pkgutil --check-signature` potwierdził podpis Developer ID Installer, zaufany timestamp i `Notarization: trusted by the Apple notary service`. Gatekeeper zaakceptował PKG (`--type install`) oraz wyodrębnioną aplikację (`--type execute`), w obu przypadkach ze źródłem **`Notarized Developer ID`**. Odczytowe `installer -query RestartAction` zwróciło `None` (brak wymogu restartu).
+
+Gotowy artefakt: **`Artifacts/Distribution/NetUnstick-0.3.0-13-arm64.pkg`**, wraz z plikiem `.pkg.sha256`. SHA-256 końcowego, notaryzowanego PKG z biletem:
+
+```text
+1697f6e2273e20e67d344a9cbb8d9fd3436b94b1a28f0d954419e225715bb2b3
+```
+
+Pełny log wznowienia pozostaje w ignorowanym `Artifacts/tmp/pkg-notarization-finish.log`; wynik i log Apple w `Artifacts/Distribution/NetUnstick-0.3.0-13-arm64-notary*.json`. Potwierdzono wymagania podpisu i notaryzacji dla dystrybucji; instalacja na drugim Macu pozostaje poza wykonaną próbą.
 
 Próba oględzin kreatora przez `abc-desktop`: `computer_status` potwierdził gotowy sterownik, zgody Dostępność/Nagrywanie ekranu i aktywną zgodę projektu. Odczytano rzeczywisty obraz i drzewo Findera, otwarto własne okno oraz pole „Idź do” i zweryfikowano ustawioną ścieżkę PKG. Sterownik odmówił kolejnego klawisza z komunikatem „Fokus przeszedł do innego okna lub dialogu”; okna dialogowego nie udało się jednoznacznie przypisać do AXWindows. Nie otwarto kreatora Instalatora i nie deklaruje się wizualnej weryfikacji jego stron. Zwolniono pulpit przez `computer_end_turn`. Nie zmieniano zgód, zabezpieczeń ani nie obchodzono ograniczenia innym sterownikiem. Instalacji na drugim Macu ani naprawy rzeczywistej awarii nie wykonano.
