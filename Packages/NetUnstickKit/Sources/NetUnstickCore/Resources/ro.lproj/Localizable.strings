@@ -288,6 +288,7 @@
 "repair_retry" = "Repetarea verificării fără modificări de sistem";
 "repair_route_impact" = "Traficul local revine la interfața fizică. Conexiunile prin vechiul tunel pot fi întrerupte.";
 "repair_routes_count" = "Rute de tunel suprapuse cu rețeaua locală: %lld";
+"repair_routes_recheck" = "A fost detectată o rută printr-un tunel. Examinați propunerea pentru a verifica din nou starea VPN și rutele actuale. Verificarea nu modifică setările de rețea.";
 "repair_short_interruption" = "O scurtă întrerupere a conexiunii";
 "repair_verification" = "Capturează starea nouă și repetă: %@";
 "repair_verified" = "Reparat. O verificare nouă a confirmat îmbunătățirea.";

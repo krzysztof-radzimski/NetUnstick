@@ -288,6 +288,7 @@
 "repair_retry" = "Controle herhalen zonder systeemwijzigingen";
 "repair_route_impact" = "Lokaal verkeer keert terug naar de fysieke interface. Verbindingen via de vorige tunnel kunnen worden onderbroken.";
 "repair_routes_count" = "Tunnelroutes die het lokale netwerk overlappen: %lld";
+"repair_routes_recheck" = "Er is een tunnelroute gevonden. Bekijk het voorstel om de VPN-status en huidige routes opnieuw te controleren. Deze controle wijzigt geen netwerkinstellingen.";
 "repair_short_interruption" = "Korte verbindingsonderbreking";
 "repair_verification" = "Huidige status vastleggen en herhalen: %@";
 "repair_verified" = "Gerepareerd. Een nieuwe controle heeft de verbetering bevestigd.";

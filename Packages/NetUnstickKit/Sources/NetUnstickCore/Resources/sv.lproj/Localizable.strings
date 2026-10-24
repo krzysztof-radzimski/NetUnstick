@@ -288,6 +288,7 @@
 "repair_retry" = "Upprepa kontrollen utan systemändringar";
 "repair_route_impact" = "Lokal trafik återgår till det fysiska gränssnittet. Anslutningar via den tidigare tunneln kan avbrytas.";
 "repair_routes_count" = "Tunnelrutter som överlappar det lokala nätverket: %lld";
+"repair_routes_recheck" = "En tunnelrutt upptäcktes. Granska förslaget för att kontrollera VPN-status och aktuella rutter igen. Kontrollen ändrar inte nätverksinställningarna.";
 "repair_short_interruption" = "Ett kort anslutningsavbrott";
 "repair_verification" = "Registrera aktuell status och upprepa: %@";
 "repair_verified" = "Reparerat. En ny kontroll bekräftade förbättringen.";

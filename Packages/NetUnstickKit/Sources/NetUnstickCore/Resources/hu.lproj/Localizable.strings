@@ -288,6 +288,7 @@
 "repair_retry" = "Ellenőrzés ismétlése rendszermódosítás nélkül";
 "repair_route_impact" = "A helyi forgalom visszatér a fizikai csatolóra. A korábbi alagutat használó kapcsolatok megszakadhatnak.";
 "repair_routes_count" = "Helyi hálózatot átfedő alagútútvonalak: %lld";
+"repair_routes_recheck" = "Alagúton átvezető útvonal észlelhető. Tekintse át a javaslatot a VPN állapotának és az aktuális útvonalaknak az újbóli ellenőrzéséhez. Az ellenőrzés nem módosítja a hálózati beállításokat.";
 "repair_short_interruption" = "Rövid kapcsolatmegszakadás";
 "repair_verification" = "Friss állapot rögzítése és ismétlés: %@";
 "repair_verified" = "Javítva. Egy új ellenőrzés igazolta a javulást.";

@@ -288,6 +288,7 @@
 "repair_retry" = "Pakartoti patikrą be sistemos pakeitimų";
 "repair_route_impact" = "Vietinis srautas grįš į fizinę sąsają. Buvusį tunelį naudojantys ryšiai gali nutrūkti.";
 "repair_routes_count" = "Vietinį tinklą persidengiantys tunelio maršrutai: %lld";
+"repair_routes_recheck" = "Aptiktas maršrutas per tunelį. Peržiūrėkite pasiūlymą, kad būtų dar kartą patikrinta VPN būsena ir esami maršrutai. Patikra nekeičia tinklo nuostatų.";
 "repair_short_interruption" = "Trumpas ryšio pertrūkis";
 "repair_verification" = "Užfiksuoti naują būseną ir pakartoti: %@";
 "repair_verified" = "Pataisyta. Nauja patikra patvirtino pagerėjimą.";

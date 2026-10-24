@@ -288,6 +288,7 @@
 "repair_retry" = "Toista tarkistus muuttamatta järjestelmää";
 "repair_route_impact" = "Paikallinen liikenne palaa fyysiselle liitännälle. Aiemman tunnelin yhteydet voivat katketa.";
 "repair_routes_count" = "Paikallisverkon kanssa päällekkäiset tunnelireitit: %lld";
+"repair_routes_recheck" = "Tunnelireitti havaittiin. Tarkista ehdotus, jotta VPN:n tila ja nykyiset reitit tarkistetaan uudelleen. Tarkistus ei muuta verkkoasetuksia.";
 "repair_short_interruption" = "Lyhyt yhteyskatko";
 "repair_verification" = "Kerää uusi tila ja toista: %@";
 "repair_verified" = "Korjattu. Uusi tarkistus vahvisti parannuksen.";

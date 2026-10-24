@@ -288,6 +288,7 @@
 "repair_retry" = "Irrepeti l-kontroll mingħajr bidliet fis-sistema";
 "repair_route_impact" = "It-traffiku lokali jerġa’ juża l-interfaċċa fiżika. Konnessjonijiet li jużaw il-mina l-qadima jistgħu jiġu interrotti.";
 "repair_routes_count" = "Rotot tal-mina li jikkoinċidu man-netwerk lokali: %lld";
+"repair_routes_recheck" = "Instabet rotta minn mina. Irrevedi l-proposta biex terġa’ tiċċekkja l-istat tal-VPN u r-rotot attwali. Din il-verifika ma tbiddilx is-settings tan-netwerk.";
 "repair_short_interruption" = "Interruzzjoni qasira fil-konnessjoni";
 "repair_verification" = "Aqbad stat ġdid u rrepeti: %@";
 "repair_verified" = "Imsewwi. Kontroll ġdid ikkonferma t-titjib.";

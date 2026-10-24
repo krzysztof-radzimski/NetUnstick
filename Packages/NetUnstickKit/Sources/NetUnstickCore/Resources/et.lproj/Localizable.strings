@@ -288,6 +288,7 @@
 "repair_retry" = "Korda kontrolli süsteemi muutmata";
 "repair_route_impact" = "Kohalik liiklus naaseb füüsilisele liidesele. Endist tunnelit kasutavad ühendused võivad katkeda.";
 "repair_routes_count" = "Kohaliku võrguga kattuvad tunnelimarsruudid: %lld";
+"repair_routes_recheck" = "Tuvastati tunnelimarsruut. Vaadake ettepanek üle, et kontrollida uuesti VPN-i olekut ja praeguseid marsruute. Kontroll ei muuda võrguseadeid.";
 "repair_short_interruption" = "Ühenduse lühike katkestus";
 "repair_verification" = "Kogu värske olek ja korda: %@";
 "repair_verified" = "Parandatud. Värske kontroll kinnitas paranemist.";

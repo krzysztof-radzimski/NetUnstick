@@ -288,6 +288,7 @@
 "repair_retry" = "Repetir a verificação sem alterações do sistema";
 "repair_route_impact" = "O tráfego local volta à interface física. As ligações que usam o túnel anterior podem ser interrompidas.";
 "repair_routes_count" = "Rotas de túnel sobrepostas à rede local: %lld";
+"repair_routes_recheck" = "Foi detetada uma rota através de um túnel. Reveja a proposta para voltar a verificar o estado da VPN e as rotas atuais. Esta verificação não altera as definições de rede.";
 "repair_short_interruption" = "Breve interrupção da ligação";
 "repair_verification" = "Registar o estado atual e repetir: %@";
 "repair_verified" = "Reparado. Uma nova verificação confirmou a melhoria.";

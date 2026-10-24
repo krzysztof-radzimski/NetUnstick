@@ -10,6 +10,7 @@ struct DashboardView: View {
     @State private var deviceTestExpanded = false
     @State private var completion = 0
     @State private var observedDiagnosis = false
+    @State private var reviewRoutesAfterDiagnosis = false
     let confirmingRepair: Bool
     let showRepair: () -> Void
     let dismissRepair: () -> Void
@@ -39,6 +40,14 @@ struct DashboardView: View {
                 return
             }
             guard wasRunning, !isRunning else { return }
+            if reviewRoutesAfterDiagnosis {
+                reviewRoutesAfterDiagnosis = false
+                if store.progress == 1,
+                   let index = store.candidates.firstIndex(where: \.allowsWhenResidualRoute) {
+                    store.selectCandidate(index)
+                    showRepair()
+                }
+            }
             networkDetailsExpanded = needsAttention
             if needsAttention {
                 expandedCheckIDs = Set(store.checks.filter { $0.reason != nil }.map(\.id))
@@ -166,7 +175,25 @@ struct DashboardView: View {
         }
     }
 
-    private var repairCandidates: some View {
+    @ViewBuilder private var repairCandidates: some View {
+        if store.routeRepairNeedsRecheck {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(alignment: .top, spacing: 12) {
+                    Label(L10n.operationTitle("removeStaleTunnelRoutes"), systemImage: "wrench.adjustable")
+                        .labelStyle(StatusLabelStyle(tone: .attention))
+                    Spacer(minLength: 8)
+                    Button(L10n.text("review_candidate")) {
+                        reviewRoutesAfterDiagnosis = true
+                        store.startDiagnosis()
+                    }
+                    .disabled(store.historyClearRunning)
+                    .accessibilityIdentifier("repair.routes.recheck")
+                }
+                Text(L10n.text("repair_routes_recheck")).foregroundStyle(.secondary)
+            }
+            .statusPanel(tone: .attention)
+            .accessibilityIdentifier("repair.routes.pending")
+        }
         ForEach(Array(store.candidates.enumerated()), id: \.offset) { index, candidate in
             if store.vpn.state == .inactive || candidate.allowsWhenResidualRoute {
                 HStack(alignment: .top, spacing: 12) {

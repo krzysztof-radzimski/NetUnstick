@@ -1031,6 +1031,10 @@
       "en": "Remove leftover VPN routes (%lld)",
       "pl": "Usuń trasy pozostałe po VPN (%lld)"
     },
+    "repair_routes_recheck": {
+      "en": "A tunnel route was detected. Review the candidate to recheck VPN status and current routes. This check does not change network settings.",
+      "pl": "Wykryto trasę przez tunel. Sprawdź kandydata, aby ponownie ocenić VPN i aktualne trasy. Samo sprawdzenie nie zmienia ustawień sieci."
+    },
     "repair_purpose": {
       "en": "Verify: %@",
       "pl": "Weryfikacja: %@"

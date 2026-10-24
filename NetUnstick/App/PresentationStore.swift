@@ -94,6 +94,7 @@ struct CheckPresentation: Identifiable {
     let technicalDetail: String
     let symbol: String
     let resultOutcome: OperationOutcome
+    let reasonCode: String?
 }
 
 struct RepairCandidatePresentation {
@@ -194,6 +195,14 @@ extension PresentationService {
     private var isPersistentService: Bool { service.scenario == "production" }
     var candidate: RepairCandidatePresentation? {
         vpn.state == .inactive || candidateValue?.allowsWhenResidualRoute == true ? candidateValue : nil
+    }
+    /// A routing symptom remains visible even when a transient or ambiguous snapshot
+    /// cannot produce an executable plan. Rechecking never authorizes a repair.
+    var routeRepairNeedsRecheck: Bool {
+        !isRunning && !candidates.contains(where: \.allowsWhenResidualRoute) && checks.contains {
+            $0.id == "local_subnet_route" && $0.resultOutcome == .failure &&
+            $0.reasonCode == NetworkCheckReason.localRouteViaTunnel.rawValue
+        }
     }
     var canConfirmRepair: Bool {
         guard !isRunning, !historyClearRunning, let candidate else { return false }
@@ -676,7 +685,7 @@ extension PresentationService {
                      outcome: outcomeTitle(result.outcome),
                      reason: result.outcome == .success ? nil : reason,
                      technicalDetail: "\(evidence) \(result.error.map { "\($0.domain)/\($0.code)" } ?? "")",
-                     symbol: result.outcome.statusSymbol, resultOutcome: result.outcome)
+                     symbol: result.outcome.statusSymbol, resultOutcome: result.outcome, reasonCode: code)
     }
     static func operationTitle(_ stableName: String) -> String {
         return L10n.operationTitle(stableName)

@@ -288,6 +288,7 @@
 "repair_retry" = "Ripeti il controllo senza modifiche al sistema";
 "repair_route_impact" = "Il traffico locale torna all’interfaccia fisica. Le connessioni che usano il vecchio tunnel potrebbero interrompersi.";
 "repair_routes_count" = "Route tunnel sovrapposte alla rete locale: %lld";
+"repair_routes_recheck" = "È stata rilevata una rotta attraverso un tunnel. Esamina la proposta per ricontrollare lo stato della VPN e le rotte attuali. Il controllo non modifica le impostazioni di rete.";
 "repair_short_interruption" = "Breve interruzione della connessione";
 "repair_verification" = "Acquisisci lo stato attuale e ripeti: %@";
 "repair_verified" = "Riparato. Un nuovo controllo ha confermato il miglioramento.";

@@ -288,6 +288,7 @@
 "repair_retry" = "Repeat the check without system changes";
 "repair_route_impact" = "Local traffic returns to the physical interface. Connections using the former tunnel may be interrupted.";
 "repair_routes_count" = "Tunnel routes overlapping the local network: %lld";
+"repair_routes_recheck" = "A tunnel route was detected. Review the candidate to recheck VPN status and current routes. This check does not change network settings.";
 "repair_short_interruption" = "A brief connection interruption";
 "repair_verification" = "Capture fresh state and repeat: %@";
 "repair_verified" = "Repaired. A fresh check confirmed the improvement.";

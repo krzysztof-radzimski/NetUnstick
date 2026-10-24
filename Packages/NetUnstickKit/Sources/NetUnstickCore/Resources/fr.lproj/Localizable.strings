@@ -288,6 +288,7 @@
 "repair_retry" = "Répéter la vérification sans modifier le système";
 "repair_route_impact" = "Le trafic local repasse par l’interface physique. Les connexions utilisant l’ancien tunnel peuvent être interrompues.";
 "repair_routes_count" = "Routes tunnel recouvrant le réseau local : %lld";
+"repair_routes_recheck" = "Une route passant par un tunnel a été détectée. Examinez la proposition pour revérifier le VPN et les routes actuelles. Cette vérification ne modifie pas les réglages réseau.";
 "repair_short_interruption" = "Brève interruption de connexion";
 "repair_verification" = "Capturer l’état actuel et répéter : %@";
 "repair_verified" = "Réparé. Une nouvelle vérification a confirmé l’amélioration.";

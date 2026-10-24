@@ -288,6 +288,7 @@
 "repair_retry" = "Prüfung ohne Systemänderungen wiederholen";
 "repair_route_impact" = "Lokaler Datenverkehr nutzt wieder die physische Schnittstelle. Verbindungen über den bisherigen Tunnel können unterbrochen werden.";
 "repair_routes_count" = "Tunnelrouten, die das lokale Netzwerk überlappen: %lld";
+"repair_routes_recheck" = "Eine Tunnelroute wurde erkannt. Prüfen Sie den Vorschlag, um VPN-Status und aktuelle Routen erneut zu kontrollieren. Diese Prüfung ändert keine Netzwerkeinstellungen.";
 "repair_short_interruption" = "Kurze Verbindungsunterbrechung";
 "repair_verification" = "Aktuellen Zustand erfassen und wiederholen: %@";
 "repair_verified" = "Repariert. Eine erneute Prüfung hat die Verbesserung bestätigt.";

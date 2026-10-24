@@ -288,6 +288,7 @@
 "repair_retry" = "Ponovi preverjanje brez sistemskih sprememb";
 "repair_route_impact" = "Krajevni promet se vrne na fizični vmesnik. Povezave prek prejšnjega tunela se lahko prekinejo.";
 "repair_routes_count" = "Tunelske poti, ki prekrivajo krajevno omrežje: %lld";
+"repair_routes_recheck" = "Zaznana je bila pot skozi predor. Preglejte predlog za ponovno preverjanje stanja VPN in trenutnih poti. Preverjanje ne spremeni omrežnih nastavitev.";
 "repair_short_interruption" = "Kratka prekinitev povezave";
 "repair_verification" = "Zajemi novo stanje in ponovi: %@";
 "repair_verified" = "Popravljeno. Novo preverjanje je potrdilo izboljšanje.";

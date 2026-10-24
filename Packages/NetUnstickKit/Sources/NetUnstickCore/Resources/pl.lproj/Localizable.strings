@@ -288,6 +288,7 @@
 "repair_retry" = "Ponowienie sprawdzenia bez zmiany systemu";
 "repair_route_impact" = "Ruch do objętych fragmentów sieci lokalnej wróci na fizyczny interfejs; połączenia przez dawny tunel mogą się przerwać";
 "repair_routes_count" = "Trasy tunelowe nakładające się na sieć lokalną: %lld";
+"repair_routes_recheck" = "Wykryto trasę przez tunel. Sprawdź kandydata, aby ponownie ocenić VPN i aktualne trasy. Samo sprawdzenie nie zmienia ustawień sieci.";
 "repair_short_interruption" = "Krótkie zakłócenie łączności";
 "repair_verification" = "Nowa obserwacja i ponowne sprawdzenie: %@";
 "repair_verified" = "Naprawiono — ponowny check potwierdził poprawę.";

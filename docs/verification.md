@@ -443,3 +443,26 @@ Gotowy instalator: **`Artifacts/Distribution/NetUnstick-0.4.0-15-arm64.pkg`**, *
 ```
 
 Paczka dla strony: `Artifacts/UpdatePublication/` oraz ZIP w `Artifacts/Distribution/NetUnstick-Updates-0.4.0-15.zip`. Instrukcja publikacji: [updates-itorg.md](updates-itorg.md). Klucze prywatne nie należą do tych katalogów ani do repozytorium.
+
+## Brak panelu naprawy tras — 24 października 2026
+
+Raport z instalacji 0.4.0 wykazał jednocześnie `residualDefaultRoute`, `localRouteViaTunnel` i `unstableAfterDisconnect`. Ostatni kod powstaje z `path.transitionObserved`; taki snapshot nie spełnia warunków `RepairPolicy.staleLocalTunnelRoutes`. Interfejs wyświetlał wyłącznie gotowe plany, więc panel znikał mimo widocznego problemu tras, a późniejszy odczyt VPN mógł już pokazywać stan nieaktywny. Raportu użytkownika ani jego identyfikatora sesji nie dodano do repozytorium.
+
+Poprawka 0.4.1 (16) dotyczy prezentacji: przy nieudanej kontroli `localRouteViaTunnel` i braku planu tras pojawia się panel z jawnym sprawdzeniem odczytowym. Po ponownej diagnozie przejście do potwierdzenia następuje wyłącznie, gdy serwis rzeczywiście zwróci nowy plan usuwania tras. Trwająca blokada zachowuje panel z objaśnieniem. `RepairPolicy`, executor, helper, kolektor i algorytmy kontroli pozostają bez zmian.
+
+- Podpisany Release arm64, minimum macOS 14.0: `BUILD SUCCEEDED`; log `Artifacts/tmp/route-panel-release-build.log`.
+- Testy `NetUnstickPresentationTests`: **45 testów, 0 błędów**, w tym 4 nowe regresje: kombinacja kodów z raportu bez wykonywalnego planu, pojawienie się prawdziwego kandydata po jawnym sprawdzeniu bez wykonania naprawy, zachowanie blokady przy aktywnym/nieznanym VPN oraz brak panelu dla niezwiązanych awarii. Wynik `Artifacts/RoutePanelUnitValidation.xcresult`, log `Artifacts/tmp/route-panel-tests.log`.
+- Lokalizacje: **392 klucze × 24 języki**, placeholdery zgodne; plist projektu i `git diff --check` poprawne.
+- Natywne oględziny przez `abc-desktop`: realne okno Debug z kontrolowanym scenariuszem `--scenario=route-recheck --ui-light` odtwarza trzy kody z raportu i nieaktywny VPN bez planu. Panel „Usuń pozostałe trasy VPN” i przycisk „Sprawdź kandydata” były widoczne. Kliknięcie uruchomiło postęp diagnozy, a po powrocie tych samych wyników panel nadal był widoczny; nie pojawiło się wykonanie naprawy. To test prezentacji z fixture, nie potwierdzenie skuteczności naprawy rzeczywistej sieci. Okno testowe zamknięto i oddano pulpit.
+
+Przed poprawką porównano również rzeczywiste wydania 0.3.1 oraz 0.4.0 na tym hoście: oba pokazały kandydata ośmiu tras. Pakiet pobrany z publicznego kanału ITORG miał identyczny SHA-256 jak wydany 0.4.0; nie stwierdzono podmiany instalatora. Nie wykonano napraw na hoście ani na komputerze ze zgłoszenia. Backend pulpitu zgłaszał `abc-desktop`, `ready: true` i aktywne zgody Accessibility/ScreenRecording; nie zwrócił osobnych pól DPI/OCR/overlay/protectedWindows. Most miał ograniczenie mapowania okna arkusza Findera; nie wykorzystywano tego arkusza jako dowodu testu aplikacji.
+
+Wydanie `Tools/BuildPKG.sh --skip-build --notary-profile NetUnstick --update-feed` zakończyło się kodem 0. Apple przyjął zgłoszenie **`ada3343a-5d7f-46c0-ad8a-932a5cc7335b`**: **`Accepted`**, `statusCode: 0`, `issues: null`. Bilet dołączony i zweryfikowany; PKG i wyodrębniona aplikacja zaakceptowane przez Gatekeeper jako `Notarized Developer ID`. Weryfikacja dostarczonego payloadu potwierdziła helper i jego wymagania podpisu oraz instalację wyłącznie do `/Applications`, bez skryptów instalacyjnych.
+
+Gotowy **`Artifacts/Distribution/NetUnstick-0.4.1-16-arm64.pkg`**, **2 083 526 bajtów**, SHA-256:
+
+```text
+319b658d3ac6faf6d6fff1d9244b0fc1b0ec31292babe8452c73c0a121fb439d
+```
+
+Testy `AppUpdate` z przygotowanym wydaniem: **10 testów, 0 błędów**, w tym rzeczywisty podpisany manifest i nowy notaryzowany PKG (kontrolowany transport HTTP, prawdziwa weryfikacja pliku, bez instalacji). Log `Artifacts/tmp/route-panel-publication-tests.log`. Wygenerowano podpisany kanał w `Artifacts/UpdatePublication/` i ZIP **`Artifacts/Distribution/NetUnstick-Updates-0.4.1-16.zip`**: 12 plików, 6 015 798 bajtów, poprawna integralność archiwum i identyczny PKG. Poprzednie wersjonowane instalatory zachowano. Nowe wydanie nie zostało w tej turze zainstalowane ani opublikowane w ITORG; pliki są gotowe do przekazania według `docs/updates-itorg.md`.

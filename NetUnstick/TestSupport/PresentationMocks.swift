@@ -33,6 +33,15 @@ import NetUnstickNetwork
         try await Task.sleep(for: scenario == "operation-progress" ? .seconds(8) : .milliseconds(450))
         try Task.checkCancellation()
         let now = Date(timeIntervalSince1970: 1_700_000_000)
+        if scenario == "route-recheck" {
+            return [("default_route", "residualDefaultRoute"), ("local_subnet_route", "localRouteViaTunnel"),
+                    ("interface_consistency", "unstableAfterDisconnect")].map { id, code in
+                try! OperationResult(operationID: id, name: id, kind: .diagnostic,
+                    startedAt: now, endedAt: now, outcome: .failure,
+                    after: EvidenceSanitizer.sanitize([.errorCode: .errorCode(code)]),
+                    error: try! OperationError(domain: "network_diagnosis", code: code))
+            }
+        }
         let names = ["network", "dns", "route", "bonjour"]
         return names.map { name in
             let bad = (scenario == "dns-residue" && name == "dns") || (scenario == "route-blocked" && name == "route") || (scenario == "bonjour-denied" && name == "bonjour") || (scenario == "permission-denied" && name == "bonjour") || (scenario == "timeout" && name == "network") || (scenario == "no-receiver" && name == "bonjour")

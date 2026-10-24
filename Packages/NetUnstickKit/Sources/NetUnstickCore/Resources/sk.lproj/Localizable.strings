@@ -288,6 +288,7 @@
 "repair_retry" = "Zopakovať kontrolu bez zmien systému";
 "repair_route_impact" = "Miestna prevádzka sa vráti na fyzické rozhranie. Spojenia používajúce pôvodný tunel sa môžu prerušiť.";
 "repair_routes_count" = "Tunelové trasy prekrývajúce miestnu sieť: %lld";
+"repair_routes_recheck" = "Bola zistená trasa cez tunel. Preverte návrh a znova skontrolujte stav VPN a aktuálne trasy. Kontrola nemení nastavenia siete.";
 "repair_short_interruption" = "Krátke prerušenie pripojenia";
 "repair_verification" = "Získať nový stav a zopakovať: %@";
 "repair_verified" = "Opravené. Nová kontrola potvrdila zlepšenie.";

@@ -288,6 +288,7 @@
 "repair_retry" = "Athdhéan an seiceáil gan athruithe córais";
 "repair_route_impact" = "Fillfidh trácht áitiúil ar an gcomhéadan fisiciúil. D’fhéadfaí cur isteach ar cheangail a úsáideann an sean-tollán.";
 "repair_routes_count" = "Ródanna tolláin a fhorluíonn an líonra áitiúil: %lld";
+"repair_routes_recheck" = "Braitheadh bealach trí thollán. Athbhreithnigh an moladh chun stádas VPN agus na bealaí reatha a sheiceáil arís. Ní athraíonn an tseiceáil seo socruithe líonra.";
 "repair_short_interruption" = "Cur isteach gairid ar an gceangal";
 "repair_verification" = "Gabh staid nua agus athdhéan: %@";
 "repair_verified" = "Deisithe. Dheimhnigh seiceáil nua an feabhas.";

@@ -288,6 +288,7 @@
 "repair_retry" = "Ponovi provjeru bez promjena sustava";
 "repair_route_impact" = "Lokalni promet vraća se na fizičko sučelje. Veze koje koriste prethodni tunel mogu se prekinuti.";
 "repair_routes_count" = "Tunelske rute koje preklapaju lokalnu mrežu: %lld";
+"repair_routes_recheck" = "Otkrivena je ruta kroz tunel. Pregledajte prijedlog kako biste ponovno provjerili VPN i trenutačne rute. Provjera ne mijenja mrežne postavke.";
 "repair_short_interruption" = "Kratak prekid veze";
 "repair_verification" = "Zabilježi novo stanje i ponovi: %@";
 "repair_verified" = "Popravljeno. Nova provjera potvrdila je poboljšanje.";

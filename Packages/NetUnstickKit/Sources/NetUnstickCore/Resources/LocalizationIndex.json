@@ -315,6 +315,7 @@
     "repair_retry",
     "repair_route_impact",
     "repair_routes_count",
+    "repair_routes_recheck",
     "repair_short_interruption",
     "repair_verification",
     "repair_verified",

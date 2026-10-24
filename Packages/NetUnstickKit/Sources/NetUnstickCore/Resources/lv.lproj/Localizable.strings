@@ -288,6 +288,7 @@
 "repair_retry" = "Atkārtot pārbaudi bez sistēmas izmaiņām";
 "repair_route_impact" = "Lokālā plūsma atgriežas fiziskajā saskarnē. Savienojumi, kas izmantoja agrāko tuneli, var pārtrūkt.";
 "repair_routes_count" = "Tuneļa maršruti, kas pārklāj lokālo tīklu: %lld";
+"repair_routes_recheck" = "Konstatēts maršruts caur tuneli. Pārskatiet ieteikumu, lai atkārtoti pārbaudītu VPN statusu un pašreizējos maršrutus. Pārbaude nemaina tīkla iestatījumus.";
 "repair_short_interruption" = "Īss savienojuma pārtraukums";
 "repair_verification" = "Fiksēt jaunu stāvokli un atkārtot: %@";
 "repair_verified" = "Salabots. Jauna pārbaude apstiprināja uzlabojumu.";

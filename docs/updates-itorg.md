@@ -25,7 +25,7 @@ użytkownik uruchamia aplikację ponownie. Nie ma cichej instalacji ani zmian up
 Istniejący notaryzowany PKG można przygotować oddzielnie:
 
 ```sh
-Tools/BuildUpdateFeed.sh --package Artifacts/Distribution/NetUnstick-0.4.0-15-arm64.pkg
+Tools/BuildUpdateFeed.sh --package Artifacts/Distribution/NetUnstick-0.4.1-16-arm64.pkg
 ```
 
 Narzędzie odrzuca `UNNOTARIZED`, brak biletu Apple, niewłaściwy podpis, inny bundle,
