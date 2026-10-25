@@ -19,10 +19,10 @@ enum StatusTone {
 
     init(state: NetworkPresentationState) {
         switch state {
-        case .healthy: self = .success
+        case .healthy, .residual, .residualRoutes: self = .success
         case .problem: self = .failure
         case .investigating: self = .accent
-        case .unknown, .residual, .residualRoutes, .serverNotReady: self = .attention
+        case .unknown, .serverNotReady: self = .attention
         }
     }
 
