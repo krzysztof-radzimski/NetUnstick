@@ -466,3 +466,35 @@ Gotowy **`Artifacts/Distribution/NetUnstick-0.4.1-16-arm64.pkg`**, **2 083 526 b
 ```
 
 Testy `AppUpdate` z przygotowanym wydaniem: **10 testów, 0 błędów**, w tym rzeczywisty podpisany manifest i nowy notaryzowany PKG (kontrolowany transport HTTP, prawdziwa weryfikacja pliku, bez instalacji). Log `Artifacts/tmp/route-panel-publication-tests.log`. Wygenerowano podpisany kanał w `Artifacts/UpdatePublication/` i ZIP **`Artifacts/Distribution/NetUnstick-Updates-0.4.1-16.zip`**: 12 plików, 6 015 798 bajtów, poprawna integralność archiwum i identyczny PKG. Poprzednie wersjonowane instalatory zachowano. Nowe wydanie nie zostało w tej turze zainstalowane ani opublikowane w ITORG; pliki są gotowe do przekazania według `docs/updates-itorg.md`.
+
+## Zielony wynik diagnostyki i wydanie 0.4.2 (17) — 7 listopada 2026
+
+Wydanie zawiera zielony akcent karty sprawnej sieci także dla stanów `residual` i `residualRoutes`. Osobne ostrzeżenia o VPN oraz blokadzie napraw zachowują bursztynowy akcent. Wersję aplikacji i helpera zwiększono do **0.4.2 (17)** w konfiguracjach Debug i Release, aby kanał aktualizacji rozpoznał wydanie jako nowsze od opublikowanego 0.4.1 (16).
+
+Weryfikację przeprowadzono na macOS **27.2**, Apple Silicon arm64, Xcode **27.2 (27B52)**. Polecenie `Tools/BuildPKG.sh --notary-profile NetUnstick --update-feed` zakończyło się kodem 0.
+
+| Weryfikacja | Wynik |
+| --- | --- |
+| Podpisany Release i helper | `BUILD SUCCEEDED`; kontrola `check-helper-bundle.sh --require-developer-id` poprawna przed i po spakowaniu. Minimum macOS 14.0, architektura arm64, hardened runtime i znacznik czasu Apple. |
+| Instalator | Developer ID Installer zespołu `UGL4ZTH3C6`; zweryfikowany payload z aplikacją i helperem wyłącznie w `/Applications`, bez skryptów instalacyjnych. |
+| Notaryzacja Apple | Zgłoszenie `f4866392-c714-45fc-a81b-ab6332ec025d`: `Accepted`, `statusCode: 0`, `issues: null`. Bilet dołączony i zweryfikowany; Gatekeeper zaakceptował instalator oraz aplikację jako `Notarized Developer ID`. |
+| Testy prezentacji | **45 testów, 0 błędów, 0 pominięć**; `Artifacts/Release-0.4.2-17-Presentation.xcresult`. |
+| Testy `AppUpdate` z `NETUNSTICK_UPDATE_PUBLICATION` | **10 testów, 0 błędów**, w tym pobranie rzeczywistego PKG przez kontrolowany transport HTTP oraz weryfikacja podpisanego manifestu, hashy i pakietu bez instalacji. |
+| Lokalizacje i konfiguracja | 392 klucze × 24 języki, zgodne placeholdery; poprawny plist projektu. |
+| Archiwum dla ITORG | **9 plików, 2 070 303 bajty**; integralność ZIP poprawna, PKG i manifest zgodne bajt po bajcie z przygotowanym kanałem. Archiwum zawiera tylko nowe wydanie oraz instrukcję przekazania; poprzednie artefakty pozostają zachowane. |
+
+Gotowy instalator: `Artifacts/Distribution/NetUnstick-0.4.2-17-arm64.pkg`, **2 086 847 bajtów**, SHA-256:
+
+```text
+28b8ecff1c90042d102ecf412e81af27366d15a2c473c4c375c3bf9a72698d14
+```
+
+Paczka dla projektu ITORG: `Artifacts/Distribution/NetUnstick-Updates-0.4.2-17.zip`, SHA-256:
+
+```text
+40d33722149ee1dbc5a24ff69b1753d11419af492c13f8f6873b021923b4053c
+```
+
+Logi wydania i testów: `Artifacts/Distribution/release-0.4.2-17.log`, `release-0.4.2-17-presentation-tests.log` i `release-0.4.2-17-update-tests.log`. Wyniki i log Apple znajdują się w `Artifacts/Distribution/NetUnstick-0.4.2-17-arm64-notary*.json`.
+
+Repozytorium ITORG zbadano tylko odczytowo: `components/NetUnstickPage.tsx` pobiera wersję oraz URL instalatora z `public/NetUnstick/updates/latest.json`; testy `netunstick-updates.test.mjs` wymagają wcześniejszego eksportu strony do `out/`. `PRZEKAZANIE-ITORG.txt` w paczce opisuje podmianę manifestu, dodanie nowego PKG z sumą, zachowanie wcześniejszych wydań oraz kontrole i publikację po stronie ITORG. W tej próbie nie instalowano aktualizacji, nie wykonywano napraw sieci ani publikacji strony; nie powtarzano oględzin UI. Paczka jest gotowa do wdrożenia według [updates-itorg.md](updates-itorg.md).
